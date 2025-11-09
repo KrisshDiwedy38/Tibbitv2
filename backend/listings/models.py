@@ -5,7 +5,7 @@ from django.contrib.postgres.fields import ArrayField
 
 class Listings(models.Model):
     id = models.AutoField(primary_key=True)
-    owner_id = models.ForeignKey("users.User", on_delete=models.CASCADE)
+    owner_id = models.ForeignKey("users.User", on_delete=models.CASCADE, related_name='listing_made')
     title = models.CharField(max_length=100)
     description = models.TextField()
     price = models.PositiveIntegerField()
@@ -22,7 +22,7 @@ class Listings(models.Model):
         ('inactive','Inactive'),
         ('pending','Pending')
     ]
-    status = models.CharField(
+    listing_status = models.CharField(
         max_length=20,
         choices=STATUS_CHOICES,
        default='pending'       
