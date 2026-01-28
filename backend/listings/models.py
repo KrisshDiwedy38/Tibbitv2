@@ -103,7 +103,20 @@ class Listings(models.Model):
    
    def __str__(self):
       return f"{self.title} - ${self.price}"
+   
+   def increment_views(self):
+      """Increment listing view count"""
+      self.views_count += 1
+      self.save(update_fields=['views_count'])
+   
+   def mark_as_sold(self):
+      """ Mark listing as sold"""
+      self.status = 'sold'
+      self.save(update_fields=['status'])
 
+   def is_active(self):
+      """Checking if the listing is active"""
+      return self.status == 'active'
 
 class ListingImage(models.Model):
    """

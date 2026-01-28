@@ -64,7 +64,7 @@ class CustomUser(AbstractUser):
    graduation_year = models.IntegerField(
       blank=True,
       null=True,
-      validators=[MaxValueValidator(2020), MaxValueValidator(2035)]
+      validators=[MinValueValidator(2020), MaxValueValidator(2035)]
    )
 
    #Timestamps

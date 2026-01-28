@@ -41,12 +41,18 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    # 'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'rest_framework_simplejwt',
+    'corsheaders',
+    'channels',
+    'django_filters',
     'users',
     'listings',
     'messaging',
@@ -145,8 +151,18 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Custon User Model
 AUTH_USER_MODEL = 'users.CustomUser'
 
+# Media files configuration
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
 # Email Config for development
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# CHANNEL_LAYERS = {
+#     'default': {
+#         'BACKEND': 'channels.layers.InMemoryChannelLayer'
+#     }
+# }
 
 # OTP Settings 
 OTP_EXPIRY_MINUTES = 10

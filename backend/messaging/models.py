@@ -44,6 +44,15 @@ class Conversation(models.Model):
    def __str__(self):
       return f"Conversation: {self.buyer.email} & {self.seller.email} about {self.listing.title}"
    
+   def get_other_user(self, current_user):
+      """Getting the other participant in the conversation"""
+
+      return self.seller if current_user == self.buyer else self.buyer
+
+   def unread_count(self, user):
+      """Number of unread messages a user has"""
+      return self.messages.filter(is_read = False).exclude(sender=user).count()
+
 
 class Message(models.Model):
    """
@@ -74,3 +83,10 @@ class Message(models.Model):
    
    def __str__(self):
       return f"Message from {self.sender.email} at {self.timestamp}"
+   
+   def mark_as_read(self):
+      """Marking message as seen/read"""
+
+      if not self.is_read:
+         self.is_read=True
+         self.save(update_fields=['is_read'])

@@ -80,6 +80,111 @@ class Transaction(models.Model):
    def __str__(self):
       return f"Transaction #{self.id}: {self.seller.email} → {self.buyer.email}"
     
+   def generate_otps(self):
+      """
+      Generate OTPs for both seller and buyer
+      Returns (seller_otp, buyer_otp)
+      """
+      # Generate seller OTP
+      self.seller_otp = str(secrets.randbelow(1000000)).zfill(6)
+      self.seller_otp_created_at = timezone.now()
+      
+      # Generate buyer OTP
+      self.buyer_otp = str(secrets.randbelow(1000000)).zfill(6)
+      self.buyer_otp_created_at = timezone.now()
+      
+      self.save()
+      return self.seller_otp, self.buyer_otp
+   
+   def is_seller_otp_valid(self):
+      """Check if seller OTP is still valid (24 hours)"""
+      if not self.seller_otp_created_at:
+         return False
+      expiry_time = timedelta(hours=24)
+      return timezone.now() - self.seller_otp_created_at < expiry_time
+   
+   def is_buyer_otp_valid(self):
+      """Check if buyer OTP is still valid (24 hours)"""
+      if not self.buyer_otp_created_at:
+         return False
+      expiry_time = timedelta(hours=24)
+      return timezone.now() - self.buyer_otp_created_at < expiry_time
+   
+   def verify_seller_otp(self, entered_otp):
+      """
+      Verify seller's OTP (entered by buyer)
+      Returns (success: bool, message: str)
+      """
+      if not self.seller_otp:
+         return False, "No OTP found for seller."
+      
+      if not self.is_seller_otp_valid():
+         return False, "Seller OTP has expired."
+      
+      if self.seller_otp != entered_otp:
+         return False, "Invalid seller OTP."
+      
+      # Mark seller as verified
+      self.seller_verified = True
+      self.seller_verified_at = timezone.now()
+      self.save()
+      
+      # Check if both parties verified
+      self._check_completion()
+      
+      return True, "Seller verified successfully!"
+   
+   def verify_buyer_otp(self, entered_otp):
+      """
+      Verify buyer's OTP (entered by seller)
+      Returns (success: bool, message: str)
+      """
+      if not self.buyer_otp:
+         return False, "No OTP found for buyer."
+      
+      if not self.is_buyer_otp_valid():
+         return False, "Buyer OTP has expired."
+      
+      if self.buyer_otp != entered_otp:
+         return False, "Invalid buyer OTP."
+      
+      # Mark buyer as verified
+      self.buyer_verified = True
+      self.buyer_verified_at = timezone.now()
+      self.save()
+      
+      # Check if both parties verified
+      self._check_completion()
+      
+      return True, "Buyer verified successfully!"
+   
+   def _check_completion(self):
+      """Internal method to check if transaction is complete"""
+      if self.seller_verified and self.buyer_verified:
+         self.status = 'completed'
+         self.completed_at = timezone.now()
+         
+         # Mark listing as sold
+         if self.listing:
+               self.listing.mark_as_sold()
+         
+         self.save()
+   
+   def cancel(self, cancelled_by):
+      """
+      Cancel the transaction
+      cancelled_by: User instance who cancelled
+      """
+      self.status = 'cancelled'
+      self.cancelled_at = timezone.now()
+      self.notes = f"Cancelled by {cancelled_by.email} at {timezone.now()}"
+      self.save()
+   
+   def is_completed(self):
+      """Check if transaction is completed"""
+      return self.status == 'completed'
+
+
 class Review(models.Model):
    """
    Reviews/ratings after transaction completion
