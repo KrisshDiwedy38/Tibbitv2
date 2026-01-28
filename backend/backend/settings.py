@@ -142,4 +142,13 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# Custon User Model
 AUTH_USER_MODEL = 'users.CustomUser'
+
+# Email Config for development
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# OTP Settings 
+OTP_EXPIRY_MINUTES = 10
+OTP_MAX_ATTEMPTS = 5
+
