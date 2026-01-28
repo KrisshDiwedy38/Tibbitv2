@@ -84,5 +84,73 @@ class CustomUser(AbstractUser):
       verbose_name_plural = 'Users'
       ordering = ['-created_at']
 
-   
+   def __str__(self):
+      return self.email
 
+   def save(self, *args, **kwargs):
+      """
+      Overiding Save to auto-generate username
+      """
+
+      if not self.username:
+         self.username = self.email.split('@')[0]
+      super().save(*args, **kwargs)
+
+   def get_full_name(self):
+      
+      full_name = f'{self.first_name} {self.last_name}'
+      return full_name.strip()
+
+   def generate_otp(self):
+      """
+      Generating a secure 6-digit OTP to very student email.
+      Returns the generated OTP 
+      """
+
+      otp = str(secrets.randbelow(1000000)).zfill(6)
+
+      self.email_otp = otp
+      self.otp_created_at = timezone.now()
+      self.otp_attempts= 0
+      self.save()
+
+      return otp
+   
+   def is_otp_valid(self):
+      """
+      Checking if the OTP has not expired.
+      """
+
+      if not self.otp_created_at:
+         return False
+      
+      expiry_time = timedelta(minutes=10)
+      return timezone.now() - self.otp_created_at < expiry_time
+   
+   def verify_otp(self, entered_otp):
+      """
+      Verifying entered OTP.
+      Returns (success : bool , message : str)
+      """
+
+      if not self.email_otp:
+         return False, "No OTP found, Please request a new OTP"
+      
+      if self.otp_attempts >= 5:
+         return False, "Too many failed attempts, Please request a new OTP"
+
+      if not self.is_otp_valid():
+         return False, "OTP has expired, Please request a new OTP"
+      
+      if self.email_otp != entered_otp:
+         self.otp_attempts += 1
+         self.save()
+         return False, f"Invalid OTP , {5 - self.otp_attempts} attempts remaining."
+      
+      self.is_email_verified = True
+      self.email_otp = None
+      self.otp_created_at = None
+      self.otp_attempts = 0
+      self.save()
+
+      return True, "Email Verified successfully!"
