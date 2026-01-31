@@ -8,4 +8,4 @@ venv
 .env 
 
 # Pycache
-__pycache__
+__pycache__/
