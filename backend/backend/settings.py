@@ -13,6 +13,7 @@ import psycopg2
 import os
 from dotenv import load_dotenv
 from pathlib import Path
+from datetime import timedelta
 
 load_dotenv()
 
@@ -50,6 +51,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework_simplejwt',
+    'rest_framework_simplejwt.token_blacklist',
     'corsheaders',
     'channels',
     'django_filters',
@@ -167,4 +169,19 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 # OTP Settings 
 OTP_EXPIRY_MINUTES = 10
 OTP_MAX_ATTEMPTS = 5
+
+REST_FRAMEWORK = {
+   'DEFAULT_AUTHENTICATION_CLASSES' : ['rest_framework_simplejwt.authentication.JWTAuthentication'],
+   'DEFAULT_PERMISSION_CLASSES' : ['rest_framework.permissions.IsAuthenticated']
+}
+
+SIMPLE_JWT = {
+   'ACCESS_TOKEN_LIFETIME' : timedelta(minutes=15),
+   'REFRESH_TOKEN_LIFETIME' : timedelta(days=7),
+   'ROTATE_REFRESH_TOKENS' : True,
+   'BLACKLIST_AFTER_ROTATION' : True,
+   'AUTH_HEADER_TYPES' : ('Bearer',)
+}
+
+
 
