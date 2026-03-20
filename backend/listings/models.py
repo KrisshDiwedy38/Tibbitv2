@@ -51,7 +51,7 @@ class Listings(models.Model):
       decimal_places=2,
       validators= [MinValueValidator(0)]
       )
-   
+
    # Categorization 
    category = models.ForeignKey(
         Category,
@@ -73,7 +73,7 @@ class Listings(models.Model):
    )
    
    # Location
-   location = models.CharField(max_length=200)  # e.g., "Main Campus", "North Dorms"
+   location = models.CharField(max_length=200) 
    
    # Status
    status = models.CharField(
@@ -127,7 +127,7 @@ class ListingImage(models.Model):
       on_delete=models.CASCADE,
       related_name='images'
    )
-   image = models.ImageField(upload_to='listing_images/')
+   image = models.ImageField(upload_to='backend/media/listing_images/')
    order = models.IntegerField(default=0)  # For ordering images (first image is thumbnail)
    uploaded_at = models.DateTimeField(auto_now_add=True)
    
