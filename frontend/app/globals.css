@@ -1,0 +1,47 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #f4f4f5;
+  --foreground: #1a1a1a;
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  overflow-x: hidden;
+}
+
+.brutal-border {
+  border: 4px solid #1a1a1a;
+}
+
+.brutal-transition {
+  transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.brutal-card {
+  @apply brutal-border brutal-transition bg-white shadow-brutal;
+}
+
+.brutal-card:hover {
+  @apply shadow-brutal-hover -translate-y-[3px] -translate-x-[3px];
+}
+
+.brutal-btn {
+  @apply brutal-border brutal-transition font-bold text-lg px-6 py-2 shadow-brutal active:shadow-none active:translate-x-[6px] active:translate-y-[6px] outline-none;
+}
+
+.brutal-input {
+  @apply brutal-border px-4 py-3 bg-white w-full text-lg focus:outline-none focus:ring-4 focus:ring-accent/50 brutal-transition;
+}
+
+/* Translucent top bar blur effect */
+.glass-header {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 4px solid #1a1a1a;
+}
