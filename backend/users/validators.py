@@ -14,7 +14,7 @@ def validate_uni_email(email):
    except IndexError:
       raise ValidationError("Invalid email format")
    
-   if not University.objects(email_domain= domain, in_active =True).exists():
+   if not University.objects.filter(email_domain= domain, is_active=True).exists():
       raise ValidationError(
          f"Email domain {domain} is not from a supported university. Please take your official university email"
       )

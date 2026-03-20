@@ -54,7 +54,7 @@ class CustomUser(AbstractUser):
    #Profile Fields
    phone_number = models.CharField(max_length=15, blank=True, null=True)
    profile_picture = models.ImageField(
-      upload_to='profile_pictures/',
+      upload_to='backend/media/profile_pictures/',
       blank=True,
       null=True,
       default='profile_pictures/default.jpg'
@@ -113,6 +113,18 @@ class CustomUser(AbstractUser):
       self.otp_created_at = timezone.now()
       self.otp_attempts= 0
       self.save()
+
+      from django.core.mail import send_mail
+      from django.conf import settings
+      
+      subject = 'Your Tibbit Verification OTP'
+      message = f'Your OTP (One Time Password) is {otp}. It is valid for 10 minutes.'
+      email_from = getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@tibbit.com')
+      
+      try:
+          send_mail(subject, message, email_from, [self.email])
+      except Exception:
+          pass
 
       return otp
    
