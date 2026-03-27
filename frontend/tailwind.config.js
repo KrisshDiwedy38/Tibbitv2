@@ -20,6 +20,17 @@ module.exports = {
         "brutal-hover": "3px 3px 0px 0px rgba(26, 26, 26, 1)",
         "brutal-sm": "4px 4px 0px 0px rgba(26, 26, 26, 1)",
         "brutal-lg": "12px 12px 0px 0px rgba(26, 26, 26, 1)",
+      },
+      keyframes: {
+        shake: {
+          '0%, 100%': { transform: 'rotate(-2deg)' },
+          '25%': { transform: 'rotate(2deg)' },
+          '50%': { transform: 'rotate(-6deg)' },
+          '75%': { transform: 'rotate(2deg)' },
+        }
+      },
+      animation: {
+        shake: 'shake 0.4s ease-in-out infinite',
       }
     },
   },

@@ -1,11 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ArrowRight, Sparkles, Zap, Shield, Rocket } from "lucide-react";
+import { ArrowRight, Sparkles, BookOpen, BadgeCheck, PiggyBank } from "lucide-react";
 
 export default function WaitlistPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [email, setEmail] = useState("");
+  const [universityName, setUniversityName] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
 
@@ -22,7 +23,7 @@ export default function WaitlistPage() {
     };
   }, [isModalOpen]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,10}$/i;
@@ -31,15 +32,42 @@ export default function WaitlistPage() {
       return;
     }
 
-    if (email) {
+    if (email && universityName) {
       setError("");
-      // Setup actual waitlist API call here
-      setSubmitted(true);
-      setTimeout(() => {
-        setIsModalOpen(false);
-        setSubmitted(false);
-        setEmail("");
-      }, 3000);
+
+      try {
+        const response = await fetch("http://127.0.0.1:8000/api/users/waitlist/", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email,
+            university_name: universityName,
+          }),
+        });
+
+        if (response.ok) {
+          setSubmitted(true);
+          setTimeout(() => {
+            setIsModalOpen(false);
+            setSubmitted(false);
+            setEmail("");
+            setUniversityName("");
+          }, 3000);
+        } else {
+          const data = await response.json();
+          if (data.email) {
+            setError(data.email[0]); // e.g. "Waitlist entry with this email already exists."
+          } else {
+            setError("Something went wrong. Please try again.");
+          }
+        }
+      } catch (err) {
+        setError("Network error. Please try again.");
+      }
+    } else if (!universityName) {
+      setError("Please enter your university name.");
     }
   };
 
@@ -49,14 +77,11 @@ export default function WaitlistPage() {
         {/* Navigation Bar */}
         <nav className="fixed top-0 w-full z-40 glass-header px-6 py-4 flex justify-between items-center transition-all">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-primary border-4 border-dark rounded-full flex items-center justify-center brutal-shadow">
-              <span className="font-black text-dark text-xl leading-none">T</span>
-            </div>
-            <span className="font-black text-2xl tracking-tight hidden sm:block">Tibbit</span>
+            <img src="/tibbit_header_logo.jpg" alt="Tibbit Logo" className="h-auto w-16 object-contain" />
           </div>
           <div className="flex gap-4">
-            <a href="#About" className="font-bold text-lg hidden md:block hover:underline self-center underline-offset-4">About Us</a>
-            <a href="#Features" className="font-bold text-lg hidden md:block hover:underline self-center underline-offset-4">Features</a>
+            <a href="#about" className="font-bold text-lg hidden md:block hover:underline self-center underline-offset-4">About Us</a>
+            <a href="#features" className="font-bold text-lg hidden md:block hover:underline self-center underline-offset-4">Features</a>
             <button
               onClick={() => setIsModalOpen(true)}
               className="brutal-btn bg-secondary text-white hover:bg-white hover:text-dark flex items-center gap-2 group"
@@ -70,12 +95,12 @@ export default function WaitlistPage() {
         {/* Hero Section */}
         <header className="pt-32 pb-20 px-6 md:px-12 lg:px-24 bg-bgStart flex flex-col md:flex-row items-center justify-between border-b-4 border-dark relative overflow-hidden">
           <div className="w-full md:w-1/2 z-10">
-            <div className="inline-block bg-accent text-white font-bold px-4 py-2 border-4 border-dark shadow-brutal-sm mb-6 rotate-[-2deg]">
+            <div className="inline-block bg-accent text-white font-bold px-4 py-2 border-4 border-dark shadow-brutal-sm mb-6 rotate-[-2deg] hover:animate-shake transition-transform duration-75 cursor-default">
               🚀 COMING SOON
             </div>
             <h1 className="text-5xl md:text-7xl font-black uppercase leading-[1.1] mb-6">
               The marketplace <br />
-              <span className="bg-primary px-2 border-4 border-dark shadow-brutal-sm mt-2 inline-block">that feels alive.</span>
+              <span className="bg-primary px-2 border-4 border-dark shadow-brutal-sm mt-2 inline-block">your campus deserved.</span>
             </h1>
             <p className="text-xl md:text-2xl font-medium mb-10 max-w-xl">
               Buy, sell, and exchange with fellow students in a secure, verified environment. From textbooks to furniture, find everything you need within your university community.
@@ -113,26 +138,32 @@ export default function WaitlistPage() {
             {/* Feature Cards */}
             <div className="brutal-card bg-bgStart p-8 flex flex-col">
               <div className="w-16 h-16 bg-primary brutal-border shadow-brutal-sm flex items-center justify-center mb-6 text-dark rotate-[-5deg]">
-                <Zap className="w-8 h-8" />
+                <BookOpen className="w-8 h-8" />
               </div>
-              <h3 className="text-2xl font-black mb-4">Lightning Fast</h3>
-              <p className="text-lg font-medium">Browse, search, and checkout with zero friction. Optimized for speed and instant feedback.</p>
+              <h3 className="text-2xl font-black mb-4">Made for Campus Life</h3>
+              <p className="text-lg font-medium">
+                Buy textbooks, sell old gear, find deals from students in your own college. No strangers — just your campus community.
+              </p>
             </div>
 
             <div className="brutal-card bg-bgEnd p-8 flex flex-col translate-y-0 md:translate-y-8">
               <div className="w-16 h-16 bg-accent brutal-border shadow-brutal-sm flex items-center justify-center mb-6 text-white rotate-[3deg]">
-                <Shield className="w-8 h-8" />
+                <BadgeCheck className="w-8 h-8" />
               </div>
-              <h3 className="text-2xl font-black mb-4">Rock Solid</h3>
-              <p className="text-lg font-medium">Built with security first. Your data and transactions are protected by modern standards.</p>
+              <h3 className="text-2xl font-black mb-4">Students Trust Students</h3>
+              <p className="text-lg font-medium">
+                Every seller is a verified student like you. Ratings, reviews, and real profiles so you always know who you're dealing with.
+              </p>
             </div>
 
             <div className="brutal-card bg-[#fffbeb] p-8 flex flex-col">
               <div className="w-16 h-16 bg-secondary brutal-border shadow-brutal-sm flex items-center justify-center mb-6 text-white rotate-[-2deg]">
-                <Rocket className="w-8 h-8" />
+                <PiggyBank className="w-8 h-8" />
               </div>
-              <h3 className="text-2xl font-black mb-4">Vibrant Community</h3>
-              <p className="text-lg font-medium">Connect with buyers and sellers who value aesthetics and functional design.</p>
+              <h3 className="text-2xl font-black mb-4">Keep More, Spend Less</h3>
+              <p className="text-lg font-medium">
+                Zero listing fees. More money stays in your pocket — whether you're hustling to sell or hunting for the best deal on a budget.
+              </p>
             </div>
           </div>
         </section>
@@ -142,7 +173,7 @@ export default function WaitlistPage() {
           <div className="max-w-4xl mx-auto border-8 border-primary bg-bgStart text-dark p-8 md:p-16 shadow-[12px_12px_0_0_#ff4da6]">
             <h2 className="text-4xl md:text-5xl font-black uppercase mb-8">About Us</h2>
             <p className="text-xl md:text-2xl font-medium leading-relaxed mb-8">
-              We are tired of boring, gray web apps. Tibbit is a rebellion against generic corporate design. We are building a marketplace that is bold, accessible, and uniquely yours.
+              Tibbit was built by students, for students. We got tired of overpriced textbooks, sketchy Facebook groups, and selling to strangers. So we built a marketplace that's exclusive to campus — where every buyer and seller is a verified student just like you. Bold, fast, and 100% college-native.
             </p>
             <button
               onClick={() => setIsModalOpen(true)}
@@ -150,6 +181,25 @@ export default function WaitlistPage() {
             >
               Join the Rebellion
             </button>
+          </div>
+        </section>
+        {/* Founder Note */}
+        <section id="founder-note" className="py-20 px-6 md:px-12 bg-bgStart border-b-4 border-dark">
+          <div className="max-w-3xl mx-auto border-4 border-dark bg-white p-8 md:p-12 shadow-brutal">
+            <h4 className="text-2xl md:text-3xl font-black uppercase mb-6 text-center">Note from the Founder</h4>
+            <div className="flex flex-col items-center">
+              <img
+                src="/tibbit_founder_img.png"
+                alt="Krissh Diwedy - Founder"
+                className="w-28 h-28 rounded-full mb-6 border-4 border-dark shadow-brutal-sm hover:scale-105 transition-transform bg-primary object-cover"
+              />
+              <p className="text-lg md:text-xl font-medium leading-relaxed text-center">
+                Hey — I'm Krissh, and I built Tibbit because campus life is expensive enough already.
+                Spent way too much on a calculus textbook I used twice. Sold my old laptop to a random on the internet and held my breath the whole time. There had to be a better way.
+                <br></br>Tibbit isn't just another app. It's the marketplace I wish existed when I was broke, stressed, and drowning in stuff I didn't need anymore. Built for the culture. Built for us.
+                No corporate fluff. No VC buzzwords. Just students helping students.
+              </p>
+            </div>
           </div>
         </section>
 
@@ -198,6 +248,17 @@ export default function WaitlistPage() {
                       className="brutal-input"
                     />
                     {error && <p className="text-red-500 font-bold mt-2 text-sm">{error}</p>}
+                  </div>
+                  <div>
+                    <label className="block font-black uppercase mb-2">University Name</label>
+                    <input
+                      type="text"
+                      required
+                      value={universityName}
+                      onChange={(e) => setUniversityName(e.target.value)}
+                      placeholder="e.g. Maggi & Regrets University"
+                      className="brutal-input"
+                    />
                   </div>
                   <button type="submit" className="brutal-btn bg-primary text-dark mt-2 py-4 text-xl">
                     Reserve Waitlist Spot
