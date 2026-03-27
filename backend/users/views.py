@@ -7,7 +7,8 @@ from .serializers import (
     OTPVerifySerializer,
     ResendOTPSerializer,
     LoginSerializer,
-    UniversitySerializer
+    UniversitySerializer,
+    WaitlistEntrySerializer
 )
 from .models import University
 
@@ -96,3 +97,9 @@ class UserProfileView(APIView):
             "graduation_year": user.graduation_year,
             "university": user.university.name if user.university else None
         }, status=status.HTTP_200_OK)
+
+from rest_framework import generics
+
+class WaitlistCreateView(generics.CreateAPIView):
+    permission_classes = [AllowAny]
+    serializer_class = WaitlistEntrySerializer

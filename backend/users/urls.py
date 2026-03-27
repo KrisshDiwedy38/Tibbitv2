@@ -6,7 +6,8 @@ from .views import (
     OTPVerifyView,
     ResendOTPView,
     LoginView,
-    UserProfileView
+    UserProfileView,
+    WaitlistCreateView
 )
 
 urlpatterns = [
@@ -17,4 +18,5 @@ urlpatterns = [
     path('login/', LoginView.as_view(), name='login'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('profile/', UserProfileView.as_view(), name='profile'),
+    path('waitlist/', WaitlistCreateView.as_view(), name='waitlist'),
 ]

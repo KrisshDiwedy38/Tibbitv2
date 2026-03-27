@@ -166,3 +166,19 @@ class CustomUser(AbstractUser):
       self.save()
 
       return True, "Email Verified successfully!"
+
+class WaitlistEntry(models.Model):
+   """
+   Model to store waitlist signups before full registration.
+   """
+   email = models.EmailField(unique=True)
+   university_name = models.CharField(max_length=200)
+   created_at = models.DateTimeField(auto_now_add=True)
+
+   class Meta:
+      verbose_name = 'Waitlist Entry'
+      verbose_name_plural = 'Waitlist Entries'
+      ordering = ['-created_at']
+
+   def __str__(self):
+      return f"{self.email} - {self.university_name}"

@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password
 from rest_framework_simplejwt.tokens import RefreshToken
-from .models import CustomUser, University
+from .models import CustomUser, University, WaitlistEntry
 
 
 class UniversitySerializer(serializers.ModelSerializer):
@@ -112,6 +112,8 @@ class LoginSerializer(serializers.Serializer):
       }
       return attrs
 
-
-         
-
+class WaitlistEntrySerializer(serializers.ModelSerializer):
+   class Meta:
+      model = WaitlistEntry
+      fields = ['email', 'university_name', 'created_at']
+      read_only_fields = ['created_at']
