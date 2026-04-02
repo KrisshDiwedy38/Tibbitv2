@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>TIBBIT | Student-Led Marketplace</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;800;900&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-dim": "#0e0e0e",
+                        "surface-tint": "#deffab",
+                        "on-primary-fixed": "#2e4800",
+                        "surface": "#0e0e0e",
+                        "on-tertiary-fixed-variant": "#6a006a",
+                        "error-container": "#b92902",
+                        "surface-container-lowest": "#000000",
+                        "secondary-container": "#1c19f5",
+                        "primary": "#deffab",
+                        "tertiary-dim": "#ff51fa",
+                        "surface-container": "#1a1a1a",
+                        "surface-variant": "#262626",
+                        "secondary-fixed": "#cdceff",
+                        "inverse-primary": "#456900",
+                        "error": "#ff7351",
+                        "on-surface": "#ffffff",
+                        "tertiary": "#ff51fa",
+                        "surface-container-highest": "#262626",
+                        "error-dim": "#d53d18",
+                        "on-tertiary-fixed": "#320032",
+                        "primary-fixed": "#abfc01",
+                        "inverse-surface": "#fcf9f8",
+                        "primary-container": "#abfc01",
+                        "outline-variant": "#484847",
+                        "secondary-dim": "#595fff",
+                        "on-secondary-fixed-variant": "#2120f7",
+                        "surface-bright": "#2c2c2c",
+                        "primary-fixed-dim": "#a0ed00",
+                        "tertiary-fixed": "#ff81f5",
+                        "background": "#0e0e0e",
+                        "on-secondary-fixed": "#0800b7",
+                        "on-error": "#450900",
+                        "on-secondary-container": "#d8d8ff",
+                        "surface-container-low": "#131313",
+                        "on-surface-variant": "#adaaaa",
+                        "secondary-fixed-dim": "#bcbeff",
+                        "secondary": "#8e94ff",
+                        "on-primary": "#436600",
+                        "outline": "#767575",
+                        "on-secondary": "#03007b",
+                        "on-tertiary-container": "#230023",
+                        "tertiary-fixed-dim": "#ff61f8",
+                        "on-error-container": "#ffd2c8",
+                        "primary-dim": "#a0ed00",
+                        "tertiary-container": "#fe00fe",
+                        "on-background": "#ffffff",
+                        "inverse-on-surface": "#565555",
+                        "on-tertiary": "#400040",
+                        "surface-container-high": "#20201f",
+                        "on-primary-container": "#3c5c00",
+                        "on-primary-fixed-variant": "#446700"
+                    },
+                    fontFamily: {
+                        "headline": ["Space Grotesk"],
+                        "body": ["Space Grotesk"],
+                        "label": ["Space Grotesk"]
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+    <style>
+        body {
+            background-color: #0e0e0e;
+            background-image:
+                linear-gradient(rgba(38, 38, 38, 0.4) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(38, 38, 38, 0.4) 1px, transparent 1px);
+            background-size: 40px 40px;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .neo-shadow-primary {
+            box-shadow: 4px 4px 0px 0px #000000;
+        }
+
+        .neo-shadow-secondary {
+            box-shadow: 4px 4px 0px 0px #8e94ff;
+        }
+
+        .neo-shadow-magenta {
+            box-shadow: 4px 4px 0px 0px #ff51fa;
+        }
+
+        .kinetic-border {
+            border-bottom: 4px solid #262626;
+        }
+    </style>
+</head>
+
+<body class="text-on-surface antialiased overflow-x-hidden">
+    <!-- TopNavBar -->
+    <header class="bg-[#0e0e0e] border-b-4 border-[#262626] sticky top-0 z-50">
+        <div class="flex justify-between items-center w-full px-6 py-4 max-w-[1440px] mx-auto">
+            <div
+                class="text-2xl font-black italic tracking-tighter text-[#abfc01] font-['Space_Grotesk'] uppercase tracking-tighter">
+                TIBBIT
+            </div>
+            <nav class="hidden md:flex items-center gap-8">
+                <a class="text-[#abfc01] border-b-4 border-[#abfc01] pb-1 font-['Space_Grotesk'] uppercase tracking-tighter text-sm font-bold"
+                    href="#">Market</a>
+                <a class="text-white/70 hover:text-[#abfc01] hover:bg-[#262626] transition-none font-['Space_Grotesk'] uppercase tracking-tighter text-sm font-bold px-2 py-1"
+                    href="#">Services</a>
+                <a class="text-white/70 hover:text-[#abfc01] hover:bg-[#262626] transition-none font-['Space_Grotesk'] uppercase tracking-tighter text-sm font-bold px-2 py-1"
+                    href="#">Community</a>
+            </nav>
+            <div class="flex items-center gap-4">
+                <button
+                    class="hidden md:block text-white/70 font-['Space_Grotesk'] uppercase tracking-tighter text-sm font-bold hover:text-[#ff51fa] px-4 py-2">Login</button>
+                <button
+                    class="bg-[#abfc01] text-[#3c5c00] px-6 py-2 border-4 border-black font-black uppercase tracking-tighter hover:translate-x-[2px] hover:translate-y-[2px] transition-all duration-75">
+                    Waitlist
+                </button>
+            </div>
+        </div>
+    </header>
+    <main>
+        <!-- Hero Section -->
+        <section
+            class="relative min-h-[819px] flex flex-col justify-center items-start px-6 md:px-20 py-20 overflow-hidden">
+            <!-- Background Graphic -->
+            <div
+                class="absolute top-1/2 right-0 -translate-y-1/2 translate-x-1/4 opacity-20 w-[600px] h-[600px] border-[20px] border-secondary rotate-12 -z-10">
+            </div>
+            <div class="max-w-4xl space-y-8">
+                <div
+                    class="inline-block bg-secondary text-on-secondary px-4 py-1 text-xs font-black uppercase tracking-[0.2em] neo-shadow-primary">
+                    Live at University Hubs
+                </div>
+                <h1 class="text-6xl md:text-9xl font-black uppercase leading-[0.85] tracking-tighter">
+                    TIBBIT: <br />
+                    <span class="text-primary-container">STUDENT-LED</span>, <br />
+                    UNAPOLOGETIC <br />
+                    MARKETPLACE
+                </h1>
+                <p class="text-xl md:text-2xl font-medium text-white/70 max-w-2xl leading-relaxed">
+                    The playground for Gen Z hustlers. Trade goods, launch services, and scale your campus startup on a
+                    platform built for builders, by builders.
+                </p>
+                <div class="flex flex-col md:flex-row gap-6 pt-8">
+                    <button
+                        class="bg-primary-container text-on-primary-container px-10 py-5 border-4 border-black text-2xl font-black uppercase tracking-tighter neo-shadow-secondary hover:translate-x-[4px] hover:translate-y-[4px] hover:shadow-none transition-all duration-75">
+                        Start Hustling
+                    </button>
+                    <button
+                        class="bg-transparent text-on-background px-10 py-5 border-4 border-secondary text-2xl font-black uppercase tracking-tighter hover:bg-secondary/10 transition-all">
+                        View Market
+                    </button>
+                </div>
+            </div>
+        </section>
+        <!-- Bento Categories -->
+        <section class="px-6 md:px-20 py-24 bg-surface-container-low">
+            <h2 class="text-4xl font-black uppercase mb-16 flex items-center gap-4">
+                <span class="w-12 h-1 bg-tertiary"></span>
+                The Ecosystem
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+                <!-- Card 1 -->
+                <div
+                    class="md:col-span-8 bg-surface-container-highest border-4 border-black p-8 group relative overflow-hidden">
+                    <div
+                        class="absolute top-0 right-0 w-32 h-32 bg-primary-container -translate-y-1/2 translate-x-1/2 rotate-45 transition-transform group-hover:scale-110">
+                    </div>
+                    <span class="material-symbols-outlined text-primary-container text-5xl mb-6"
+                        style="font-variation-settings: 'FILL' 1;">terminal</span>
+                    <h3 class="text-4xl font-black uppercase mb-4">STUDENT SERVICES</h3>
+                    <p class="text-lg text-white/60 mb-8 max-w-md">From code debugging and graphic design to dorm
+                        cleaning. Put your skills to work and earn in campus-native economies.</p>
+                    <div class="flex items-center gap-4 text-primary font-bold uppercase tracking-widest text-sm">
+                        <span>Explore Gigs</span>
+                        <span class="material-symbols-outlined">arrow_forward</span>
+                    </div>
+                    <div class="mt-12 flex gap-4">
+                        <div class="h-16 w-16 bg-surface border-2 border-black flex items-center justify-center">
+                            <span class="material-symbols-outlined text-secondary">code</span>
+                        </div>
+                        <div class="h-16 w-16 bg-surface border-2 border-black flex items-center justify-center">
+                            <span class="material-symbols-outlined text-tertiary">brush</span>
+                        </div>
+                        <div class="h-16 w-16 bg-surface border-2 border-black flex items-center justify-center">
+                            <span class="material-symbols-outlined text-primary">translate</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Card 2 -->
+                <div
+                    class="md:col-span-4 bg-secondary border-4 border-black p-8 neo-shadow-primary flex flex-col justify-between">
+                    <div>
+                        <span class="material-symbols-outlined text-black text-5xl mb-6">shopping_bag</span>
+                        <h3 class="text-3xl font-black uppercase text-black leading-tight">PEER-TO-PEER GOODS</h3>
+                    </div>
+                    <p class="text-black/80 font-bold mt-4">Safe, student-only trading for tech, gear, and essentials.
+                    </p>
+                    <button class="mt-8 bg-black text-secondary px-6 py-3 font-black uppercase tracking-tighter">Shop
+                        Campus</button>
+                </div>
+                <!-- Card 3 -->
+                <div
+                    class="md:col-span-4 bg-tertiary border-4 border-black p-8 neo-shadow-primary flex flex-col justify-between">
+                    <div>
+                        <span class="material-symbols-outlined text-black text-5xl mb-6">rocket_launch</span>
+                        <h3 class="text-3xl font-black uppercase text-black leading-tight">MARKET YOUR STARTUP</h3>
+                    </div>
+                    <p class="text-black/80 font-bold mt-4">The launchpad for the next big thing. Get your first 100
+                        users on-campus.</p>
+                    <button class="mt-8 bg-black text-tertiary px-6 py-3 font-black uppercase tracking-tighter">Launch
+                        Now</button>
+                </div>
+                <!-- Card 4 -->
+                <div class="md:col-span-8 bg-surface border-4 border-black p-0 overflow-hidden relative min-h-[300px]">
+                    <img alt="Collaboration" class="w-full h-full object-cover grayscale brightness-50 contrast-125"
+                        data-alt="Group of diverse young creative students working in a dark industrial studio space with neon accent lighting and computer screens"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuBe5CeTcxq-btwuQBihp3Xgd8odReB6W79N1uEAO-P1KoyGMursKWGRs6Ul_O9ElYRgRDw6w3wKeaX8cC9ua7GaGtp-gb8KthY4QJV3aFrwH0epBeEU84BFn0UEr7nbZZ2l6E40elzocqQFncegWBQgmZRcFoATboJMHgg3I3MEI2vAu7L5VwU5m5GdrTRFRneLN9YroIgdZLkQ57z7emAduB57StyghR8BPwvA176GcrCtdyQxwUYpgKqlN8JsaLb9w4jOGipUgA" />
+                    <div
+                        class="absolute inset-0 bg-gradient-to-t from-black to-transparent p-8 flex flex-col justify-end">
+                        <h3 class="text-4xl font-black uppercase text-white tracking-tighter">The Community</h3>
+                        <p class="text-white/70 max-w-sm mt-2">Connect with 50,000+ student entrepreneurs across 100
+                            campuses.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Manifesto Section -->
+        <section class="px-6 md:px-20 py-32 flex flex-col md:flex-row gap-20 items-center">
+            <div class="md:w-1/2">
+                <div class="relative">
+                    <div
+                        class="absolute -top-10 -left-10 text-[12rem] font-black text-white/5 select-none leading-none">
+                        01</div>
+                    <h2 class="text-6xl md:text-8xl font-black uppercase tracking-tighter leading-none relative">
+                        OUR <br /> <span class="text-tertiary">MANIFESTO</span>
+                    </h2>
+                </div>
+            </div>
+            <div class="md:w-1/2 space-y-10">
+                <div class="bg-surface-container-highest p-8 border-l-8 border-primary-container">
+                    <p class="text-2xl font-bold leading-relaxed">
+                        TIBBIT is more than a marketplace. It's a digital architecture for the ambitious. We believe
+                        that studenthood is the ultimate era for experimentation. No gatekeepers, no resumes, just
+                        execution.
+                    </p>
+                </div>
+                <div class="grid grid-cols-2 gap-8">
+                    <div>
+                        <h4 class="text-primary-container font-black uppercase tracking-widest text-xs mb-2">Rule 01
+                        </h4>
+                        <p class="text-white/50 text-sm">Built for builders. Every feature is designed to reduce
+                            friction for sellers.</p>
+                    </div>
+                    <div>
+                        <h4 class="text-primary-container font-black uppercase tracking-widest text-xs mb-2">Rule 02
+                        </h4>
+                        <p class="text-white/50 text-sm">Campus verified. Security through academic authentication.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- CTA Section -->
+        <section class="py-24 px-6 md:px-20 text-center">
+            <div class="bg-surface-container p-12 md:p-24 border-4 border-black neo-shadow-secondary max-w-6xl mx-auto">
+                <h2 class="text-4xl md:text-7xl font-black uppercase tracking-tighter mb-8 italic">
+                    STOP BROWSING. <br /> START BUILDING.
+                </h2>
+                <div class="flex flex-col sm:flex-row justify-center gap-4">
+                    <button
+                        class="bg-primary-container text-on-primary-container px-8 py-4 border-4 border-black font-black uppercase tracking-tighter hover:translate-x-[2px] hover:translate-y-[2px] transition-all">
+                        Join The Waitlist
+                    </button>
+                </div>
+                <p class="mt-8 text-xs text-white/40 uppercase font-black tracking-[0.3em]">Launching Winter 2026
+                </p>
+            </div>
+        </section>
+        <!-- Status HUD (Persistent info bar style) -->
+        <div
+            class="w-full bg-surface-container-lowest border-t-2 border-primary-container py-3 px-8 flex justify-between items-center overflow-hidden">
+            <div class="flex items-center gap-6 whitespace-nowrap overflow-hidden">
+                <div class="flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-primary-container animate-pulse"></span>
+                    <span class="text-primary-container font-black uppercase text-[10px] tracking-widest">SYSTEM_STABLE:
+                        102 CAMPUSES ONLINE</span>
+                </div>
+                <div class="hidden lg:flex items-center gap-2 border-l border-white/20 pl-6">
+                    <span class="text-white/40 font-black uppercase text-[10px] tracking-widest">LATEST_TRADE:
+                        DESIGN_SERVICES FOR 50_TBT</span>
+                </div>
+            </div>
+            <div class="hidden md:block text-white/40 font-black uppercase text-[10px] tracking-widest">
+                VER_0.4.8_NEO
+            </div>
+        </div>
+    </main>
+    <!-- Footer -->
+    <footer
+        class="bg-[#0e0e0e] border-t-4 border-[#abfc01] w-full px-8 py-12 flex flex-col md:flex-row justify-between items-center gap-8">
+        <div class="flex flex-col items-center md:items-start gap-2">
+            <div class="text-xl font-black text-[#abfc01] font-['Space_Grotesk']">TIBBIT</div>
+            <div class="text-[#ffffff80] font-['Space_Grotesk'] text-xs font-bold uppercase">© 2026 TIBBIT
+            </div>
+        </div>
+        <nav class="flex gap-8">
+            <a class="text-white/50 hover:underline hover:text-[#ff51fa] font-['Space_Grotesk'] text-xs font-bold uppercase transition-all duration-150"
+                href="#">Privacy</a>
+            <a class="text-white/50 hover:underline hover:text-[#ff51fa] font-['Space_Grotesk'] text-xs font-bold uppercase transition-all duration-150"
+                href="#">Terms</a>
+            <a class="text-white/50 hover:underline hover:text-[#ff51fa] font-['Space_Grotesk'] text-xs font-bold uppercase transition-all duration-150"
+                href="#">Discord</a>
+            <a class="text-white/50 hover:underline hover:text-[#ff51fa] font-['Space_Grotesk'] text-xs font-bold uppercase transition-all duration-150"
+                href="#">Contact</a>
+        </nav>
+        <div class="flex gap-4">
+            <div
+                class="w-10 h-10 border-2 border-white/20 flex items-center justify-center hover:border-tertiary hover:text-tertiary transition-all cursor-pointer">
+                <span class="material-symbols-outlined text-lg">share</span>
+            </div>
+        </div>
+    </footer>
+</body>
+
+</html>

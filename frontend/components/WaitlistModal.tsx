@@ -106,6 +106,19 @@ export default function WaitlistModal({ isOpen, onClose }: WaitlistModalProps) {
               />
             </div>
 
+            <div className="space-y-1">
+              <label className="text-xs font-black uppercase tracking-widest text-black/50">
+                Email Address
+              </label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="YOUR.EMAIL@UNI.EDU"
+                className="w-full bg-white border-4 border-black p-4 font-bold text-black focus:outline-none focus:ring-4 focus:ring-secondary transition-all placeholder:text-black/20"
+              />
+            </div>
+
             {error && (
               <div className="flex items-center gap-2 text-error font-black text-xs uppercase animate-shake">
                 <AlertCircle className="w-4 h-4" />
