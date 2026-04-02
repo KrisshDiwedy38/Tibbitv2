@@ -1,274 +1,230 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { ArrowRight, Sparkles, BookOpen, BadgeCheck, PiggyBank } from "lucide-react";
+import { useState } from "react";
+import BackgroundGridHover from "../components/BackgroundGridHover";
+import DynamicHUD from "../components/DynamicHUD";
+import WaitlistModal from "../components/WaitlistModal";
 
-export default function WaitlistPage() {
+export default function Home() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [email, setEmail] = useState("");
-  const [universityName, setUniversityName] = useState("");
-  const [submitted, setSubmitted] = useState(false);
-  const [error, setError] = useState("");
 
-  // Prevent scrolling when modal is open
-  useEffect(() => {
-    if (isModalOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "auto";
-      setError("");
-    }
-    return () => {
-      document.body.style.overflow = "auto";
-    };
-  }, [isModalOpen]);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,10}$/i;
-    if (!emailRegex.test(email)) {
-      setError("Please enter a valid email address.");
-      return;
-    }
-
-    if (email && universityName) {
-      setError("");
-
-      try {
-        const response = await fetch("http://127.0.0.1:8000/api/users/waitlist/", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            email,
-            university_name: universityName,
-          }),
-        });
-
-        if (response.ok) {
-          setSubmitted(true);
-          setTimeout(() => {
-            setIsModalOpen(false);
-            setSubmitted(false);
-            setEmail("");
-            setUniversityName("");
-          }, 3000);
-        } else {
-          const data = await response.json();
-          if (data.email) {
-            setError(data.email[0]); // e.g. "Waitlist entry with this email already exists."
-          } else {
-            setError("Something went wrong. Please try again.");
-          }
-        }
-      } catch (err) {
-        setError("Network error. Please try again.");
-      }
-    } else if (!universityName) {
-      setError("Please enter your university name.");
-    }
-  };
+  const openModal = () => setIsModalOpen(true);
 
   return (
     <>
-      <div className={`transition-all duration-300 ${isModalOpen ? "blur-md pointer-events-none" : ""}`}>
-        {/* Navigation Bar */}
-        <nav className="fixed top-0 w-full z-40 glass-header px-6 py-4 flex justify-between items-center transition-all">
-          <div className="flex items-center gap-2">
-            <img src="/tibbit_header_logo.jpg" alt="Tibbit Logo" className="h-auto w-16 object-contain" />
+      <WaitlistModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+      <BackgroundGridHover />
+
+      {/* TopNavBar */}
+      <header className="bg-[#0e0e0e] border-b-4 border-[#262626] sticky top-0 z-50">
+        <div className="flex justify-between items-center w-full px-6 py-4 max-w-[1440px] mx-auto">
+          <div className="text-2xl font-black italic tracking-tighter text-[#abfc01] font-['Space_Grotesk'] uppercase">
+            TIBBIT
           </div>
-          <div className="flex gap-4">
-            <a href="#about" className="font-bold text-lg hidden md:block hover:underline self-center underline-offset-4">About Us</a>
-            <a href="#features" className="font-bold text-lg hidden md:block hover:underline self-center underline-offset-4">Features</a>
+          <nav className="hidden md:flex items-center gap-8">
+            <a className="text-[#abfc01] border-b-4 border-[#abfc01] pb-1 font-['Space_Grotesk'] uppercase tracking-tighter text-sm font-bold" href="#">Market</a>
+            <a className="text-white/70 hover:text-[#abfc01] hover:bg-[#262626] transition-none font-['Space_Grotesk'] uppercase tracking-tighter text-sm font-bold px-2 py-1" href="#ecosystem">Services</a>
+            <a className="text-white/70 hover:text-[#abfc01] hover:bg-[#262626] transition-none font-['Space_Grotesk'] uppercase tracking-tighter text-sm font-bold px-2 py-1" href="#">Community</a>
+          </nav>
+          <div className="flex items-center gap-4">
+            <button className="hidden md:block text-white/70 font-['Space_Grotesk'] uppercase tracking-tighter text-sm font-bold hover:text-[#ff51fa] px-4 py-2">Login</button>
             <button
-              onClick={() => setIsModalOpen(true)}
-              className="brutal-btn bg-secondary text-white hover:bg-white hover:text-dark flex items-center gap-2 group"
+              onClick={openModal}
+              className="bg-[#abfc01] text-[#3c5c00] px-6 py-2 border-4 border-black font-black uppercase tracking-tighter hover:translate-x-[2px] hover:translate-y-[2px] transition-all duration-75"
             >
-              Join Waitlist
-              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              Waitlist
             </button>
-          </div>
-        </nav>
-
-        {/* Hero Section */}
-        <header className="pt-32 pb-20 px-6 md:px-12 lg:px-24 bg-bgStart flex flex-col md:flex-row items-center justify-between border-b-4 border-dark relative overflow-hidden">
-          <div className="w-full md:w-1/2 z-10">
-            <div className="inline-block bg-accent text-white font-bold px-4 py-2 border-4 border-dark shadow-brutal-sm mb-6 rotate-[-2deg] hover:animate-shake transition-transform duration-75 cursor-default">
-              🚀 COMING SOON
-            </div>
-            <h1 className="text-5xl md:text-7xl font-black uppercase leading-[1.1] mb-6">
-              The marketplace <br />
-              <span className="bg-primary px-2 border-4 border-dark shadow-brutal-sm mt-2 inline-block">your campus deserved.</span>
-            </h1>
-            <p className="text-xl md:text-2xl font-medium mb-10 max-w-xl">
-              Buy, sell, and exchange with fellow students in a secure, verified environment. From textbooks to furniture, find everything you need within your university community.
-            </p>
-            <button
-              onClick={() => setIsModalOpen(true)}
-              className="brutal-btn bg-primary text-dark text-xl md:text-2xl px-8 py-4 w-full sm:w-auto"
-            >
-              Get Early Access
-            </button>
-          </div>
-          <div className="w-full md:w-1/2 mt-16 md:mt-0 relative flex justify-center z-10">
-            {/* Abstract Hero Art / Mockup placeholder */}
-            <div className="w-[300px] h-[400px] md:w-[400px] md:h-[500px] bg-secondary brutal-border shadow-brutal-lg relative rotate-[3deg] flex items-center justify-center flex-col p-6">
-              <div className="w-full h-48 bg-white border-4 border-dark mb-4"></div>
-              <div className="w-3/4 h-8 bg-primary border-4 border-dark mb-4 self-start"></div>
-              <div className="w-1/2 h-8 bg-accent border-4 border-dark self-start"></div>
-              <Sparkles className="absolute -top-10 -right-10 w-20 h-20 text-primary drop-shadow-[4px_4px_0_rgba(26,26,26,1)]" />
-            </div>
-          </div>
-
-          {/* Background decorations */}
-          <div className="absolute top-20 right-[10%] w-32 h-32 bg-secondary border-4 border-dark rounded-full mix-blend-multiply opacity-50 blur-xl"></div>
-          <div className="absolute bottom-10 left-[20%] w-48 h-48 bg-accent border-4 border-dark blur-2xl mix-blend-multiply opacity-30"></div>
-        </header>
-
-        {/* Features Section */}
-        <section id="features" className="py-24 px-6 md:px-12 lg:px-24 bg-white border-b-4 border-dark">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-black uppercase inline-block bg-accent text-white px-4 py-2 border-4 border-dark shadow-brutal-sm rotate-1">
-              Why Tibbit?
-            </h2>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Feature Cards */}
-            <div className="brutal-card bg-bgStart p-8 flex flex-col">
-              <div className="w-16 h-16 bg-primary brutal-border shadow-brutal-sm flex items-center justify-center mb-6 text-dark rotate-[-5deg]">
-                <BookOpen className="w-8 h-8" />
-              </div>
-              <h3 className="text-2xl font-black mb-4">Made for Campus Life</h3>
-              <p className="text-lg font-medium">
-                Buy textbooks, sell old gear, find deals from students in your own college. No strangers — just your campus community.
-              </p>
-            </div>
-
-            <div className="brutal-card bg-bgEnd p-8 flex flex-col translate-y-0 md:translate-y-8">
-              <div className="w-16 h-16 bg-accent brutal-border shadow-brutal-sm flex items-center justify-center mb-6 text-white rotate-[3deg]">
-                <BadgeCheck className="w-8 h-8" />
-              </div>
-              <h3 className="text-2xl font-black mb-4">Students Trust Students</h3>
-              <p className="text-lg font-medium">
-                Every seller is a verified student like you. Ratings, reviews, and real profiles so you always know who you're dealing with.
-              </p>
-            </div>
-
-            <div className="brutal-card bg-[#fffbeb] p-8 flex flex-col">
-              <div className="w-16 h-16 bg-secondary brutal-border shadow-brutal-sm flex items-center justify-center mb-6 text-white rotate-[-2deg]">
-                <PiggyBank className="w-8 h-8" />
-              </div>
-              <h3 className="text-2xl font-black mb-4">Keep More, Spend Less</h3>
-              <p className="text-lg font-medium">
-                Zero listing fees. More money stays in your pocket — whether you're hustling to sell or hunting for the best deal on a budget.
-              </p>
-            </div>
-          </div>
-        </section>
-
-        {/* About Section */}
-        <section id="about" className="py-24 px-6 md:px-12 lg:px-24 bg-dark text-white text-center">
-          <div className="max-w-4xl mx-auto border-8 border-primary bg-bgStart text-dark p-8 md:p-16 shadow-[12px_12px_0_0_#ff4da6]">
-            <h2 className="text-4xl md:text-5xl font-black uppercase mb-8">About Us</h2>
-            <p className="text-xl md:text-2xl font-medium leading-relaxed mb-8">
-              Tibbit was built by students, for students. We got tired of overpriced textbooks, sketchy Facebook groups, and selling to strangers. So we built a marketplace that's exclusive to campus — where every buyer and seller is a verified student just like you. Bold, fast, and 100% college-native.
-            </p>
-            <button
-              onClick={() => setIsModalOpen(true)}
-              className="brutal-btn bg-dark text-white hover:bg-primary hover:text-dark text-xl px-8 py-4"
-            >
-              Join the Rebellion
-            </button>
-          </div>
-        </section>
-        {/* Founder Note */}
-        <section id="founder-note" className="py-20 px-6 md:px-12 bg-bgStart border-b-4 border-dark">
-          <div className="max-w-3xl mx-auto border-4 border-dark bg-white p-8 md:p-12 shadow-brutal">
-            <h4 className="text-2xl md:text-3xl font-black uppercase mb-6 text-center">Note from the Founder</h4>
-            <div className="flex flex-col items-center">
-              <img
-                src="/tibbit_founder_img.png"
-                alt="Krissh Diwedy - Founder"
-                className="w-28 h-28 rounded-full mb-6 border-4 border-dark shadow-brutal-sm hover:scale-105 transition-transform bg-primary object-cover"
-              />
-              <p className="text-lg md:text-xl font-medium leading-relaxed text-center">
-                Hey — I'm Krissh, and I built Tibbit because campus life is expensive enough already.
-                Spent way too much on a calculus textbook I used twice. Sold my old laptop to a random on the internet and held my breath the whole time. There had to be a better way.
-                <br></br>Tibbit isn't just another app. It's the marketplace I wish existed when I was broke, stressed, and drowning in stuff I didn't need anymore. Built for the culture. Built for us.
-                No corporate fluff. No VC buzzwords. Just students helping students.
-              </p>
-            </div>
-          </div>
-        </section>
-
-        {/* Footer */}
-        <footer className="py-8 bg-white border-t-4 border-dark text-center font-bold">
-          <p>© {new Date().getFullYear()} Tibbit Marketplace. All rights reserved.</p>
-        </footer>
-      </div>
-
-      {/* Waitlist Modal */}
-      {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-white/20" onClick={() => setIsModalOpen(false)}></div>
-          <div className="relative z-10 w-full max-w-md bg-white border-8 border-dark shadow-[16px_16px_0_0_rgba(26,26,26,1)] p-8 animate-in fade-in zoom-in duration-200">
-            <button
-              onClick={() => setIsModalOpen(false)}
-              className="absolute -top-6 -right-6 w-12 h-12 bg-secondary text-white font-black text-2xl border-4 border-dark rounded-full shadow-brutal-hover flex items-center justify-center hover:scale-110 transition-transform"
-            >
-              &times;
-            </button>
-
-            {submitted ? (
-              <div className="text-center py-8">
-                <div className="w-20 h-20 bg-primary border-4 border-dark rounded-full mx-auto flex items-center justify-center mb-6 shadow-brutal-sm">
-                  <span className="text-4xl">🎉</span>
-                </div>
-                <h2 className="text-3xl font-black uppercase mb-4">You're In!</h2>
-                <p className="font-bold text-lg">Thanks for joining. Keep an eye on your inbox.</p>
-              </div>
-            ) : (
-              <>
-                <h2 className="text-3xl font-black uppercase mb-2">Claim Your Spot</h2>
-                <p className="font-bold text-gray-600 mb-6">Be the first to access the marketplace.</p>
-                <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-                  <div>
-                    <label className="block font-black uppercase mb-2">Email Address</label>
-                    <input
-                      type="email"
-                      required
-                      value={email}
-                      onChange={(e) => {
-                        setEmail(e.target.value);
-                        if (error) setError("");
-                      }}
-                      placeholder="hello@vibes.com"
-                      className="brutal-input"
-                    />
-                    {error && <p className="text-red-500 font-bold mt-2 text-sm">{error}</p>}
-                  </div>
-                  <div>
-                    <label className="block font-black uppercase mb-2">University Name</label>
-                    <input
-                      type="text"
-                      required
-                      value={universityName}
-                      onChange={(e) => setUniversityName(e.target.value)}
-                      placeholder="e.g. Maggi & Regrets University"
-                      className="brutal-input"
-                    />
-                  </div>
-                  <button type="submit" className="brutal-btn bg-primary text-dark mt-2 py-4 text-xl">
-                    Reserve Waitlist Spot
-                  </button>
-                </form>
-              </>
-            )}
           </div>
         </div>
-      )}
+      </header>
+
+      <main>
+        {/* Hero Section */}
+        <section className="relative min-h-[819px] flex flex-col justify-center items-start px-6 md:px-20 py-20 overflow-hidden">
+          {/* Background Graphic */}
+          <div className="absolute top-1/2 right-0 -translate-y-1/2 translate-x-1/4 opacity-20 w-[600px] h-[600px] border-[20px] border-secondary rotate-12 -z-10"></div>
+
+          <div className="max-w-4xl space-y-8">
+            <div className="inline-block bg-secondary text-on-secondary px-4 py-1 text-xs font-black uppercase tracking-[0.2em] neo-shadow-primary">
+              Live at University Hubs
+            </div>
+            <h1 className="text-6xl md:text-9xl font-black uppercase leading-[0.85] tracking-tighter">
+              TIBBIT: <br />
+              <span className="text-primary-container">STUDENT-LED</span>, <br />
+              UNAPOLOGETIC <br />
+              MARKETPLACE
+            </h1>
+            <p className="text-xl md:text-2xl font-medium text-white/70 max-w-2xl leading-relaxed">
+              The playground for Gen Z hustlers. Trade goods, launch services, and scale your campus startup on a platform built for builders, by builders.
+            </p>
+            <div className="flex flex-col md:flex-row gap-6 pt-8">
+              <button
+                onClick={openModal}
+                className="bg-primary-container text-on-primary-container px-10 py-5 border-4 border-black text-2xl font-black uppercase tracking-tighter neo-shadow-secondary hover:translate-x-[4px] hover:translate-y-[4px] hover:shadow-none transition-all duration-75"
+              >
+                Start Hustling
+              </button>
+              <button
+                onClick={openModal}
+                className="bg-transparent text-on-background px-10 py-5 border-4 border-secondary text-2xl font-black uppercase tracking-tighter hover:bg-secondary/10 transition-all"
+              >
+                View Market
+              </button>
+            </div>
+          </div>
+        </section>
+
+        {/* Bento Categories */}
+        <section className="px-6 md:px-20 py-24 bg-surface-container-low" id="ecosystem">
+          <h2 className="text-4xl font-black uppercase mb-16 flex items-center gap-4">
+            <span className="w-12 h-1 bg-tertiary"></span>
+            The Ecosystem
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+            {/* Card 1 */}
+            <div className="md:col-span-8 bg-surface-container-highest border-4 border-black p-8 group relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-primary-container -translate-y-1/2 translate-x-1/2 rotate-45 transition-transform group-hover:scale-110"></div>
+              <span className="material-symbols-outlined text-primary-container text-5xl mb-6" style={{ fontVariationSettings: "'FILL' 1" }}>terminal</span>
+              <h3 className="text-4xl font-black uppercase mb-4">STUDENT SERVICES</h3>
+              <p className="text-lg text-white/60 mb-8 max-w-md">From code debugging and graphic design to dorm cleaning. Put your skills to work and earn in campus-native economies.</p>
+              <button
+                onClick={openModal}
+                className="flex items-center gap-4 text-primary font-bold uppercase tracking-widest text-sm hover:underline"
+              >
+                <span>Explore Gigs</span>
+                <span className="material-symbols-outlined">arrow_forward</span>
+              </button>
+              <div className="mt-12 flex gap-4">
+                <div className="h-16 w-16 bg-surface border-2 border-black flex items-center justify-center">
+                  <span className="material-symbols-outlined text-secondary">code</span>
+                </div>
+                <div className="h-16 w-16 bg-surface border-2 border-black flex items-center justify-center">
+                  <span className="material-symbols-outlined text-tertiary">brush</span>
+                </div>
+                <div className="h-16 w-16 bg-surface border-2 border-black flex items-center justify-center">
+                  <span className="material-symbols-outlined text-primary">translate</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Card 2 */}
+            <div className="md:col-span-4 bg-secondary border-4 border-black p-8 neo-shadow-primary flex flex-col justify-between">
+              <div>
+                <span className="material-symbols-outlined text-black text-5xl mb-6">shopping_bag</span>
+                <h3 className="text-3xl font-black uppercase text-black leading-tight">PEER-TO-PEER GOODS</h3>
+              </div>
+              <p className="text-black/80 font-bold mt-4">Safe, student-only trading for tech, gear, and essentials.</p>
+              <button
+                onClick={openModal}
+                className="mt-8 bg-black text-secondary px-6 py-3 font-black uppercase tracking-tighter"
+              >
+                Shop Campus
+              </button>
+            </div>
+
+            {/* Card 3 */}
+            <div className="md:col-span-4 bg-tertiary border-4 border-black p-8 neo-shadow-primary flex flex-col justify-between">
+              <div>
+                <span className="material-symbols-outlined text-black text-5xl mb-6">rocket_launch</span>
+                <h3 className="text-3xl font-black uppercase text-black leading-tight">MARKET YOUR STARTUP</h3>
+              </div>
+              <p className="text-black/80 font-bold mt-4">The launchpad for the next big thing. Get your first 100 users on-campus.</p>
+              <button
+                onClick={openModal}
+                className="mt-8 bg-black text-tertiary px-6 py-3 font-black uppercase tracking-tighter"
+              >
+                Launch Now
+              </button>
+            </div>
+
+            {/* Card 4 */}
+            <div className="md:col-span-8 bg-surface border-4 border-black p-0 overflow-hidden relative min-h-[300px]">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                alt="Collaboration"
+                className="w-full h-full object-cover grayscale brightness-50 contrast-125 absolute inset-0"
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuBe5CeTcxq-btwuQBihp3Xgd8odReB6W79N1uEAO-P1KoyGMursKWGRs6Ul_O9ElYRgRDw6w3wKeaX8cC9ua7GaGtp-gb8KthY4QJV3aFrwH0epBeEU84BFn0UEr7nbZZ2l6E40elzocqQFncegWBQgmZRcFoATboJMHgg3I3MEI2vAu7L5VwU5m5GdrTRFRneLN9YroIgdZLkQ57z7emAduB57StyghR8BPwvA176GcrCtdyQxwUYpgKqlN8JsaLb9w4jOGipUgA"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent p-8 flex flex-col justify-end">
+                <h3 className="text-4xl font-black uppercase text-white tracking-tighter">The Community</h3>
+                <p className="text-white/70 max-w-sm mt-2">Connect with 50,000+ student entrepreneurs across 100 campuses.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Manifesto Section */}
+        <section className="px-6 md:px-20 py-32 flex flex-col md:flex-row gap-20 items-center">
+          <div className="md:w-1/2">
+            <div className="relative">
+              <div className="absolute -top-10 -left-10 text-[12rem] font-black text-white/5 select-none leading-none">01</div>
+              <h2 className="text-6xl md:text-8xl font-black uppercase tracking-tighter leading-none relative">
+                OUR <br /> <span className="text-tertiary">MANIFESTO</span>
+              </h2>
+            </div>
+          </div>
+          <div className="md:w-1/2 space-y-10">
+            <div className="bg-surface-container-highest p-8 border-l-8 border-primary-container">
+              <p className="text-2xl font-bold leading-relaxed">
+                TIBBIT is more than a marketplace. It&apos;s a digital architecture for the ambitious. We believe that studenthood is the ultimate era for experimentation. No gatekeepers, no resumes, just execution.
+              </p>
+            </div>
+            <div className="grid grid-cols-2 gap-8">
+              <div>
+                <h4 className="text-primary-container font-black uppercase tracking-widest text-xs mb-2">Rule 01</h4>
+                <p className="text-white/50 text-sm">Built for builders. Every feature is designed to reduce friction for sellers.</p>
+              </div>
+              <div>
+                <h4 className="text-primary-container font-black uppercase tracking-widest text-xs mb-2">Rule 02</h4>
+                <p className="text-white/50 text-sm">Campus verified. Security through academic authentication.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* CTA Section */}
+        <section className="py-24 px-6 md:px-20 text-center">
+          <div className="bg-surface-container p-12 md:p-24 border-4 border-black neo-shadow-secondary max-w-6xl mx-auto">
+            <h2 className="text-4xl md:text-7xl font-black uppercase tracking-tighter mb-8 italic">
+              STOP BROWSING. <br /> START BUILDING.
+            </h2>
+            <div className="flex flex-col sm:flex-row justify-center gap-4">
+              <button
+                onClick={openModal}
+                className="bg-primary-container text-on-primary-container px-8 py-4 border-4 border-black font-black uppercase tracking-tighter hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
+              >
+                Join The Waitlist
+              </button>
+            </div>
+            <p className="mt-8 text-xs text-white/40 uppercase font-black tracking-[0.3em]">Launching Winter 2026</p>
+          </div>
+        </section>
+
+        {/* Status HUD (Persistent info bar style) */}
+        <DynamicHUD />
+      </main>
+
+      {/* Footer */}
+      <footer className="bg-[#0e0e0e] border-t-4 border-[#abfc01] w-full px-8 py-12 flex flex-col md:flex-row justify-between items-center gap-8">
+        <div className="flex flex-col items-center md:items-start gap-2">
+          <div className="text-xl font-black text-[#abfc01] font-['Space_Grotesk']">TIBBIT</div>
+          <div className="text-[#ffffff80] font-['Space_Grotesk'] text-xs font-bold uppercase">© 2026 TIBBIT</div>
+        </div>
+        <nav className="flex gap-8">
+          <a className="text-white/50 hover:underline hover:text-[#ff51fa] font-['Space_Grotesk'] text-xs font-bold uppercase transition-all duration-150" href="#">Privacy</a>
+          <a className="text-white/50 hover:underline hover:text-[#ff51fa] font-['Space_Grotesk'] text-xs font-bold uppercase transition-all duration-150" href="#">Terms</a>
+          <a className="text-white/50 hover:underline hover:text-[#ff51fa] font-['Space_Grotesk'] text-xs font-bold uppercase transition-all duration-150" href="#">Discord</a>
+          <a className="text-white/50 hover:underline hover:text-[#ff51fa] font-['Space_Grotesk'] text-xs font-bold uppercase transition-all duration-150" href="#">Contact</a>
+        </nav>
+        <div className="flex gap-4">
+          <div
+            onClick={openModal}
+            className="w-10 h-10 border-2 border-white/20 flex items-center justify-center hover:border-tertiary hover:text-tertiary transition-all cursor-pointer"
+          >
+            <span className="material-symbols-outlined text-lg">share</span>
+          </div>
+        </div>
+      </footer>
     </>
   );
 }
