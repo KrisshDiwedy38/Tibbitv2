@@ -16,6 +16,7 @@ class University(models.Model):
    email_domain = models.CharField(max_length=100, unique=True)
    location = models.CharField(max_length=200, blank=True, null=True)
    is_active = models.BooleanField(default=True)
+   is_verified = models.BooleanField(default=False)
    created_at = models.DateTimeField(auto_now_add=True)
 
    class Meta:
@@ -173,6 +174,7 @@ class WaitlistEntry(models.Model):
    """
    email = models.EmailField(unique=True)
    university_name = models.CharField(max_length=200)
+   is_verified = models.BooleanField(default=False)
    created_at = models.DateTimeField(auto_now_add=True)
 
    class Meta:

@@ -112,8 +112,35 @@ class LoginSerializer(serializers.Serializer):
       }
       return attrs
 
+
 class WaitlistEntrySerializer(serializers.ModelSerializer):
+   email = serializers.EmailField()
+
    class Meta:
       model = WaitlistEntry
-      fields = ['email', 'university_name', 'created_at']
-      read_only_fields = ['created_at']
+      fields = ['email', 'university_name', 'created_at', 'is_verified']
+      read_only_fields = ['created_at', 'is_verified']
+
+   def validate_email(self, value):
+      if WaitlistEntry.objects.filter(email=value).exists():
+         raise serializers.ValidationError("Hey! Love the excitement but you're already on the waitlist")
+      if CustomUser.objects.filter(email=value).exists():
+         raise serializers.ValidationError("You already have a verified account!")
+      return value
+
+   def create(self, validated_data):
+      email = validated_data['email']
+      domain = email.split('@')[-1]
+      uni_name = validated_data['university_name']
+
+      # Ensure university exists and is marked as not verified if newly created (and set active=False too to be safe)
+      university, created = University.objects.get_or_create(
+          email_domain=domain,
+          defaults={'name': uni_name, 'is_verified': False, 'is_active': False}
+      )
+
+      # Create WaitlistEntry marked as not verified
+      # Note: is_verified defaults to False already, but setting to be explicit
+      validated_data['is_verified'] = False
+      entry = WaitlistEntry.objects.create(**validated_data)
+      return entry
