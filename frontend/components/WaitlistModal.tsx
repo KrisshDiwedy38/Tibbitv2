@@ -48,16 +48,32 @@ export default function WaitlistModal({ isOpen, onClose }: WaitlistModalProps) {
     setIsSubmitting(true);
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+      const response = await fetch(`${apiUrl}/api/users/waitlist/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, university_name: uniName }),
+      });
+
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        if (data.email && Array.isArray(data.email)) {
+          throw new Error(data.email[0].toUpperCase());
+        }
+        throw new Error(data.detail || data.message || "SUBMISSION FAILED. TRY AGAIN.");
+      }
+
       setShowToast(true);
 
       // Auto-close after toast
       setTimeout(() => {
         onClose();
       }, 3000);
-    } catch (err) {
-      setError("SUBMISSION FAILED. TRY AGAIN.");
+    } catch (err: any) {
+      setError(err.message || "SUBMISSION FAILED. TRY AGAIN.");
     } finally {
       setIsSubmitting(false);
     }
@@ -101,7 +117,7 @@ export default function WaitlistModal({ isOpen, onClose }: WaitlistModalProps) {
                 type="text"
                 value={uniName}
                 onChange={(e) => setUniName(e.target.value.toUpperCase())}
-                placeholder="E.G. STANFORD UNIVERSITY"
+                placeholder="E.G. BUILD-IN-PUBLIC UNIVERSITY"
                 className="w-full bg-white border-4 border-black p-4 font-bold text-black focus:outline-none focus:ring-4 focus:ring-secondary transition-all placeholder:text-black/20"
               />
             </div>

@@ -24,10 +24,9 @@ export default function Home() {
           <nav className="hidden md:flex items-center gap-8">
             <a className="text-[#abfc01] border-b-4 border-[#abfc01] pb-1 font-['Space_Grotesk'] uppercase tracking-tighter text-sm font-bold" href="#">Market</a>
             <a className="text-white/70 hover:text-[#abfc01] hover:bg-[#262626] transition-none font-['Space_Grotesk'] uppercase tracking-tighter text-sm font-bold px-2 py-1" href="#ecosystem">Services</a>
-            <a className="text-white/70 hover:text-[#abfc01] hover:bg-[#262626] transition-none font-['Space_Grotesk'] uppercase tracking-tighter text-sm font-bold px-2 py-1" href="#">Community</a>
+            <a className="text-white/70 hover:text-[#abfc01] hover:bg-[#262626] transition-none font-['Space_Grotesk'] uppercase tracking-tighter text-sm font-bold px-2 py-1" href="#manifesto">Manifesto</a>
           </nav>
           <div className="flex items-center gap-4">
-            <button className="hidden md:block text-white/70 font-['Space_Grotesk'] uppercase tracking-tighter text-sm font-bold hover:text-[#ff51fa] px-4 py-2">Login</button>
             <button
               onClick={openModal}
               className="bg-[#abfc01] text-[#3c5c00] px-6 py-2 border-4 border-black font-black uppercase tracking-tighter hover:translate-x-[2px] hover:translate-y-[2px] transition-all duration-75"
@@ -46,7 +45,7 @@ export default function Home() {
 
           <div className="max-w-4xl space-y-8">
             <div className="inline-block bg-secondary text-on-secondary px-4 py-1 text-xs font-black uppercase tracking-[0.2em] neo-shadow-primary">
-              Live at University Hubs
+              Coming soon at University Hubs
             </div>
             <h1 className="text-6xl md:text-9xl font-black uppercase leading-[0.85] tracking-tighter">
               TIBBIT: <br />
@@ -143,18 +142,18 @@ export default function Home() {
               <img
                 alt="Collaboration"
                 className="w-full h-full object-cover grayscale brightness-50 contrast-125 absolute inset-0"
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuBe5CeTcxq-btwuQBihp3Xgd8odReB6W79N1uEAO-P1KoyGMursKWGRs6Ul_O9ElYRgRDw6w3wKeaX8cC9ua7GaGtp-gb8KthY4QJV3aFrwH0epBeEU84BFn0UEr7nbZZ2l6E40elzocqQFncegWBQgmZRcFoATboJMHgg3I3MEI2vAu7L5VwU5m5GdrTRFRneLN9YroIgdZLkQ57z7emAduB57StyghR8BPwvA176GcrCtdyQxwUYpgKqlN8JsaLb9w4jOGipUgA"
+                src="community_pic.jpg"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent p-8 flex flex-col justify-end">
                 <h3 className="text-4xl font-black uppercase text-white tracking-tighter">The Community</h3>
-                <p className="text-white/70 max-w-sm mt-2">Connect with 50,000+ student entrepreneurs across 100 campuses.</p>
+                <p className="text-white/70 max-w-sm mt-2">Connect with 1,000+ students and freelancers across 102 campuses.</p>
               </div>
             </div>
           </div>
         </section>
 
         {/* Manifesto Section */}
-        <section className="px-6 md:px-20 py-32 flex flex-col md:flex-row gap-20 items-center">
+        <section className="px-6 md:px-20 py-32 flex flex-col md:flex-row gap-20 items-center" id="manifesto">
           <div className="md:w-1/2">
             <div className="relative">
               <div className="absolute -top-10 -left-10 text-[12rem] font-black text-white/5 select-none leading-none">01</div>
