@@ -36,12 +36,15 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-uxa!+(ca8xi=w8=zk%)vl
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get("DEBUG", "True") == "True"
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*'] # Allowed all for waitlist, configure properly for prod
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
 ]
+
+# Allow any Vercel frontend or waitlist origin
+CORS_ALLOW_ALL_ORIGINS = True
 
 # Application definition
 
