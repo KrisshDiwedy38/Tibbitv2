@@ -48,7 +48,10 @@ export default function WaitlistModal({ isOpen, onClose }: WaitlistModalProps) {
     setIsSubmitting(true);
 
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+      const isProd = process.env.NODE_ENV === "production";
+      const fallbackUrl = isProd ? "" : "http://localhost:8000";
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || fallbackUrl;
+      
       const response = await fetch(`${apiUrl}/api/users/waitlist/`, {
         method: "POST",
         headers: {
