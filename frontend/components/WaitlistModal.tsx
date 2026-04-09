@@ -93,7 +93,7 @@ export default function WaitlistModal({ isOpen, onClose }: WaitlistModalProps) {
       />
 
       {/* Modal Content */}
-      <div className="relative w-full max-w-md bg-primary-container border-4 border-black p-8 neo-shadow-primary animate-in fade-in zoom-in duration-200">
+      <div className="relative w-full max-w-md bg-primary-container border-4 border-black p-5 sm:p-8 neo-shadow-primary animate-in fade-in zoom-in duration-200">
         <button
           onClick={onClose}
           className="absolute top-4 right-4 p-1 hover:bg-black/10 transition-colors"
@@ -103,7 +103,7 @@ export default function WaitlistModal({ isOpen, onClose }: WaitlistModalProps) {
 
         <div className="space-y-6">
           <div className="space-y-2">
-            <h2 className="text-4xl font-black uppercase tracking-tighter italic">
+            <h2 className="text-2xl sm:text-4xl font-black uppercase tracking-tighter italic">
               JOIN THE <br /> WAITLIST
             </h2>
             <p className="text-sm font-bold opacity-70 uppercase tracking-widest">
@@ -121,7 +121,7 @@ export default function WaitlistModal({ isOpen, onClose }: WaitlistModalProps) {
                 value={uniName}
                 onChange={(e) => setUniName(e.target.value.toUpperCase())}
                 placeholder="E.G. BUILD-IN-PUBLIC UNIVERSITY"
-                className="w-full bg-white border-4 border-black p-4 font-bold text-black focus:outline-none focus:ring-4 focus:ring-secondary transition-all placeholder:text-black/20"
+                className="w-full bg-white border-4 border-black p-3 sm:p-4 font-bold text-black focus:outline-none focus:ring-4 focus:ring-secondary transition-all placeholder:text-black/20 text-sm sm:text-base"
               />
             </div>
 
@@ -134,7 +134,7 @@ export default function WaitlistModal({ isOpen, onClose }: WaitlistModalProps) {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="YOUR.EMAIL@UNI.EDU"
-                className="w-full bg-white border-4 border-black p-4 font-bold text-black focus:outline-none focus:ring-4 focus:ring-secondary transition-all placeholder:text-black/20"
+                className="w-full bg-white border-4 border-black p-3 sm:p-4 font-bold text-black focus:outline-none focus:ring-4 focus:ring-secondary transition-all placeholder:text-black/20 text-sm sm:text-base"
               />
             </div>
 
@@ -148,7 +148,7 @@ export default function WaitlistModal({ isOpen, onClose }: WaitlistModalProps) {
             <button
               type="submit"
               disabled={isSubmitting}
-              className={`w-full bg-black text-primary-container p-6 border-4 border-black font-black uppercase tracking-tighter text-xl transition-all shadow-[6px_6px_0px_0px_rgba(255,255,255,0.2)] active:shadow-none active:translate-x-1 active:translate-y-1 ${isSubmitting ? "opacity-50 cursor-not-allowed" : "hover:bg-neutral-900"
+              className={`w-full bg-black text-primary-container p-4 sm:p-6 border-4 border-black font-black uppercase tracking-tighter text-lg sm:text-xl transition-all shadow-[6px_6px_0px_0px_rgba(255,255,255,0.2)] active:shadow-none active:translate-x-1 active:translate-y-1 ${isSubmitting ? "opacity-50 cursor-not-allowed" : "hover:bg-neutral-900"
                 }`}
             >
               {isSubmitting ? "SYNCING..." : "LOCK IT IN"}

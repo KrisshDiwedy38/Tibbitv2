@@ -11,6 +11,12 @@
     background-size: 40px 40px;
     font-family: 'Space Grotesk', sans-serif;
   }
+
+  @media (max-width: 639px) {
+    body {
+      background-size: 24px 24px;
+    }
+  }
 }
 
 @layer utilities {
