@@ -65,7 +65,21 @@ module.exports = {
         "body": ["Space Grotesk", "sans-serif"],
         "label": ["Space Grotesk", "sans-serif"]
       },
-      borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+      borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+      keyframes: {
+        "spin-slow": {
+          "from": { "transform": "rotate(0deg)" },
+          "to": { "transform": "rotate(360deg)" }
+        },
+        "fade-in-up": {
+          "0%": { "opacity": "0", "transform": "translate(-50%, 10px)" },
+          "100%": { "opacity": "1", "transform": "translate(-50%, 0)" }
+        }
+      },
+      animation: {
+        "spin-slow": "spin-slow 20s linear infinite",
+        "fade-in-up": "fade-in-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards",
+      }
     },
   },
   plugins: [],

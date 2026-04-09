@@ -7,8 +7,17 @@ import WaitlistModal from "../components/WaitlistModal";
 
 export default function Home() {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   const openModal = () => setIsModalOpen(true);
+
+  const handleCopy = () => {
+    if (typeof window !== "undefined") {
+      navigator.clipboard.writeText(window.location.href);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
 
   return (
     <>
@@ -22,7 +31,7 @@ export default function Home() {
             TIBBIT
           </div>
           <nav className="hidden md:flex items-center gap-8">
-            <a className="text-[#abfc01] border-b-4 border-[#abfc01] pb-1 font-['Space_Grotesk'] uppercase tracking-tighter text-sm font-bold" href="#">Market</a>
+            <a className="text-white/70 hover:text-[#abfc01] hover:bg-[#262626] transition-none font-['Space_Grotesk'] uppercase tracking-tighter text-sm font-bold px-2 py-1" href="#ecosystem">Market</a>
             <a className="text-white/70 hover:text-[#abfc01] hover:bg-[#262626] transition-none font-['Space_Grotesk'] uppercase tracking-tighter text-sm font-bold px-2 py-1" href="#ecosystem">Services</a>
             <a className="text-white/70 hover:text-[#abfc01] hover:bg-[#262626] transition-none font-['Space_Grotesk'] uppercase tracking-tighter text-sm font-bold px-2 py-1" href="#manifesto">Manifesto</a>
           </nav>
@@ -41,7 +50,9 @@ export default function Home() {
         {/* Hero Section */}
         <section className="relative min-h-[819px] flex flex-col justify-center items-start px-6 md:px-20 py-20 overflow-hidden">
           {/* Background Graphic */}
-          <div className="absolute top-1/2 right-0 -translate-y-1/2 translate-x-1/4 opacity-20 w-[600px] h-[600px] border-[20px] border-secondary rotate-12 -z-10"></div>
+          <div className="absolute top-1/2 right-0 -translate-y-1/2 translate-x-1/3 -z-10">
+            <div className="opacity-10 w-[700px] h-[700px] border-[15px] border-secondary animate-spin-slow"></div>
+          </div>
 
           <div className="max-w-4xl space-y-8">
             <div className="inline-block bg-secondary text-on-secondary px-4 py-1 text-xs font-black uppercase tracking-[0.2em] neo-shadow-primary">
@@ -164,8 +175,8 @@ export default function Home() {
           </div>
           <div className="md:w-1/2 space-y-10">
             <div className="bg-surface-container-highest p-8 border-l-8 border-primary-container">
-              <p className="text-2xl font-bold leading-relaxed">
-                TIBBIT is more than a marketplace. It&apos;s a digital architecture for the ambitious. We believe that studenthood is the ultimate era for experimentation. No gatekeepers, no resumes, just execution.
+              <p className="text-xl font-bold leading-relaxed">
+                TIBBIT is more than a marketplace. It&apos;s the digital infrastructure for the ambitious. We believe your university years are the ultimate sandbox for experimentation, which is why we built a frictionless ecosystem with zero gatekeepers and no padded resumes. Whether you're buying and selling locally, monetizing your freelance skills, finding your next co-founder, or launching a startup to early adopters, TIBBIT is where the next generation of builders stops planning and starts shipping.
               </p>
             </div>
             <div className="grid grid-cols-2 gap-8">
@@ -185,7 +196,7 @@ export default function Home() {
         <section className="py-24 px-6 md:px-20 text-center">
           <div className="bg-surface-container p-12 md:p-24 border-4 border-black neo-shadow-secondary max-w-6xl mx-auto">
             <h2 className="text-4xl md:text-7xl font-black uppercase tracking-tighter mb-8 italic">
-              STOP BROWSING. <br /> START BUILDING.
+              STOP BROWSING. <br /> START GROWING.
             </h2>
             <div className="flex flex-col sm:flex-row justify-center gap-4">
               <button
@@ -195,7 +206,7 @@ export default function Home() {
                 Join The Waitlist
               </button>
             </div>
-            <p className="mt-8 text-xs text-white/40 uppercase font-black tracking-[0.3em]">Launching Winter 2026</p>
+            <p className="mt-8 text-xs text-white/40 uppercase font-black tracking-[0.3em]">Launching Summer 2026</p>
           </div>
         </section>
 
@@ -207,7 +218,7 @@ export default function Home() {
       <footer className="bg-[#0e0e0e] border-t-4 border-[#abfc01] w-full px-8 py-12 flex flex-col md:flex-row justify-between items-center gap-8">
         <div className="flex flex-col items-center md:items-start gap-2">
           <div className="text-xl font-black text-[#abfc01] font-['Space_Grotesk']">TIBBIT</div>
-          <div className="text-[#ffffff80] font-['Space_Grotesk'] text-xs font-bold uppercase">© 2026 TIBBIT</div>
+          <div className="text-[#ffffff80] font-['Space_Grotesk'] text-xs font-bold uppercase">Copyright © 2026 TIBBIT. All rights reserved.</div>
         </div>
         <nav className="flex gap-8">
           <a className="text-white/50 hover:underline hover:text-[#ff51fa] font-['Space_Grotesk'] text-xs font-bold uppercase transition-all duration-150" href="#">Privacy</a>
@@ -215,12 +226,20 @@ export default function Home() {
           <a className="text-white/50 hover:underline hover:text-[#ff51fa] font-['Space_Grotesk'] text-xs font-bold uppercase transition-all duration-150" href="#">Discord</a>
           <a className="text-white/50 hover:underline hover:text-[#ff51fa] font-['Space_Grotesk'] text-xs font-bold uppercase transition-all duration-150" href="#">Contact</a>
         </nav>
-        <div className="flex gap-4">
+        <div className="flex gap-4 relative">
+          {copied && (
+            <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-tertiary text-black text-[10px] font-black px-3 py-1 uppercase tracking-widest neo-shadow-primary animate-fade-in-up">
+              Copied
+            </div>
+          )}
           <div
-            onClick={openModal}
-            className="w-10 h-10 border-2 border-white/20 flex items-center justify-center hover:border-tertiary hover:text-tertiary transition-all cursor-pointer"
+            onClick={handleCopy}
+            className={`w-10 h-10 border-2 flex items-center justify-center transition-all duration-300 cursor-pointer ${copied ? "border-tertiary text-tertiary bg-tertiary/10" : "border-white/20 hover:border-tertiary hover:text-tertiary hover:scale-110 active:scale-90"
+              }`}
           >
-            <span className="material-symbols-outlined text-lg">share</span>
+            <span className="material-symbols-outlined text-lg transition-all">
+              {copied ? "done_all" : "content_copy"}
+            </span>
           </div>
         </div>
       </footer>
