@@ -58,9 +58,8 @@ export default function Home() {
 
         {/* Mobile Overlay Nav */}
         <div
-          className={`fixed inset-0 top-[73px] bg-[#0e0e0e]/98 backdrop-blur-md z-40 flex flex-col items-center justify-start pt-16 gap-8 transition-all duration-300 md:hidden ${
-            menuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
-          }`}
+          className={`fixed inset-0 top-[73px] bg-[#0e0e0e]/98 backdrop-blur-md z-40 flex flex-col items-center justify-start pt-16 gap-8 transition-all duration-300 md:hidden ${menuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+            }`}
         >
           <a
             onClick={() => setMenuOpen(false)}
@@ -109,9 +108,11 @@ export default function Home() {
             </div>
             <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-9xl font-black uppercase leading-[0.85] tracking-tighter">
               TIBBIT: <br />
-              <span className="text-primary-container">STUDENT-LED</span>, <br />
-              UNAPOLOGETIC <br />
-              MARKETPLACE
+              <span className="text-primary-container">TRADE. BUILD. HUSTLE.</span> <br />
+            </h1>
+            <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black uppercase leading-[0.85] tracking-tighter">
+              THE UNAPOLOGETIC <br />
+              STUDENT ECOSYSTEM
             </h1>
             <p className="text-base sm:text-lg md:text-xl lg:text-2xl font-medium text-white/70 max-w-2xl leading-relaxed">
               The playground for Gen Z hustlers. Trade goods, launch services, and scale your campus startup on a platform built for builders, by builders.
@@ -170,7 +171,7 @@ export default function Home() {
             <div className="lg:col-span-4 bg-secondary border-4 border-black p-5 sm:p-6 lg:p-8 neo-shadow-primary flex flex-col justify-between">
               <div>
                 <span className="material-symbols-outlined text-black text-4xl sm:text-5xl mb-4 sm:mb-6">shopping_bag</span>
-                <h3 className="text-2xl sm:text-3xl font-black uppercase text-black leading-tight">PEER-TO-PEER GOODS</h3>
+                <h3 className="text-2xl sm:text-3xl font-black uppercase text-black leading-tight">PEER-TO-PEER MARKETPLACE</h3>
               </div>
               <p className="text-black/80 font-bold mt-3 sm:mt-4">Safe, student-only trading for tech, gear, and essentials.</p>
               <button
@@ -185,7 +186,7 @@ export default function Home() {
             <div className="lg:col-span-4 bg-tertiary border-4 border-black p-5 sm:p-6 lg:p-8 neo-shadow-primary flex flex-col justify-between">
               <div>
                 <span className="material-symbols-outlined text-black text-4xl sm:text-5xl mb-4 sm:mb-6">rocket_launch</span>
-                <h3 className="text-2xl sm:text-3xl font-black uppercase text-black leading-tight">MARKET YOUR STARTUP</h3>
+                <h3 className="text-2xl sm:text-3xl font-black uppercase text-black leading-tight">LAUNCHPAD</h3>
               </div>
               <p className="text-black/80 font-bold mt-3 sm:mt-4">The launchpad for the next big thing. Get your first 100 users on-campus.</p>
               <button
@@ -216,7 +217,6 @@ export default function Home() {
         <section className="px-4 sm:px-8 md:px-16 lg:px-20 py-16 sm:py-24 lg:py-32 flex flex-col md:flex-row gap-10 sm:gap-14 lg:gap-20 items-center" id="manifesto">
           <div className="md:w-1/2">
             <div className="relative">
-              <div className="absolute -top-6 sm:-top-10 -left-4 sm:-left-10 text-[6rem] sm:text-[8rem] lg:text-[12rem] font-black text-white/5 select-none leading-none">01</div>
               <h2 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-black uppercase tracking-tighter leading-none relative">
                 OUR <br /> <span className="text-tertiary">MANIFESTO</span>
               </h2>
@@ -265,30 +265,32 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="bg-[#0e0e0e] border-t-4 border-[#abfc01] w-full px-4 sm:px-8 py-8 sm:py-12 flex flex-col md:flex-row justify-between items-center gap-6 sm:gap-8">
-        <div className="flex flex-col items-center md:items-start gap-2">
+        <div className="flex flex-col items-center md:items-start gap-2 md:flex-1 w-full md:w-auto">
           <div className="text-xl font-black text-[#abfc01] font-['Space_Grotesk']">TIBBIT</div>
           <div className="text-[#ffffff80] font-['Space_Grotesk'] text-xs font-bold uppercase text-center md:text-left">Copyright © 2026 TIBBIT. All rights reserved.</div>
         </div>
-        <nav className="flex flex-wrap justify-center gap-4 sm:gap-8">
+        <nav className="flex flex-wrap justify-center gap-4 sm:gap-8 md:flex-shrink-0">
           <a className="text-white/50 hover:underline hover:text-[#ff51fa] font-['Space_Grotesk'] text-xs font-bold uppercase transition-all duration-150" href="#">Privacy</a>
           <a className="text-white/50 hover:underline hover:text-[#ff51fa] font-['Space_Grotesk'] text-xs font-bold uppercase transition-all duration-150" href="#">Terms</a>
           <a className="text-white/50 hover:underline hover:text-[#ff51fa] font-['Space_Grotesk'] text-xs font-bold uppercase transition-all duration-150" href="#">Discord</a>
           <a className="text-white/50 hover:underline hover:text-[#ff51fa] font-['Space_Grotesk'] text-xs font-bold uppercase transition-all duration-150" href="#">Contact</a>
         </nav>
-        <div className="flex gap-4 relative">
-          {copied && (
-            <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-tertiary text-black text-[10px] font-black px-3 py-1 uppercase tracking-widest neo-shadow-primary animate-fade-in-up">
-              Copied
+        <div className="flex justify-center md:justify-end gap-4 md:flex-1 w-full md:w-auto">
+          <div className="relative">
+            {copied && (
+              <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-tertiary text-black text-[10px] font-black px-3 py-1 uppercase tracking-widest neo-shadow-primary animate-fade-in-up">
+                Copied
+              </div>
+            )}
+            <div
+              onClick={handleCopy}
+              className={`w-10 h-10 border-2 flex items-center justify-center transition-all duration-300 cursor-pointer ${copied ? "border-tertiary text-tertiary bg-tertiary/10" : "border-white/20 hover:border-tertiary hover:text-tertiary hover:scale-110 active:scale-90"
+                }`}
+            >
+              <span className="material-symbols-outlined text-lg transition-all">
+                {copied ? "done_all" : "content_copy"}
+              </span>
             </div>
-          )}
-          <div
-            onClick={handleCopy}
-            className={`w-10 h-10 border-2 flex items-center justify-center transition-all duration-300 cursor-pointer ${copied ? "border-tertiary text-tertiary bg-tertiary/10" : "border-white/20 hover:border-tertiary hover:text-tertiary hover:scale-110 active:scale-90"
-              }`}
-          >
-            <span className="material-symbols-outlined text-lg transition-all">
-              {copied ? "done_all" : "content_copy"}
-            </span>
           </div>
         </div>
       </footer>

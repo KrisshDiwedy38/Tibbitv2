@@ -3,6 +3,8 @@ import { useState, useEffect } from "react";
 
 const CAMPUS_STATS = [
   "102 CAMPUSES JOINING SOON",
+  "1000+ STUDENTS BY NEXT SEMESTER",
+  "YOUR FIRST 100 USERS ARE WAITING"
 ];
 
 function useTypewriter(words: string[], typingSpeed: number = 80, deletingSpeed: number = 40, delay: number = 2500) {

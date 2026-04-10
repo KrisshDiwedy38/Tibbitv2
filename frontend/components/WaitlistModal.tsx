@@ -51,7 +51,7 @@ export default function WaitlistModal({ isOpen, onClose }: WaitlistModalProps) {
       const isProd = process.env.NODE_ENV === "production";
       const fallbackUrl = isProd ? "" : "http://localhost:8000";
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || fallbackUrl;
-      
+
       const response = await fetch(`${apiUrl}/api/users/waitlist/`, {
         method: "POST",
         headers: {
@@ -93,7 +93,7 @@ export default function WaitlistModal({ isOpen, onClose }: WaitlistModalProps) {
       />
 
       {/* Modal Content */}
-      <div className="relative w-full max-w-md bg-primary-container border-4 border-black p-5 sm:p-8 neo-shadow-primary animate-in fade-in zoom-in duration-200">
+      <div className="relative w-full max-w-md bg-primary-fixed-dim border-4 border-black p-5 sm:p-8 neo-shadow-primary animate-in fade-in zoom-in duration-200">
         <button
           onClick={onClose}
           className="absolute top-4 right-4 p-1 hover:bg-black/10 transition-colors"
@@ -120,7 +120,7 @@ export default function WaitlistModal({ isOpen, onClose }: WaitlistModalProps) {
                 type="text"
                 value={uniName}
                 onChange={(e) => setUniName(e.target.value.toUpperCase())}
-                placeholder="E.G. BUILD-IN-PUBLIC UNIVERSITY"
+                placeholder="UNIVERSITY OF VIBES"
                 className="w-full bg-white border-4 border-black p-3 sm:p-4 font-bold text-black focus:outline-none focus:ring-4 focus:ring-secondary transition-all placeholder:text-black/20 text-sm sm:text-base"
               />
             </div>
@@ -133,7 +133,7 @@ export default function WaitlistModal({ isOpen, onClose }: WaitlistModalProps) {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="YOUR.EMAIL@UNI.EDU"
+                placeholder="YOUR.EMAIL@VIBES.EDU"
                 className="w-full bg-white border-4 border-black p-3 sm:p-4 font-bold text-black focus:outline-none focus:ring-4 focus:ring-secondary transition-all placeholder:text-black/20 text-sm sm:text-base"
               />
             </div>

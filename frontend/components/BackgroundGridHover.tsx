@@ -10,10 +10,7 @@ interface Square {
 }
 
 const BRUT_COLORS = [
-  '#0057FF',
-  '#00C44F',
-  '#FF00A0',
-  '#8b06e4ff',
+  '#00C44F'
 ];
 
 function getBrutColor(x: number, y: number): string {
