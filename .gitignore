@@ -36,4 +36,7 @@ node_modules/
 *.log
 npm-debug.log*
 yarn-debug.log*
-yarn-error.log*
+yarn-error.log*
+
+# Tibbit TODO List
+TibbitToDo.txt
