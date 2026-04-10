@@ -93,7 +93,7 @@ export default function WaitlistModal({ isOpen, onClose }: WaitlistModalProps) {
       />
 
       {/* Modal Content */}
-      <div className="relative w-full max-w-md bg-primary-fixed-dim border-4 border-black p-5 sm:p-8 neo-shadow-primary animate-in fade-in zoom-in duration-200">
+      <div className="relative w-full max-w-md bg-waitlist-container border-4 border-black p-5 sm:p-8 neo-shadow-primary animate-in fade-in zoom-in duration-200">
         <button
           onClick={onClose}
           className="absolute top-4 right-4 p-1 hover:bg-black/10 transition-colors"

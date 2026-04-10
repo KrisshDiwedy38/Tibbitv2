@@ -8,6 +8,7 @@ module.exports = {
   theme: {
     extend: {
       colors: {
+        "waitlist-container": "#a2ed00d8",
         "surface-dim": "#0e0e0e",
         "surface-tint": "#deffab",
         "on-primary-fixed": "#2e4800",
