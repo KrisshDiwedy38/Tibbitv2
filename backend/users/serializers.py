@@ -125,7 +125,7 @@ class WaitlistEntrySerializer(serializers.ModelSerializer):
       if WaitlistEntry.objects.filter(email=value).exists():
          raise serializers.ValidationError("Hey! Love the excitement but you're already on the waitlist")
       if CustomUser.objects.filter(email=value).exists():
-         raise serializers.ValidationError("You already have a verified account!")
+         raise serializers.ValidationError("This email is already registered with an account.")
       return value
 
    def create(self, validated_data):

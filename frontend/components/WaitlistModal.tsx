@@ -63,8 +63,15 @@ export default function WaitlistModal({ isOpen, onClose }: WaitlistModalProps) {
       const data = await response.json().catch(() => ({}));
 
       if (!response.ok) {
+        // Handle field-specific errors from DRF
         if (data.email && Array.isArray(data.email)) {
           throw new Error(data.email[0].toUpperCase());
+        }
+        if (data.university_name && Array.isArray(data.university_name)) {
+          throw new Error(data.university_name[0].toUpperCase());
+        }
+        if (data.non_field_errors && Array.isArray(data.non_field_errors)) {
+          throw new Error(data.non_field_errors[0].toUpperCase());
         }
         throw new Error(data.detail || data.message || "SUBMISSION FAILED. TRY AGAIN.");
       }
