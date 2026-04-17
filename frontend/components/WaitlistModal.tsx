@@ -13,7 +13,7 @@ export default function WaitlistModal({ isOpen, onClose }: WaitlistModalProps) {
   const [uniName, setUniName] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showToast, setShowToast] = useState(false);
+  const [toastState, setToastState] = useState<"success" | "already_in" | null>(null);
 
   // Focus trap and body scroll lock
   useEffect(() => {
@@ -25,7 +25,7 @@ export default function WaitlistModal({ isOpen, onClose }: WaitlistModalProps) {
       setEmail("");
       setUniName("");
       setError(null);
-      setShowToast(false);
+      setToastState(null);
     }
   }, [isOpen]);
 
@@ -76,14 +76,22 @@ export default function WaitlistModal({ isOpen, onClose }: WaitlistModalProps) {
         throw new Error(data.detail || data.message || "SUBMISSION FAILED. TRY AGAIN.");
       }
 
-      setShowToast(true);
+      setToastState("success");
 
       // Auto-close after toast
       setTimeout(() => {
         onClose();
       }, 3000);
     } catch (err: any) {
-      setError(err.message || "SUBMISSION FAILED. TRY AGAIN.");
+      const errorMsg = err.message || "SUBMISSION FAILED. TRY AGAIN.";
+      if (errorMsg.includes("ALREADY ON THE WAITLIST") || errorMsg.includes("ALREADY REGISTERED")) {
+        setToastState("already_in");
+        setTimeout(() => {
+          onClose();
+        }, 4000);
+      } else {
+        setError(errorMsg);
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -163,16 +171,30 @@ export default function WaitlistModal({ isOpen, onClose }: WaitlistModalProps) {
           </form>
         </div>
 
-        {/* Success Toast Overlay */}
-        {showToast && (
+        {/* Success / Already In Toast Overlay */}
+        {toastState && (
           <div className="absolute inset-0 bg-primary-container flex flex-col items-center justify-center text-center p-8 border-4 border-black animate-in fade-in slide-in-from-bottom-4 duration-300">
-            <CheckCircle className="w-20 h-20 text-black mb-4 animate-bounce" />
-            <h3 className="text-3xl font-black uppercase tracking-tighter italic">
-              YOU&apos;RE IN!
-            </h3>
-            <p className="font-bold opacity-90 mt-2">
-              WE&apos;LL PING YOU WHEN WE LAND ON CAMPUS.
-            </p>
+            {toastState === "success" ? (
+              <>
+                <CheckCircle className="w-20 h-20 text-black mb-4 animate-bounce" />
+                <h3 className="text-3xl font-black uppercase tracking-tighter italic">
+                  YOU&apos;RE IN!
+                </h3>
+                <p className="font-bold opacity-90 mt-2">
+                  WE&apos;LL PING YOU WHEN WE LAND ON CAMPUS.
+                </p>
+              </>
+            ) : (
+              <>
+                <CheckCircle className="w-20 h-20 text-black mb-4 animate-bounce" />
+                <h3 className="text-3xl font-black uppercase tracking-tighter italic">
+                  YOU&apos;RE ALREADY IN!
+                </h3>
+                <p className="font-bold opacity-90 mt-2">
+                  WE&apos;VE GOT YOUR DETAILS. HANG TIGHT!
+                </p>
+              </>
+            )}
           </div>
         )}
       </div>
