@@ -50,10 +50,9 @@ export default function WaitlistModal({ isOpen, onClose }: WaitlistModalProps) {
     try {
       const isProd = process.env.NODE_ENV === "production";
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || "";
-      const endpoint = isProd ? "/api/users/waitlist/" : "http://localhost:8000/api/users/waitlist/";
+      const endpoint = isProd ? "/api/users/waitlist/" : `${apiUrl || "http://localhost:8000"}/api/users/waitlist/`;
 
-      const response = await fetch(isProd ? endpoint : `${apiUrl || "http://localhost:8000"}/api/users/waitlist/`, {
-
+      const response = await fetch(endpoint, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
