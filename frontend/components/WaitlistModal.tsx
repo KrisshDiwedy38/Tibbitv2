@@ -170,7 +170,7 @@ export default function WaitlistModal({ isOpen, onClose }: WaitlistModalProps) {
             <h3 className="text-3xl font-black uppercase tracking-tighter italic">
               YOU&apos;RE IN!
             </h3>
-            <p className="font-bold opacity-70 mt-2">
+            <p className="font-bold opacity-90 mt-2">
               WE&apos;LL PING YOU WHEN WE LAND ON CAMPUS.
             </p>
           </div>
