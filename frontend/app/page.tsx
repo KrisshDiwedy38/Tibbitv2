@@ -4,6 +4,7 @@ import { useState } from "react";
 import BackgroundGridHover from "../components/BackgroundGridHover";
 import DynamicHUD from "../components/DynamicHUD";
 import WaitlistModal from "../components/WaitlistModal";
+import StudentServicesExpander from "../components/StudentServicesExpander";
 
 export default function Home() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -28,9 +29,9 @@ export default function Home() {
       {/* TopNavBar */}
       <header className="bg-[#0e0e0e] border-b-4 border-[#262626] sticky top-0 z-50">
         <div className="flex justify-between items-center w-full px-4 sm:px-6 py-4 max-w-[1440px] mx-auto">
-          <div className="text-2xl font-black italic tracking-tighter text-[#abfc01] font-['Space_Grotesk'] uppercase">
+          <a className="text-2xl font-black italic tracking-tighter text-[#abfc01] font-['Space_Grotesk'] uppercase" href="#home">
             TIBBIT
-          </div>
+          </a>
           <nav className="hidden md:flex items-center gap-8">
             <a className="text-white/70 hover:text-[#abfc01] hover:bg-[#262626] transition-none font-['Space_Grotesk'] uppercase tracking-tighter text-sm font-bold px-2 py-1" href="#ecosystem">Market</a>
             <a className="text-white/70 hover:text-[#abfc01] hover:bg-[#262626] transition-none font-['Space_Grotesk'] uppercase tracking-tighter text-sm font-bold px-2 py-1" href="#ecosystem">Services</a>
@@ -96,7 +97,7 @@ export default function Home() {
 
       <main>
         {/* Hero Section */}
-        <section className="relative min-h-[90vh] sm:min-h-[70vh] lg:min-h-[819px] flex flex-col justify-center items-start px-4 sm:px-8 md:px-16 lg:px-20 py-12 sm:py-16 lg:py-20 overflow-hidden">
+        <section className="relative min-h-[90vh] sm:min-h-[70vh] lg:min-h-[819px] flex flex-col justify-center items-start px-4 sm:px-8 md:px-16 lg:px-20 py-12 sm:py-16 lg:py-20 overflow-hidden" id="home">
           {/* Background Graphic */}
           <div className="absolute top-1/2 right-0 -translate-y-1/2 translate-x-1/3 -z-10">
             <div className="opacity-10 w-[300px] h-[300px] sm:w-[500px] sm:h-[500px] lg:w-[700px] lg:h-[700px] border-[10px] sm:border-[15px] border-secondary animate-spin-slow"></div>
@@ -117,104 +118,75 @@ export default function Home() {
             <p className="text-base sm:text-lg md:text-xl lg:text-2xl font-medium text-white/70 max-w-2xl leading-relaxed">
               The playground for Gen Z hustlers. Trade goods, launch services, and scale your campus startup on a platform built for builders, by builders.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 pt-4 sm:pt-8">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-6 pt-3 sm:pt-8 items-center sm:items-start w-full">
               <button
                 onClick={openModal}
-                className="bg-primary-container text-on-primary-container px-6 sm:px-8 lg:px-10 py-4 sm:py-5 border-4 border-black text-lg sm:text-xl lg:text-2xl font-black uppercase tracking-tighter neo-shadow-secondary hover:translate-x-[4px] hover:translate-y-[4px] hover:shadow-none transition-all duration-75"
+                className="w-[50%] sm:w-auto bg-primary-container text-on-primary-container px-5 sm:px-8 lg:px-10 py-3 sm:py-5 border-[3px] sm:border-4 border-black text-base sm:text-xl lg:text-2xl font-black uppercase tracking-tighter neo-shadow-secondary hover:translate-x-[4px] hover:translate-y-[4px] hover:shadow-none transition-all duration-75"
               >
                 Start Hustling
-              </button>
-              <button
-                onClick={openModal}
-                className="bg-transparent text-on-background px-6 sm:px-8 lg:px-10 py-4 sm:py-5 border-4 border-secondary text-lg sm:text-xl lg:text-2xl font-black uppercase tracking-tighter hover:bg-secondary/10 transition-all"
-              >
-                View Market
               </button>
             </div>
           </div>
         </section>
 
         {/* Bento Categories */}
-        <section className="px-4 sm:px-8 md:px-16 lg:px-20 py-16 sm:py-20 lg:py-24 bg-surface-container-low" id="ecosystem">
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black uppercase mb-10 sm:mb-12 lg:mb-16 flex items-center gap-4">
-            <span className="w-8 sm:w-12 h-1 bg-tertiary"></span>
+        <section className="px-20 sm:px-20 md:px-16 lg:px-30 py-12 sm:py-20 lg:py-24 bg-surface-container-low" id="ecosystem">
+          <h2 className="text-xl sm:text-3xl lg:text-4xl font-black uppercase mb-8 sm:mb-12 lg:mb-16 flex items-center gap-4">
+            <span className="w-6 sm:w-12 h-1 bg-tertiary"></span>
             The Ecosystem
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-4 sm:gap-6">
-            {/* Card 1 — Student Services (wide) */}
-            <div className="sm:col-span-2 lg:col-span-8 bg-surface-container-highest border-4 border-black p-5 sm:p-6 lg:p-8 group relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-24 sm:w-32 h-24 sm:h-32 bg-primary-container -translate-y-1/2 translate-x-1/2 rotate-45 transition-transform group-hover:scale-110"></div>
-              <span className="material-symbols-outlined text-primary-container text-4xl sm:text-5xl mb-4 sm:mb-6" style={{ fontVariationSettings: "'FILL' 1" }}>terminal</span>
-              <h3 className="text-2xl sm:text-3xl lg:text-4xl font-black uppercase mb-3 sm:mb-4">STUDENT SERVICES</h3>
-              <p className="text-base sm:text-lg text-white/60 mb-6 sm:mb-8 max-w-md">From code debugging and graphic design to dorm cleaning. Put your skills to work and earn in campus-native economies.</p>
-              <button
-                onClick={openModal}
-                className="flex items-center gap-4 text-primary font-bold uppercase tracking-widest text-sm hover:underline"
-              >
-                <span>Explore Gigs</span>
-                <span className="material-symbols-outlined">arrow_forward</span>
-              </button>
-              <div className="mt-8 sm:mt-12 flex gap-4">
-                <div className="h-12 w-12 sm:h-16 sm:w-16 bg-surface border-2 border-black flex items-center justify-center">
-                  <span className="material-symbols-outlined text-secondary">code</span>
-                </div>
-                <div className="h-12 w-12 sm:h-16 sm:w-16 bg-surface border-2 border-black flex items-center justify-center">
-                  <span className="material-symbols-outlined text-tertiary">brush</span>
-                </div>
-                <div className="h-12 w-12 sm:h-16 sm:w-16 bg-surface border-2 border-black flex items-center justify-center">
-                  <span className="material-symbols-outlined text-primary">translate</span>
-                </div>
-              </div>
-            </div>
+            {/* Card 1 — Student Services (wide, expandable) */}
+            <StudentServicesExpander onAction={openModal} />
 
             {/* Card 2 — Peer-to-Peer Goods */}
-            <div className="lg:col-span-4 bg-secondary border-4 border-black p-5 sm:p-6 lg:p-8 neo-shadow-primary flex flex-col justify-between">
+            <div className="lg:col-span-4 bg-secondary border-[3px] sm:border-4 border-black p-4 sm:p-6 lg:p-8 neo-shadow-primary flex flex-col justify-between">
               <div>
-                <span className="material-symbols-outlined text-black text-4xl sm:text-5xl mb-4 sm:mb-6">shopping_bag</span>
-                <h3 className="text-2xl sm:text-3xl font-black uppercase text-black leading-tight">PEER-TO-PEER MARKETPLACE</h3>
+                <span className="material-symbols-outlined text-black text-3xl sm:text-5xl mb-3 sm:mb-6">shopping_bag</span>
+                <h3 className="text-xl sm:text-3xl font-black uppercase text-black leading-tight">PEER-TO-PEER MARKETPLACE</h3>
               </div>
-              <p className="text-black/80 font-bold mt-3 sm:mt-4">Safe, student-only trading for tech, gear, and essentials.</p>
+              <p className="text-black/80 text-sm sm:text-base font-bold mt-2 sm:mt-4">Keep your trades inside the campus bubble through a verified, student-exclusive marketplace to buy and sell laptops, gear, and dorm essentials.</p>
               <button
                 onClick={openModal}
-                className="mt-6 sm:mt-8 bg-black text-secondary px-6 py-3 font-black uppercase tracking-tighter"
+                className="mt-5 sm:mt-8 w-fit bg-black text-secondary px-5 py-2.5 sm:px-6 sm:py-3 font-black uppercase tracking-tighter text-sm sm:text-base"
               >
                 Shop Campus
               </button>
             </div>
 
             {/* Card 3 — Market Your Startup */}
-            <div className="lg:col-span-4 bg-tertiary border-4 border-black p-5 sm:p-6 lg:p-8 neo-shadow-primary flex flex-col justify-between">
+            <div className="lg:col-span-4 bg-tertiary border-[3px] sm:border-4 border-black p-4 sm:p-6 lg:p-8 neo-shadow-primary flex flex-col justify-between">
               <div>
-                <span className="material-symbols-outlined text-black text-4xl sm:text-5xl mb-4 sm:mb-6">rocket_launch</span>
-                <h3 className="text-2xl sm:text-3xl font-black uppercase text-black leading-tight">LAUNCHPAD</h3>
+                <span className="material-symbols-outlined text-black text-3xl sm:text-5xl mb-3 sm:mb-6">rocket_launch</span>
+                <h3 className="text-xl sm:text-3xl font-black uppercase text-black leading-tight">LAUNCHPAD</h3>
               </div>
-              <p className="text-black/80 font-bold mt-3 sm:mt-4">The launchpad for the next big thing. Get your first 100 users on-campus.</p>
+              <p className="text-black/80 text-sm sm:text-base font-bold mt-2 sm:mt-4">The launchpad for the next big thing. Get your first 100 users on-campus.</p>
               <button
                 onClick={openModal}
-                className="mt-6 sm:mt-8 bg-black text-tertiary px-6 py-3 font-black uppercase tracking-tighter"
+                className="mt-5 sm:mt-8 w-fit bg-black text-tertiary px-5 py-2.5 sm:px-6 sm:py-3 font-black uppercase tracking-tighter text-sm sm:text-base"
               >
                 Launch Now
               </button>
             </div>
 
             {/* Card 4 — Community (wide) */}
-            <div className="sm:col-span-2 lg:col-span-8 bg-surface border-4 border-black p-0 overflow-hidden relative min-h-[220px] sm:min-h-[300px]">
+            <div className="sm:col-span-2 lg:col-span-8 bg-surface border-[3px] sm:border-4 border-black p-0 overflow-hidden relative min-h-[160px] sm:min-h-[300px]">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 alt="Collaboration"
                 className="w-full h-full object-cover grayscale brightness-50 contrast-125 absolute inset-0"
                 src="community_pic.jpg"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent p-5 sm:p-8 flex flex-col justify-end">
-                <h3 className="text-2xl sm:text-3xl lg:text-4xl font-black uppercase text-white tracking-tighter">The Community</h3>
-                <p className="text-white/70 max-w-sm mt-2 text-sm sm:text-base">Connect with 1,000+ students and freelancers across 102 campuses.</p>
+              <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent p-4 sm:p-8 flex flex-col justify-end">
+                <h3 className="text-xl sm:text-3xl lg:text-4xl font-black uppercase text-white tracking-tighter">The Community</h3>
+                <p className="text-white/70 max-w-sm mt-1 sm:mt-2 text-xs sm:text-base">Connect with 1,000+ students and freelancers across 102 campuses.</p>
               </div>
             </div>
           </div>
         </section>
 
         {/* Manifesto Section */}
-        <section className="px-4 sm:px-8 md:px-16 lg:px-20 py-16 sm:py-24 lg:py-32 flex flex-col md:flex-row gap-10 sm:gap-14 lg:gap-20 items-center" id="manifesto">
+        <section className="px-12 sm:px-10 md:px-16 lg:px-20 py-16 sm:py-24 lg:py-32 flex flex-col md:flex-row gap-10 sm:gap-14 lg:gap-20 items-center" id="manifesto">
           <div className="md:w-1/2">
             <div className="relative">
               <h2 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-black uppercase tracking-tighter leading-none relative">
@@ -224,18 +196,18 @@ export default function Home() {
           </div>
           <div className="md:w-1/2 space-y-8 sm:space-y-10">
             <div className="bg-surface-container-highest p-5 sm:p-8 border-l-8 border-primary-container">
-              <p className="text-base sm:text-lg lg:text-xl font-bold leading-relaxed">
+              <p className="text-base sm:text-lg lg:text-xl leading-relaxed">
                 TIBBIT is more than a marketplace. It&apos;s the digital infrastructure for the ambitious. We believe your university years are the ultimate sandbox for experimentation, which is why we built a frictionless ecosystem with zero gatekeepers and no padded resumes. Whether you're buying and selling locally, monetizing your freelance skills, finding your next co-founder, or launching a startup to early adopters, TIBBIT is where the next generation of builders stops planning and starts shipping.
               </p>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8">
               <div>
-                <h4 className="text-primary-container font-black uppercase tracking-widest text-xs mb-2">Rule 01</h4>
-                <p className="text-white/50 text-sm">Built for builders. Every feature is designed to reduce friction for sellers.</p>
+                <h4 className="text-primary-container font-black uppercase tracking-widest text-xs mb-2">Tenet 01</h4>
+                <p className="text-white/50 text-sm"><strong>Zero Friction.</strong> We build tools that get out of your way. Every feature is optimized to take you from idea to execution instantly.</p>
               </div>
               <div>
-                <h4 className="text-primary-container font-black uppercase tracking-widest text-xs mb-2">Rule 02</h4>
-                <p className="text-white/50 text-sm">Campus verified. Security through academic authentication.</p>
+                <h4 className="text-primary-container font-black uppercase tracking-widest text-xs mb-2">Tenet 02</h4>
+                <p className="text-white/50 text-sm"><strong>Absolute Trust.</strong> A walled garden for the ambitious. Ironclad academic authentication means no strangers, no bots, and no stress.</p>
               </div>
             </div>
           </div>
@@ -272,7 +244,6 @@ export default function Home() {
         <nav className="flex flex-wrap justify-center gap-4 sm:gap-8 md:flex-shrink-0">
           <a className="text-white/50 hover:underline hover:text-[#ff51fa] font-['Space_Grotesk'] text-xs font-bold uppercase transition-all duration-150" href="#">Privacy</a>
           <a className="text-white/50 hover:underline hover:text-[#ff51fa] font-['Space_Grotesk'] text-xs font-bold uppercase transition-all duration-150" href="#">Terms</a>
-          <a className="text-white/50 hover:underline hover:text-[#ff51fa] font-['Space_Grotesk'] text-xs font-bold uppercase transition-all duration-150" href="#">Discord</a>
           <a className="text-white/50 hover:underline hover:text-[#ff51fa] font-['Space_Grotesk'] text-xs font-bold uppercase transition-all duration-150" href="#">Contact</a>
         </nav>
         <div className="flex justify-center md:justify-end gap-4 md:flex-1 w-full md:w-auto">
