@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'TIBBIT | Student-Led Marketplace',
+  title: 'TIBBIT | Student-led Marketplace',
   description: 'The playground for Gen Z hustlers. Trade goods, launch services, and scale your campus startup on a platform built for builders, by builders.',
 };
 
