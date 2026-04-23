@@ -130,7 +130,7 @@ export default function Home() {
         </section>
 
         {/* Bento Categories */}
-        <section className="px-20 sm:px-20 md:px-16 lg:px-30 py-12 sm:py-20 lg:py-24 bg-surface-container-low" id="ecosystem">
+        <section className="px-12 sm:px-12 md:px-16 lg:px-30 py-12 sm:py-20 lg:py-24 bg-surface-container-low" id="ecosystem">
           <h2 className="text-xl sm:text-3xl lg:text-4xl font-black uppercase mb-8 sm:mb-12 lg:mb-16 flex items-center gap-4">
             <span className="w-6 sm:w-12 h-1 bg-tertiary"></span>
             The Ecosystem
