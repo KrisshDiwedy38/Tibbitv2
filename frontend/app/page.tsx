@@ -242,9 +242,9 @@ export default function Home() {
           <div className="text-[#ffffff80] font-['Space_Grotesk'] text-xs font-bold uppercase text-center md:text-left">Copyright © 2026 TIBBIT. All rights reserved.</div>
         </div>
         <nav className="flex flex-wrap justify-center gap-4 sm:gap-8 md:flex-shrink-0">
-          <a className="text-white/50 hover:underline hover:text-[#ff51fa] font-['Space_Grotesk'] text-xs font-bold uppercase transition-all duration-150" href="#">Privacy</a>
-          <a className="text-white/50 hover:underline hover:text-[#ff51fa] font-['Space_Grotesk'] text-xs font-bold uppercase transition-all duration-150" href="#">Terms</a>
-          <a className="text-white/50 hover:underline hover:text-[#ff51fa] font-['Space_Grotesk'] text-xs font-bold uppercase transition-all duration-150" href="#">Contact</a>
+          <a className="text-white/50 hover:underline hover:text-[#ff51fa] font-['Space_Grotesk'] text-xs font-bold uppercase transition-all duration-150" href="#home">Privacy</a>
+          <a className="text-white/50 hover:underline hover:text-[#ff51fa] font-['Space_Grotesk'] text-xs font-bold uppercase transition-all duration-150" href="#home">Terms</a>
+          <a className="text-white/50 hover:underline hover:text-[#ff51fa] font-['Space_Grotesk'] text-xs font-bold uppercase transition-all duration-150" href="#home">Contact</a>
         </nav>
         <div className="flex justify-center md:justify-end gap-4 md:flex-1 w-full md:w-auto">
           <div className="relative">
