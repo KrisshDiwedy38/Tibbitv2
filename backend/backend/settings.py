@@ -31,20 +31,27 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-uxa!+(ca8xi=w8=zk%)vl3k42j#%$3h3p9))1%goc%8o^i&j5*')
+SECRET_KEY = os.environ['SECRET_KEY']  # No fallback. Crash if missing.
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get("DEBUG", "False") == "True"
 
-ALLOWED_HOSTS = ['*'] # Allowed all for waitlist, configure properly for prod
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',') # Configured from env
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-]
+CORS_ALLOWED_ORIGINS = os.environ.get('CORS_ORIGINS', 'http://localhost:3000').split(',')
 
-# Allow any Vercel frontend or waitlist origin
-CORS_ALLOW_ALL_ORIGINS = True
+# Disable allowing all origins
+CORS_ALLOW_ALL_ORIGINS = False
+
+# Security headers (production)
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+X_FRAME_OPTIONS = 'DENY'
+SECURE_HSTS_SECONDS = 31536000  # 1 year
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_SSL_REDIRECT = not DEBUG
+SESSION_COOKIE_SECURE = not DEBUG
+CSRF_COOKIE_SECURE = not DEBUG
 
 # Application definition
 
@@ -187,7 +194,13 @@ OTP_MAX_ATTEMPTS = 5
 
 REST_FRAMEWORK = {
    'DEFAULT_AUTHENTICATION_CLASSES' : ['rest_framework_simplejwt.authentication.JWTAuthentication'],
-   'DEFAULT_PERMISSION_CLASSES' : ['rest_framework.permissions.IsAuthenticated']
+   'DEFAULT_PERMISSION_CLASSES' : ['rest_framework.permissions.IsAuthenticated'],
+   'DEFAULT_THROTTLE_CLASSES': [
+       'rest_framework.throttling.AnonRateThrottle',
+   ],
+   'DEFAULT_THROTTLE_RATES': {
+       'anon': '10/minute',
+   }
 }
 
 SIMPLE_JWT = {
