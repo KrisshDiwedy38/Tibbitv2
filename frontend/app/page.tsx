@@ -4,22 +4,26 @@ import { useState } from "react";
 import BackgroundGridHover from "../components/BackgroundGridHover";
 import DynamicHUD from "../components/DynamicHUD";
 import WaitlistModal from "../components/WaitlistModal";
+import ContactModal from "../components/ContactModal";
+import ReportBugModal from "../components/ReportBugModal";
 import StudentServicesExpander from "../components/StudentServicesExpander";
+
+import Link from "next/link";
 
 export default function Home() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [copied, setCopied] = useState(false);
+  const [isContactModalOpen, setIsContactModalOpen] = useState(false);
+  const [isReportBugModalOpen, setIsReportBugModalOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
   const openModal = () => setIsModalOpen(true);
+  const closeModal = () => setIsModalOpen(false);
 
-  const handleCopy = () => {
-    if (typeof window !== "undefined") {
-      navigator.clipboard.writeText(window.location.href);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    }
-  };
+  const openContactModal = () => setIsContactModalOpen(true);
+  const closeContactModal = () => setIsContactModalOpen(false);
+
+  const openReportBugModal = () => setIsReportBugModalOpen(true);
+  const closeReportBugModal = () => setIsReportBugModalOpen(false);
 
   return (
     <>
@@ -110,10 +114,6 @@ export default function Home() {
             <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-9xl font-black uppercase leading-[0.85] tracking-tighter">
               TIBBIT: <br />
               <span className="text-primary-container">TRADE. BUILD. HUSTLE.</span> <br />
-            </h1>
-            <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black uppercase leading-[0.85] tracking-tighter">
-              THE UNAPOLOGETIC <br />
-              STUDENT ECOSYSTEM
             </h1>
             <p className="text-base sm:text-lg md:text-xl lg:text-2xl font-medium text-white/70 max-w-2xl leading-relaxed">
               The playground for Gen Z hustlers. Trade goods, launch services, and scale your campus startup on a platform built for builders, by builders.
@@ -242,29 +242,22 @@ export default function Home() {
           <div className="text-[#ffffff80] font-['Space_Grotesk'] text-xs font-bold uppercase text-center md:text-left">Copyright © 2026 TIBBIT. All rights reserved.</div>
         </div>
         <nav className="flex flex-wrap justify-center gap-4 sm:gap-8 md:flex-shrink-0">
-          <a className="text-white/50 hover:underline hover:text-[#ff51fa] font-['Space_Grotesk'] text-xs font-bold uppercase transition-all duration-150" href="#home">Privacy</a>
-          <a className="text-white/50 hover:underline hover:text-[#ff51fa] font-['Space_Grotesk'] text-xs font-bold uppercase transition-all duration-150" href="#home">Terms</a>
-          <a className="text-white/50 hover:underline hover:text-[#ff51fa] font-['Space_Grotesk'] text-xs font-bold uppercase transition-all duration-150" href="#home">Contact</a>
+          <Link className="text-white/50 hover:underline hover:text-[#ff51fa] font-['Space_Grotesk'] text-xs font-bold uppercase transition-all duration-150" href="/privacy">Privacy</Link>
+          <Link className="text-white/50 hover:underline hover:text-[#ff51fa] font-['Space_Grotesk'] text-xs font-bold uppercase transition-all duration-150" href="/terms">Terms</Link>
+          <button onClick={openContactModal} className="text-white/50 hover:underline hover:text-[#ff51fa] font-['Space_Grotesk'] text-xs font-bold uppercase transition-all duration-150">Contact</button>
         </nav>
         <div className="flex justify-center md:justify-end gap-4 md:flex-1 w-full md:w-auto">
-          <div className="relative">
-            {copied && (
-              <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-tertiary text-black text-[10px] font-black px-3 py-1 uppercase tracking-widest neo-shadow-primary animate-fade-in-up">
-                Copied
-              </div>
-            )}
-            <div
-              onClick={handleCopy}
-              className={`w-10 h-10 border-2 flex items-center justify-center transition-all duration-300 cursor-pointer ${copied ? "border-tertiary text-tertiary bg-tertiary/10" : "border-white/20 hover:border-tertiary hover:text-tertiary hover:scale-110 active:scale-90"
-                }`}
-            >
-              <span className="material-symbols-outlined text-lg transition-all">
-                {copied ? "done_all" : "content_copy"}
-              </span>
-            </div>
-          </div>
+          <button onClick={openReportBugModal} className="text-white/50 hover:text-[#ff3333] font-['Space_Grotesk'] text-xs font-bold uppercase transition-all duration-150 flex items-center gap-2">
+            <span className="material-symbols-outlined text-sm">bug_report</span>
+            Report Bug
+          </button>
         </div>
       </footer>
+
+      {/* Modals */}
+      <WaitlistModal isOpen={isModalOpen} onClose={closeModal} />
+      <ContactModal isOpen={isContactModalOpen} onClose={closeContactModal} />
+      <ReportBugModal isOpen={isReportBugModalOpen} onClose={closeReportBugModal} />
     </>
   );
 }
