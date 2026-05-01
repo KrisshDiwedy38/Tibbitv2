@@ -7,7 +7,9 @@ from .views import (
     ResendOTPView,
     LoginView,
     UserProfileView,
-    WaitlistCreateView
+    WaitlistCreateView,
+    ContactFormView,
+    BugReportView
 )
 
 urlpatterns = [
@@ -19,4 +21,6 @@ urlpatterns = [
     re_path(r'^token/refresh/?$', TokenRefreshView.as_view(), name='token_refresh'),
     re_path(r'^profile/?$', UserProfileView.as_view(), name='profile'),
     re_path(r'^waitlist/?$', WaitlistCreateView.as_view(), name='waitlist'),
+    re_path(r'^contact/?$', ContactFormView.as_view(), name='contact'),
+    re_path(r'^report-bug/?$', BugReportView.as_view(), name='report-bug'),
 ]

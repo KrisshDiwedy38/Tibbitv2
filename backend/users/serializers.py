@@ -144,3 +144,7 @@ class WaitlistEntrySerializer(serializers.ModelSerializer):
       validated_data['is_verified'] = False
       entry = WaitlistEntry.objects.create(**validated_data)
       return entry
+
+class ContactFormSerializer(serializers.Serializer):
+   email = serializers.EmailField()
+   message = serializers.CharField()

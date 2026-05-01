@@ -8,10 +8,16 @@ from .serializers import (
     ResendOTPSerializer,
     LoginSerializer,
     UniversitySerializer,
-    WaitlistEntrySerializer
+    WaitlistEntrySerializer,
+    ContactFormSerializer
 )
 from .models import University
+import resend
+import os
+from django.conf import settings
 
+resend.api_key = os.environ.get("RESEND_FOUNDER_API_KEY")
+EMAIL_ADDRESS = os.environ.get("FOUNDER_EMAIL")
 class UniversityListView(APIView):
     permission_classes = [AllowAny]
 
@@ -103,3 +109,47 @@ from rest_framework import generics
 class WaitlistCreateView(generics.CreateAPIView):
     permission_classes = [AllowAny]
     serializer_class = WaitlistEntrySerializer
+
+class ContactFormView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        serializer = ContactFormSerializer(data=request.data)
+        if serializer.is_valid():
+            email = serializer.validated_data['email']
+            message = serializer.validated_data['message']
+            
+            try:
+                resend.Emails.send({
+                    "from": "Tibbit Platform <onboarding@resend.dev>",
+                    "to": "[EMAIL_ADDRESS]",
+                    "subject": f"Tibbit Contact Form from {email}",
+                    "text": f"From: {email}\n\nMessage:\n{message}",
+                    "reply_to": email
+                })
+                return Response({"message": "Message sent successfully!"}, status=status.HTTP_200_OK)
+            except Exception as e:
+                return Response({"error": "Failed to send message."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class BugReportView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        serializer = ContactFormSerializer(data=request.data)
+        if serializer.is_valid():
+            email = serializer.validated_data['email']
+            message = serializer.validated_data['message']
+            
+            try:
+                resend.Emails.send({
+                    "from": "Tibbit Platform <onboarding@resend.dev>",
+                    "to": "[EMAIL_ADDRESS]",
+                    "subject": f"CRITICAL: Tibbit Bug Report from {email}",
+                    "text": f"Bug reported by: {email}\n\nDescription:\n{message}",
+                    "reply_to": email
+                })
+                return Response({"message": "Bug report sent successfully!"}, status=status.HTTP_200_OK)
+            except Exception as e:
+                return Response({"error": "Failed to send bug report."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
