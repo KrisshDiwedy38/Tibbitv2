@@ -26,6 +26,7 @@ module.exports = {
         "error": "#ff7351",
         "on-surface": "#ffffff",
         "tertiary": "#ff51fa",
+        "tertiary-contact-container": "#d62fecf6",
         "surface-container-highest": "#262626",
         "error-dim": "#d53d18",
         "on-tertiary-fixed": "#320032",

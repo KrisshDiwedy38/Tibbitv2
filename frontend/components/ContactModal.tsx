@@ -79,6 +79,13 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
     }
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSubmit(e as unknown as React.FormEvent);
+    }
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -90,7 +97,7 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
       />
 
       {/* Modal Content */}
-      <div className="relative w-full max-w-md bg-tertiary border-4 border-black p-5 sm:p-8 neo-shadow-primary animate-in fade-in zoom-in duration-200">
+      <div className="relative w-full max-w-md bg-tertiary-contact-container border-4 border-black p-5 sm:p-8 neo-shadow-primary animate-in fade-in zoom-in duration-200">
         <button
           onClick={onClose}
           className="absolute top-4 right-4 p-1 hover:bg-black/10 transition-colors"
@@ -101,7 +108,7 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
         <div className="space-y-6">
           <div className="space-y-2">
             <h2 className="text-2xl sm:text-4xl font-black uppercase tracking-tighter italic text-black">
-              GET IN <br /> TOUCH
+              GET IN TOUCH
             </h2>
             <p className="text-sm font-bold text-black/70 uppercase tracking-widest">
               Direct line to the founder.
@@ -129,7 +136,8 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
               <textarea
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
-                placeholder="WHAT'S ON YOUR MIND?"
+                onKeyDown={handleKeyDown}
+                placeholder="WHAT'S ON YOUR MIND? HIT ENTER TO SEND"
                 rows={4}
                 className="w-full bg-white border-4 border-black p-3 sm:p-4 font-bold text-black focus:outline-none focus:ring-4 focus:ring-black transition-all placeholder:text-black/20 text-sm sm:text-base resize-none"
               />
