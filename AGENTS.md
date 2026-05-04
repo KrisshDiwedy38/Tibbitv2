@@ -8,8 +8,8 @@
 
 ## Last updated
 <!-- AUTO-UPDATED by memory-agent -->
-Date: 2026-04-21
-Last change: Refined StudentServicesExpander component with a horizontal slide-in transition and primary-fixed background.
+Date: 2026-05-05
+Last change: Finalized footer contact/bug report features with Resend integration and UI refinements.
 
 ---
 
@@ -47,8 +47,11 @@ app/
 components/
 ├── BackgroundGridHover.tsx     # Interactive grid background effect
 ├── DynamicHUD.tsx              # Persistent status bar HUD element
-├── StudentServicesExpander.tsx  # Expandable Student Services card — 3 service categories with animated reveal
-└── WaitlistModal.tsx            # Waitlist signup modal — calls backend /api/users/waitlist/
+├── StudentServicesExpander.tsx  # Expandable Student Services card
+├── WaitlistModal.tsx            # Waitlist signup modal
+├── ContactModal.tsx             # Contact founder modal (Resend integration)
+└── ReportBugModal.tsx          # Bug reporting modal (Resend integration)
+
 
 public/
 ├── community_pic.jpg        # Community section image
@@ -129,6 +132,8 @@ TibbitToDo.txt            # Product feature backlog / notes
 |--------|------------|---------------|----------------|--------|
 | Auth/Users | `users/` | `views.py` (Registration, Login, OTP, Profile) | — (no frontend yet) | Backend done |
 | Waitlist | `users/` | `views.py` (WaitlistCreateView) | `app/page.tsx` + `WaitlistModal.tsx` | Done — live |
+| Support | `users/` | `views.py` (ContactFounderView, ReportBugView) | `ContactModal.tsx`, `ReportBugModal.tsx` | Done |
+
 | Listings | `listings/` | `views.py` (Category, Listing, SavedListing ViewSets) | — (no frontend yet) | Backend done |
 | Messaging | `messaging/` | `views.py` + `consumers.py` (WebSocket) | — (no frontend yet) | Backend done |
 | Transactions | `transactions/` | `views.py` (Transaction, Review ViewSets) | — (no frontend yet) | Backend done |
@@ -296,6 +301,9 @@ unique_together: [transaction, reviewer]
 | POST | `/api/users/token/refresh` | No | Refresh JWT access token |
 | GET/PUT | `/api/users/profile` | Yes | Get or update user profile |
 | POST | `/api/users/waitlist` | No | Join the waitlist |
+| POST | `/api/users/contact` | No | Send message to founder (Resend) |
+| POST | `/api/users/report-bug` | No | Report a bug (Resend) |
+
 
 ### Listings (`/api/listings/`)
 | Method | Path | Auth required | Description |
@@ -344,6 +352,9 @@ EMAIL_USE_TLS         TLS toggle
 EMAIL_HOST_USER       SMTP username
 EMAIL_HOST_PASSWORD   SMTP password
 DEFAULT_FROM_EMAIL    From email address
+RESEND_FOUNDER_API_KEY API key for Resend email service
+FOUNDER_EMAIL         Destination email for contact/bug reports
+
 ```
 
 ---
@@ -365,6 +376,8 @@ DEFAULT_FROM_EMAIL    From email address
 - **Deployment**: Vercel monorepo — frontend via `@vercel/next`, backend via `@vercel/python` (WSGI). Known limitation: WebSockets won't work on Vercel serverless.
 - **CORS**: Currently `CORS_ALLOW_ALL_ORIGINS = True` for waitlist phase. Must be restricted for production.
 - **ALLOWED_HOSTS**: Currently `['*']` — must be restricted for production.
+- **Email integration**: Using `django-anymail[resend]` for transactional emails. Contact and bug reports are routed to the founder's email.
+
 
 ---
 
@@ -375,8 +388,9 @@ DEFAULT_FROM_EMAIL    From email address
 
 - [ ] Platform expansion design — marketplace, startup launchpad, community platform (architecture planned)
 - [ ] Production deployment preparation — security audit, DNS config, infrastructure decisions
-- [x] Waitlist UX polish — "already on waitlist" message styling, ecosystem card interactions (StudentServicesExpander done)
-- [ ] Footer updates — build demo privacy/terms pages, remove Discord link, contact popup
+- [x] Waitlist UX polish — "already on waitlist" message styling, ecosystem card interactions
+- [x] Footer updates — build demo privacy/terms pages, remove Discord link, contact/bug report popups
+
 
 ---
 

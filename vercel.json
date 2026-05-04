@@ -8,7 +8,8 @@
       "src": "backend/backend/wsgi.py",
       "use": "@vercel/python",
       "config": {
-        "maxDuration": 10
+        "maxDuration": 10,
+        "installCommand": "pip install -r requirements.txt"
       }
     }
   ],
