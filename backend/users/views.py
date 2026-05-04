@@ -2,6 +2,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
+from .email_utils import send_contact_email, send_bug_report
 from .serializers import (
     RegistrationSerializer,
     OTPVerifySerializer,
@@ -12,12 +13,8 @@ from .serializers import (
     ContactFormSerializer
 )
 from .models import University
-import resend
-import os
 from django.conf import settings
 
-resend.api_key = os.environ.get("RESEND_FOUNDER_API_KEY")
-EMAIL_ADDRESS = os.environ.get("FOUNDER_EMAIL")
 class UniversityListView(APIView):
     permission_classes = [AllowAny]
 
@@ -110,46 +107,50 @@ class WaitlistCreateView(generics.CreateAPIView):
     permission_classes = [AllowAny]
     serializer_class = WaitlistEntrySerializer
 
-class ContactFormView(APIView):
+
+
+class ContactFounderView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
         serializer = ContactFormSerializer(data=request.data)
-        if serializer.is_valid():
-            email = serializer.validated_data['email']
-            message = serializer.validated_data['message']
-            
-            try:
-                resend.Emails.send({
-                    "from": "Tibbit Platform <onboarding@resend.dev>",
-                    "to": "[EMAIL_ADDRESS]",
-                    "subject": f"Tibbit Contact Form from {email}",
-                    "text": f"From: {email}\n\nMessage:\n{message}",
-                    "reply_to": email
-                })
-                return Response({"message": "Message sent successfully!"}, status=status.HTTP_200_OK)
-            except Exception as e:
-                return Response({"error": "Failed to send message."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class BugReportView(APIView):
+        email = serializer.validated_data['email']
+        message = serializer.validated_data['message']
+
+        # Enforce max length to prevent abuse
+        if len(message) > 2000:
+            return Response({"error": "Message is too long (max 2000 characters)."}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            send_contact_email(email, message)
+            return Response({"success": True}, status=status.HTTP_200_OK)
+        except Exception:
+            # Never expose raw exception details to the client
+            return Response({"error": "Failed to send message. Please try again later."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class ReportBugView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
         serializer = ContactFormSerializer(data=request.data)
-        if serializer.is_valid():
-            email = serializer.validated_data['email']
-            message = serializer.validated_data['message']
-            
-            try:
-                resend.Emails.send({
-                    "from": "Tibbit Platform <onboarding@resend.dev>",
-                    "to": "[EMAIL_ADDRESS]",
-                    "subject": f"CRITICAL: Tibbit Bug Report from {email}",
-                    "text": f"Bug reported by: {email}\n\nDescription:\n{message}",
-                    "reply_to": email
-                })
-                return Response({"message": "Bug report sent successfully!"}, status=status.HTTP_200_OK)
-            except Exception as e:
-                return Response({"error": "Failed to send bug report."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        email = serializer.validated_data['email']
+        description = serializer.validated_data['message']
+
+        # Enforce max length to prevent abuse
+        if len(description) > 2000:
+            return Response({"error": "Description is too long (max 2000 characters)."}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            send_bug_report(email, description)
+            return Response({"success": True}, status=status.HTTP_200_OK)
+        except Exception:
+            # Never expose raw exception details to the client
+            return Response({"error": "Failed to send report. Please try again later."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+

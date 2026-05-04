@@ -27,3 +27,6 @@ celery==5.3.6
 # Production Server
 gunicorn==21.2.0
 
+# Email (Resend via Anymail)
+django-anymail[resend]>=15.0
+resend>=2.0.0

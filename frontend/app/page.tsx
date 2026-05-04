@@ -244,17 +244,17 @@ export default function Home() {
         <nav className="flex flex-wrap justify-center gap-4 sm:gap-8 md:flex-shrink-0">
           <Link className="text-white/50 hover:underline hover:text-[#ff51fa] font-['Space_Grotesk'] text-xs font-bold uppercase transition-all duration-150" href="/privacy">Privacy</Link>
           <Link className="text-white/50 hover:underline hover:text-[#ff51fa] font-['Space_Grotesk'] text-xs font-bold uppercase transition-all duration-150" href="/terms">Terms</Link>
-          {/*<button onClick={openContactModal} className="text-white/50 hover:underline hover:text-[#ff51fa] font-['Space_Grotesk'] text-xs font-bold uppercase transition-all duration-150">Contact</button>*/}
-          <Link className="text-white/50 hover:underline hover:text-[#ff51fa] font-['Space_Grotesk'] text-xs font-bold uppercase transition-all duration-150" href="mailto:[EMAIL_ADDRESS]">Contact</Link>
+          <button onClick={openContactModal} className="text-white/50 hover:underline hover:text-[#ff51fa] font-['Space_Grotesk'] text-xs font-bold uppercase transition-all duration-150">Contact</button>
+          {/*<Link className="text-white/50 hover:underline hover:text-[#ff51fa] font-['Space_Grotesk'] text-xs font-bold uppercase transition-all duration-150" href="mailto:[krisshdiwedy38@gmail.com]">Contact</Link>*/}
         </nav>
         <div className="flex justify-center md:justify-end gap-4 md:flex-1 w-full md:w-auto">
-          {/*<button onClick={openReportBugModal} className="text-white/50 hover:text-[#ff3333] font-['Space_Grotesk'] text-xs font-bold uppercase transition-all duration-150 flex items-center gap-2">
+          <button onClick={openReportBugModal} className="text-white/50 hover:text-[#ff3333] font-['Space_Grotesk'] text-xs font-bold uppercase transition-all duration-150 flex items-center gap-2">
             <span className="material-symbols-outlined text-sm">bug_report</span>
             Report Bug
-          </button>*/}
-          <Link className="text-white/50 hover:underline hover:text-[#ff51fa] font-['Space_Grotesk'] text-xs font-bold uppercase transition-all duration-150" href="mailto:[krisshdiwedy38@gmail.com]">
+          </button>
+          {/*<Link className="text-white/50 hover:underline hover:text-[#ff51fa] font-['Space_Grotesk'] text-xs font-bold uppercase transition-all duration-150" href="mailto:[krisshdiwedy38@gmail.com]">
             <span className="material-symbols-outlined text-sm">bug_report</span>
-          </Link>
+          </Link>*/}
         </div>
       </footer>
 

@@ -23,20 +23,15 @@ DB_PASSWORD=os.environ.get("DB_Pass")
 DB_HOST=os.environ.get("DB_Host")
 DB_PORT=os.environ.get("DB_Port")
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ['SECRET_KEY']  # No fallback. Crash if missing.
+SECRET_KEY = os.environ['SECRET_KEY'] 
+FOUNDER_EMAIL = os.environ.get("FOUNDER_EMAIL")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get("DEBUG", "False") == "True"
 
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',') # Configured from env
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',') 
 
 CORS_ALLOWED_ORIGINS = os.environ.get('CORS_ORIGINS', 'http://localhost:3000').split(',')
 
@@ -180,7 +175,6 @@ ANYMAIL = {
 }
 
 EMAIL_BACKEND = "anymail.backends.resend.EmailBackend"
-
 DEFAULT_FROM_EMAIL = "onboarding@resend.dev"
 
 CHANNEL_LAYERS = {
