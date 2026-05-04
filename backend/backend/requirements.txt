@@ -1,0 +1,3 @@
+# This file tells Vercel's @vercel/python builder where to find dependencies.
+# The actual dependencies are defined in the root requirements.txt.
+-r ../../requirements.txt
