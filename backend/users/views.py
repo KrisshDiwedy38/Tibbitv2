@@ -127,9 +127,9 @@ class ContactFounderView(APIView):
         try:
             send_contact_email(email, message)
             return Response({"success": True}, status=status.HTTP_200_OK)
-        except Exception:
-            # Never expose raw exception details to the client
-            return Response({"error": "Failed to send message. Please try again later."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        except Exception as e:
+            # Temporarily exposing for debug
+            return Response({"error": f"Failed to send message: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class ReportBugView(APIView):
@@ -150,7 +150,7 @@ class ReportBugView(APIView):
         try:
             send_bug_report(email, description)
             return Response({"success": True}, status=status.HTTP_200_OK)
-        except Exception:
-            # Never expose raw exception details to the client
-            return Response({"error": "Failed to send report. Please try again later."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        except Exception as e:
+            # Temporarily exposing for debug
+            return Response({"error": f"Failed to send report: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
