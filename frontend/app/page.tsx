@@ -7,6 +7,7 @@ import WaitlistModal from "../components/WaitlistModal";
 import ContactModal from "../components/ContactModal";
 import ReportBugModal from "../components/ReportBugModal";
 import StudentServicesExpander from "../components/StudentServicesExpander";
+import { BentoGrid, BentoCard } from "../components/magicui/bento-grid";
 
 import Link from "next/link";
 
@@ -130,59 +131,49 @@ export default function Home() {
         </section>
 
         {/* Bento Categories */}
-        <section className="px-12 sm:px-12 md:px-16 lg:px-30 py-12 sm:py-20 lg:py-24 bg-surface-container-low" id="ecosystem">
+        <section className="px-12 sm:px-12 md:px-16 lg:px-30 py-12 sm:py-20 lg:py-24" id="ecosystem">
           <h2 className="text-xl sm:text-3xl lg:text-4xl font-black uppercase mb-8 sm:mb-12 lg:mb-16 flex items-center gap-4">
             <span className="w-6 sm:w-12 h-1 bg-tertiary"></span>
             The Ecosystem
           </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-4 sm:gap-6">
+          <BentoGrid>
             {/* Card 1 — Student Services (wide, expandable) */}
             <StudentServicesExpander onAction={openModal} />
 
             {/* Card 2 — Peer-to-Peer Goods */}
-            <div className="lg:col-span-4 bg-secondary border-[3px] sm:border-4 border-black p-4 sm:p-6 lg:p-8 neo-shadow-primary flex flex-col justify-between">
-              <div>
-                <span className="material-symbols-outlined text-black text-3xl sm:text-5xl mb-3 sm:mb-6">shopping_bag</span>
-                <h3 className="text-xl sm:text-3xl font-black uppercase text-black leading-tight">PEER-TO-PEER MARKETPLACE</h3>
-              </div>
-              <p className="text-black/80 text-sm sm:text-base font-bold mt-2 sm:mt-4">Keep your trades inside the campus bubble through a verified, student-exclusive marketplace to buy and sell laptops, gear, and dorm essentials.</p>
-              <button
-                onClick={openModal}
-                className="mt-5 sm:mt-8 w-fit bg-black text-secondary px-5 py-2.5 sm:px-6 sm:py-3 font-black uppercase tracking-tighter text-sm sm:text-base"
-              >
-                Shop Campus
-              </button>
-            </div>
+            <BentoCard
+              name="PEER-TO-PEER MARKETPLACE"
+              className="lg:col-span-4"
+              icon="shopping_bag"
+              description="Keep your trades inside the campus bubble through a verified, student-exclusive marketplace to buy and sell laptops, gear, and dorm essentials."
+              cta="Shop Campus"
+              onAction={openModal}
+              accentColor="#8e94ff"
+            />
 
             {/* Card 3 — Market Your Startup */}
-            <div className="lg:col-span-4 bg-tertiary border-[3px] sm:border-4 border-black p-4 sm:p-6 lg:p-8 neo-shadow-primary flex flex-col justify-between">
-              <div>
-                <span className="material-symbols-outlined text-black text-3xl sm:text-5xl mb-3 sm:mb-6">rocket_launch</span>
-                <h3 className="text-xl sm:text-3xl font-black uppercase text-black leading-tight">LAUNCHPAD</h3>
-              </div>
-              <p className="text-black/80 text-sm sm:text-base font-bold mt-2 sm:mt-4">The launchpad for the next big thing. Get your first 100 users on-campus.</p>
-              <button
-                onClick={openModal}
-                className="mt-5 sm:mt-8 w-fit bg-black text-tertiary px-5 py-2.5 sm:px-6 sm:py-3 font-black uppercase tracking-tighter text-sm sm:text-base"
-              >
-                Launch Now
-              </button>
-            </div>
+            <BentoCard
+              name="LAUNCHPAD"
+              className="lg:col-span-4"
+              icon="rocket_launch"
+              description="The launchpad for the next big thing. Get your first 100 users on-campus."
+              cta="Launch Now"
+              onAction={openModal}
+              accentColor="#ff51fa"
+            />
 
             {/* Card 4 — Community (wide) */}
-            <div className="sm:col-span-2 lg:col-span-8 bg-surface border-[3px] sm:border-4 border-black p-0 overflow-hidden relative min-h-[160px] sm:min-h-[300px]">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                alt="Collaboration"
-                className="w-full h-full object-cover grayscale brightness-50 contrast-125 absolute inset-0"
-                src="community_pic.jpg"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent p-4 sm:p-8 flex flex-col justify-end">
-                <h3 className="text-xl sm:text-3xl lg:text-4xl font-black uppercase text-white tracking-tighter">The Community</h3>
-                <p className="text-white/70 max-w-sm mt-1 sm:mt-2 text-xs sm:text-base">Connect with 1,000+ students and freelancers across 102 campuses.</p>
-              </div>
-            </div>
-          </div>
+            <BentoCard
+              name="The Community"
+              className="sm:col-span-2 lg:col-span-8 min-h-[160px] sm:min-h-[300px]"
+              icon="groups"
+              description="Connect with 1,000+ students and freelancers across 102 campuses."
+              cta="Join Community"
+              onAction={openModal}
+              accentColor="#ffffff"
+              textColor="#0e0e0e"
+            />
+          </BentoGrid>
         </section>
 
         {/* Manifesto Section */}
@@ -245,16 +236,12 @@ export default function Home() {
           <Link className="text-white/50 hover:underline hover:text-[#ff51fa] font-['Space_Grotesk'] text-xs font-bold uppercase transition-all duration-150" href="/privacy">Privacy</Link>
           <Link className="text-white/50 hover:underline hover:text-[#ff51fa] font-['Space_Grotesk'] text-xs font-bold uppercase transition-all duration-150" href="/terms">Terms</Link>
           <button onClick={openContactModal} className="text-white/50 hover:underline hover:text-[#ff51fa] font-['Space_Grotesk'] text-xs font-bold uppercase transition-all duration-150">Contact</button>
-          {/*<Link className="text-white/50 hover:underline hover:text-[#ff51fa] font-['Space_Grotesk'] text-xs font-bold uppercase transition-all duration-150" href="mailto:[krisshdiwedy38@gmail.com]">Contact</Link>*/}
         </nav>
         <div className="flex justify-center md:justify-end gap-4 md:flex-1 w-full md:w-auto">
           <button onClick={openReportBugModal} className="text-white/50 hover:text-[#ff3333] font-['Space_Grotesk'] text-xs font-bold uppercase transition-all duration-150 flex items-center gap-2">
             <span className="material-symbols-outlined text-sm">bug_report</span>
             Report Bug
           </button>
-          {/*<Link className="text-white/50 hover:underline hover:text-[#ff51fa] font-['Space_Grotesk'] text-xs font-bold uppercase transition-all duration-150" href="mailto:[krisshdiwedy38@gmail.com]">
-            <span className="material-symbols-outlined text-sm">bug_report</span>
-          </Link>*/}
         </div>
       </footer>
 

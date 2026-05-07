@@ -89,7 +89,7 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-8 sm:p-12 md:p-16">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 sm:p-8 md:p-12">
       {/* Backdrop with Blur */}
       <div
         className="absolute inset-0 bg-black/60 backdrop-blur-md transition-opacity"
@@ -97,7 +97,7 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
       />
 
       {/* Modal Content */}
-      <div className="relative w-full max-w-md bg-tertiary-contact-container border-4 border-black p-5 sm:p-8 neo-shadow-primary animate-in fade-in zoom-in duration-200">
+      <div className="relative w-full max-w-2xl bg-tertiary-contact-container border-4 border-black p-5 sm:p-8 neo-shadow-primary animate-in fade-in zoom-in duration-200">
         <button
           onClick={onClose}
           className="absolute top-4 right-4 p-1 hover:bg-black/10 transition-colors"
@@ -150,14 +150,16 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
               </div>
             )}
 
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className={`w-full bg-black text-tertiary p-4 sm:p-6 border-4 border-black font-black uppercase tracking-tighter text-lg sm:text-xl transition-all shadow-[6px_6px_0px_0px_rgba(255,255,255,0.4)] active:shadow-none active:translate-x-1 active:translate-y-1 ${isSubmitting ? "opacity-50 cursor-not-allowed" : "hover:bg-neutral-900"
-                }`}
-            >
-              {isSubmitting ? "SENDING..." : "SEND MESSAGE"}
-            </button>
+            <div className="flex justify-center pt-2">
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className={`w-fit px-8 py-3 sm:px-12 sm:py-4 bg-black text-tertiary border-4 border-black font-black uppercase tracking-tighter text-base sm:text-lg transition-all shadow-[6px_6px_0px_0px_rgba(255,255,255,0.4)] active:shadow-none active:translate-x-1 active:translate-y-1 ${isSubmitting ? "opacity-50 cursor-not-allowed" : "hover:bg-neutral-900"
+                  }`}
+              >
+                {isSubmitting ? "SENDING..." : "SEND MESSAGE"}
+              </button>
+            </div>
           </form>
         </div>
 

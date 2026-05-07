@@ -51,19 +51,22 @@ export default function StudentServicesExpander({
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <div className="sm:col-span-2 lg:col-span-8 bg-surface-container-highest border-[3px] sm:border-4 border-black relative overflow-hidden">
+    <div className="sm:col-span-2 lg:col-span-8 bg-[#0e0e0e]/80 backdrop-blur-xl border-[3px] sm:border-4 border-black relative overflow-hidden group">
+      {/* Subtle Tint Overlay for outer container */}
+      <div className="pointer-events-none absolute inset-0 z-0 opacity-[0.05] mix-blend-screen transition-opacity duration-300 group-hover:opacity-[0.15] bg-primary-container" />
+
       {/* ── COLLAPSED CONTENT ── */}
-      <div className="p-4 sm:p-6 lg:p-8 relative z-0">
+      <div className="p-4 sm:p-6 lg:p-8 relative z-10">
         <span
-          className="material-symbols-outlined text-primary-container text-3xl sm:text-5xl mb-3 sm:mb-6 block"
+          className="material-symbols-outlined text-primary-container text-3xl sm:text-5xl mb-3 sm:mb-6 block transition-transform duration-300 group-hover:scale-110 origin-left"
           style={{ fontVariationSettings: "'FILL' 1" }}
         >
           work
         </span>
-        <h3 className="text-xl sm:text-3xl lg:text-4xl font-black uppercase mb-2 sm:mb-4">
+        <h3 className="text-xl sm:text-3xl lg:text-4xl font-black uppercase mb-2 sm:mb-4 text-white">
           STUDENT SERVICES
         </h3>
-        <p className="text-sm sm:text-lg text-white/60 mb-5 sm:mb-8 max-w-md">
+        <p className="text-sm sm:text-lg text-white/80 font-bold mb-5 sm:mb-8 max-w-md">
           From code debugging and graphic design to dorm cleaning. Put your
           skills to work and earn in campus-native economies.
         </p>
@@ -78,9 +81,9 @@ export default function StudentServicesExpander({
         </button>
       </div>
 
-      {/* ── SLIDING OVERLAY — primary-fixed colored box ── */}
+      {/* ── SLIDING OVERLAY — slightly darker tinted glass box ── */}
       <div
-        className="absolute inset-0 z-10 bg-surface-container-highest flex flex-col transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]"
+        className="absolute inset-0 z-20 bg-[#0e0e0e]/90 backdrop-blur-xl flex flex-col transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]"
         style={{
           transform: expanded ? "translateX(0%)" : "translateX(100%)",
         }}
@@ -100,11 +103,11 @@ export default function StudentServicesExpander({
         </div>
 
         {/* 3 service cards with tighter spacing so they fit the div safely */}
-        <div className="flex-1 grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3 p-2 sm:p-3 overflow-y-auto min-h-0">
+        <div className="flex-1 grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3 p-2 sm:p-3 overflow-y-auto min-h-0 relative z-30">
           {SERVICES.map((service, i) => (
             <div
               key={service.title}
-              className="flex flex-col justify-between bg-surface-container border-2 sm:border-[3px] border-black p-3 sm:p-4 transition-all ease-[cubic-bezier(0.22,1,0.36,1)]"
+              className="group/card relative flex flex-col justify-between bg-[#0e0e0e]/60 backdrop-blur-md border-2 sm:border-[3px] border-black p-3 sm:p-4 overflow-hidden transition-all ease-[cubic-bezier(0.22,1,0.36,1)] hover:translate-x-[2px] hover:translate-y-[2px]"
               style={{
                 opacity: expanded ? 1 : 0,
                 transform: expanded ? "translateX(0)" : "translateX(40px)",
@@ -112,7 +115,12 @@ export default function StudentServicesExpander({
                 transitionDelay: expanded ? `${i * 100 + 200}ms` : "0ms",
               }}
             >
-              <div className="mb-2">
+              {/* Tinted overlay using the primary container color */}
+              <div
+                className="pointer-events-none absolute inset-0 z-0 opacity-[0.05] mix-blend-screen transition-opacity duration-300 group-hover/card:opacity-[0.15] bg-primary-container"
+              />
+
+              <div className="mb-2 relative z-10">
                 {/* Accent bar */}
                 <div
                   className="w-full h-1 mb-2 sm:mb-3"
@@ -133,17 +141,17 @@ export default function StudentServicesExpander({
                     {service.icon}
                   </span>
                 </div>
-                <h4 className="text-[11px] sm:text-xs lg:text-sm font-black uppercase tracking-tight mb-1 lg:mb-1.5 leading-snug line-clamp-1">
+                <h4 className="text-[11px] sm:text-xs lg:text-sm font-black text-white uppercase tracking-tight mb-1 lg:mb-1.5 leading-snug line-clamp-1 relative z-10">
                   {service.title}
                 </h4>
-                <p className="text-white/50 text-[10px] sm:text-[11px] lg:text-xs leading-snug line-clamp-2">
+                <p className="text-white/80 font-bold text-[10px] sm:text-[11px] lg:text-xs leading-snug line-clamp-2 relative z-10">
                   {service.description}
                 </p>
               </div>
 
               <button
                 onClick={onAction}
-                className="mt-1 w-full py-1.5 sm:py-2 border-2 sm:border-4 border-black font-black uppercase tracking-tighter text-[10px] sm:text-xs transition-all duration-75 hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none neo-shadow-primary cursor-pointer shrink-0"
+                className="mt-1 w-full py-1.5 sm:py-2 border-2 sm:border-4 border-black font-black uppercase tracking-tighter text-[10px] sm:text-xs transition-all duration-75 hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none neo-shadow-primary cursor-pointer shrink-0 relative z-10"
                 style={{
                   backgroundColor: service.accentColor,
                   color: service.textColor,
