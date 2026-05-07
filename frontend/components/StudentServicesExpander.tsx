@@ -115,9 +115,10 @@ export default function StudentServicesExpander({
                 transitionDelay: expanded ? `${i * 100 + 200}ms` : "0ms",
               }}
             >
-              {/* Tinted overlay using the primary container color */}
+              {/* Tinted overlay using the card's specific accent color */}
               <div
-                className="pointer-events-none absolute inset-0 z-0 opacity-[0.05] mix-blend-screen transition-opacity duration-300 group-hover/card:opacity-[0.15] bg-primary-container"
+                className="pointer-events-none absolute inset-0 z-0 opacity-[0.05] mix-blend-screen transition-opacity duration-300 group-hover/card:opacity-[0.15]"
+                style={{ backgroundColor: service.accentColor }}
               />
 
               <div className="mb-2 relative z-10">

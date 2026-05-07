@@ -8,8 +8,8 @@
 
 ## Last updated
 <!-- AUTO-UPDATED by memory-agent -->
-Date: 2026-05-05
-Last change: Finalized footer contact/bug report features with Resend integration and UI refinements.
+Date: 2026-05-07
+Last change: Overhauled StudentServicesExpander with glassmorphism and refined support modal button layouts.
 
 ---
 
@@ -390,6 +390,8 @@ FOUNDER_EMAIL         Destination email for contact/bug reports
 - [ ] Production deployment preparation — security audit, DNS config, infrastructure decisions
 - [x] Waitlist UX polish — "already on waitlist" message styling, ecosystem card interactions
 - [x] Footer updates — build demo privacy/terms pages, remove Discord link, contact/bug report popups
+- [x] StudentServices UI overhaul — glassmorphism, tinted overlays, and hover effects
+
 
 
 ---
