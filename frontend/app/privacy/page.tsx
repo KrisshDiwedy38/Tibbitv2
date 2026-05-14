@@ -29,27 +29,85 @@ export default function PrivacyPage() {
 
         <div className="space-y-6 text-white/80 font-medium leading-relaxed">
           <p>
-            This is a demo privacy policy for the Tibbit platform waitlist phase. We respect your privacy and are committed to protecting your personal data. This privacy notice will inform you as to how we look after your personal data when you visit our website (regardless of where you visit it from) and tell you about your privacy rights and how the law protects you.
+            Tibbit values your privacy and is committed to protecting your personal information. This Privacy Policy explains how we collect, use, store, and safeguard your information when you join the Tibbit waitlist or interact with our website.
+          </p>
+          <p>
+            By using our website or submitting your information, you agree to the practices described in this Privacy Policy.
           </p>
 
           <h2 className="text-2xl font-black uppercase text-white mt-12 mb-4">1. Information We Collect</h2>
           <p>
-            Currently, during the waitlist phase, we only collect your email address and the name of your university. This data is used strictly for managing the waitlist queue and communicating updates regarding the Tibbit platform launch.
-          </p>
-
-          <h2 className="text-2xl font-black uppercase text-white mt-12 mb-4">2. How We Use Your Data</h2>
-          <p>
-            We use your data to:
+            During the current waitlist phase, we may collect the following information:
           </p>
           <ul className="list-disc pl-6 space-y-2">
-            <li>Notify you when Tibbit launches at your university.</li>
-            <li>Send periodic updates about our progress and features.</li>
-            <li>Prevent fraud and ensure fair waitlist queueing.</li>
+            <li>Your email address</li>
+            <li>Your university or educational institution name</li>
+            <li>Basic technical information such as browser type, device information, and website usage analytics</li>
           </ul>
-
-          <h2 className="text-2xl font-black uppercase text-white mt-12 mb-4">3. Data Security</h2>
           <p>
-            We have put in place appropriate security measures to prevent your personal data from being accidentally lost, used, or accessed in an unauthorized way, altered, or disclosed.
+            We only collect information that is necessary to manage the waitlist experience and improve our platform.
+          </p>
+
+          <h2 className="text-2xl font-black uppercase text-white mt-12 mb-4">2. How We Use Your Information</h2>
+          <p>
+            We use your information to:
+          </p>
+          <ul className="list-disc pl-6 space-y-2">
+            <li>Manage and organize the Tibbit waitlist</li>
+            <li>Notify you about product launches, availability, and updates</li>
+            <li>Share important announcements, feature updates, or onboarding information</li>
+            <li>Improve our website, services, and user experience</li>
+            <li>Prevent spam, abuse, fraud, or unauthorized access</li>
+          </ul>
+          <p>
+            We do not sell your personal information to third parties.
+          </p>
+
+          <h2 className="text-2xl font-black uppercase text-white mt-12 mb-4">3. Data Storage and Security</h2>
+          <p>
+            We implement reasonable administrative, technical, and organizational safeguards designed to protect your personal information from unauthorized access, disclosure, alteration, or destruction.
+          </p>
+          <p>
+            While we strive to use commercially acceptable security measures, no method of electronic transmission or storage is completely secure, and we cannot guarantee absolute security.
+          </p>
+
+          <h2 className="text-2xl font-black uppercase text-white mt-12 mb-4">4. Third-Party Services</h2>
+          <p>
+            We may use trusted third-party tools and service providers for analytics, email communication, hosting, and waitlist management. These providers may process your data only as necessary to perform services on our behalf and are expected to maintain appropriate security standards.
+          </p>
+
+          <h2 className="text-2xl font-black uppercase text-white mt-12 mb-4">5. Your Rights</h2>
+          <p>
+            Depending on your location and applicable laws, you may have the right to:
+          </p>
+          <ul className="list-disc pl-6 space-y-2">
+            <li>Access the personal information we hold about you</li>
+            <li>Request correction or deletion of your information</li>
+            <li>Withdraw consent to receive communications</li>
+            <li>Request that we limit or stop processing your data</li>
+          </ul>
+          <p>
+            You may unsubscribe from our communications at any time using the unsubscribe link included in emails.
+          </p>
+
+          <h2 className="text-2xl font-black uppercase text-white mt-12 mb-4">6. Data Retention</h2>
+          <p>
+            We retain your information only for as long as necessary to manage the waitlist, provide updates, comply with legal obligations, or support legitimate business purposes.
+          </p>
+
+          <h2 className="text-2xl font-black uppercase text-white mt-12 mb-4">7. Children's Privacy</h2>
+          <p>
+            Tibbit is not intended for children, it is a platform for university students, and we do not knowingly collect personal information from anyone under the age of 16.
+          </p>
+
+          <h2 className="text-2xl font-black uppercase text-white mt-12 mb-4">8. Changes to This Privacy Policy</h2>
+          <p>
+            We may update this Privacy Policy from time to time to reflect changes to our services, legal obligations, or business practices. Any updates will be posted on this page with a revised "Last Updated" date.
+          </p>
+
+          <h2 className="text-2xl font-black uppercase text-white mt-12 mb-4">9. Contact Us</h2>
+          <p>
+            If you have any questions, concerns, or requests regarding this Privacy Policy or your personal information, please contact us.
           </p>
         </div>
       </main>
