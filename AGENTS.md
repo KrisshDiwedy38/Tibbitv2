@@ -8,8 +8,8 @@
 
 ## Last updated
 <!-- AUTO-UPDATED by memory-agent -->
-Date: 2026-05-07
-Last change: Overhauled StudentServicesExpander with glassmorphism and refined support modal button layouts.
+Date: 2026-05-15
+Last change: Major frontend refactor — extracted sections, DRY modal pattern, centralized API, reorganized file structure.
 
 ---
 
@@ -40,28 +40,50 @@ Pre-launch — waitlist landing page is live on Vercel. Backend API and data mod
 ### Frontend — `/frontend`
 ```
 app/
-├── globals.css           # Global styles — Material Design 3 token system
+├── globals.css           # Global styles — MD3 tokens, shake animation, custom cursors
 ├── layout.tsx            # Root layout — Space Grotesk font, metadata, dark mode
-└── page.tsx              # Landing/waitlist page — hero, ecosystem cards, manifesto, CTA, footer
+└── page.tsx              # Landing page — composes sections, single modal state
 
 components/
-├── BackgroundGridHover.tsx     # Interactive grid background effect
-├── DynamicHUD.tsx              # Persistent status bar HUD element
-├── StudentServicesExpander.tsx  # Expandable Student Services card
-├── WaitlistModal.tsx            # Waitlist signup modal
-├── ContactModal.tsx             # Contact founder modal (Resend integration)
-└── ReportBugModal.tsx          # Bug reporting modal (Resend integration)
+├── effects/              # Visual/canvas effects
+│   ├── BackgroundGridHover.tsx  # Interactive grid trail (capped at 50 items)
+│   └── CursorTrail.tsx          # Mouse particle trail (skips touch devices)
+├── landing/              # Landing page sections
+│   ├── AnimatedIdeasDemo.tsx    # Flow visualization (Ideas → Tibbit → Students)
+│   ├── CTASection.tsx           # Final call-to-action
+│   ├── HeroRibbon.tsx           # Canvas particle ribbon background
+│   ├── HeroSection.tsx          # Hero banner + CTA button
+│   ├── LaunchpadSection.tsx     # Launchpad & Community section
+│   ├── ManifestoSection.tsx     # Manifesto + tenets
+│   ├── MarketplaceSection.tsx   # Marketplace showcase
+│   └── ServicesSection.tsx      # Student services cards
+├── layout/               # Shared layout components
+│   ├── DynamicHUD.tsx           # Typewriter status bar
+│   ├── Footer.tsx               # Footer with links + bug report
+│   └── Navbar.tsx               # Sticky nav with mobile hamburger
+├── magicui/              # Third-party design components
+│   └── animated-beam.tsx        # MagicUI animated beam
+└── modals/               # All modal components
+    ├── BaseModal.tsx            # Shared shell (backdrop, scroll lock, Escape key)
+    ├── SuccessToast.tsx         # Shared success overlay
+    ├── WaitlistModal.tsx        # Waitlist signup
+    ├── ContactModal.tsx         # Contact founder
+    └── ReportBugModal.tsx       # Bug reporting
 
+hooks/
+├── useBodyScrollLock.ts  # Body scroll lock with cleanup
+└── useTypewriter.ts      # Typewriter cycling effect
+
+lib/
+├── api.ts                # Centralized API client (apiPost, DRF error extraction)
+└── utils.ts              # cn() utility (clsx + tailwind-merge)
 
 public/
-├── community_pic.jpg        # Community section image
-├── tibbit_founder_img.png   # Founder photo
-├── tibbit_header_logo.jpg   # Logo (jpg)
-└── tibbit_header_logo.png   # Logo (png)
+└── images/               # Landing page images
 
 next.config.js            # Next.js config
 tailwind.config.js        # Tailwind config with custom Material Design 3 color tokens
-tsconfig.json             # TypeScript config
+tsconfig.json             # TypeScript config (@ path alias configured)
 ```
 
 ### Backend — `/backend`
@@ -373,6 +395,8 @@ FOUNDER_EMAIL         Destination email for contact/bug reports
 - **Real-time messaging**: Django Channels with WebSocket consumers. Currently using `InMemoryChannelLayer` (must switch to Redis for production).
 - **File storage**: Local media storage configured. django-storages + boto3 installed for S3 migration.
 - **Frontend approach**: Single landing page with waitlist modal. Space Grotesk font. Neobrutalist design with Material Design 3 color tokens via Tailwind.
+- **Frontend architecture**: Components organized by purpose (`effects/`, `landing/`, `layout/`, `modals/`). Shared hooks in `hooks/`. Centralized API client in `lib/api.ts`. All modals extend `BaseModal` for DRY scroll lock, Escape key, and backdrop.
+- **Path aliases**: TypeScript `@/*` alias maps to project root. All imports use `@/components/*`, `@/lib/*`, `@/hooks/*`.
 - **Deployment**: Vercel monorepo — frontend via `@vercel/next`, backend via `@vercel/python` (WSGI). Known limitation: WebSockets won't work on Vercel serverless.
 - **CORS**: Currently `CORS_ALLOW_ALL_ORIGINS = True` for waitlist phase. Must be restricted for production.
 - **ALLOWED_HOSTS**: Currently `['*']` — must be restricted for production.
@@ -388,6 +412,7 @@ FOUNDER_EMAIL         Destination email for contact/bug reports
 
 - [ ] Platform expansion design — marketplace, startup launchpad, community platform (architecture planned)
 - [ ] Production deployment preparation — security audit, DNS config, infrastructure decisions
+- [x] Frontend refactor — extracted sections, DRY modals, centralized API, reorganized file structure
 - [x] Waitlist UX polish — "already on waitlist" message styling, ecosystem card interactions
 - [x] Footer updates — build demo privacy/terms pages, remove Discord link, contact/bug report popups
 - [x] StudentServices UI overhaul — glassmorphism, tinted overlays, and hover effects
