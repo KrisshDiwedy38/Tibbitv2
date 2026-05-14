@@ -6,17 +6,9 @@ interface Square {
   id: string;
   x: number;
   y: number;
-  color: string;
 }
 
-const BRUT_COLORS = [
-  '#00C44F'
-];
-
-function getBrutColor(x: number, y: number): string {
-  const index = Math.abs((x / 40 + y / 40) * 3) % BRUT_COLORS.length;
-  return BRUT_COLORS[Math.floor(index)];
-}
+const GRID_TRAIL_COLOR = '#00C44F';
 
 export default function BackgroundGridHover() {
   const [squares, setSquares] = useState<Square[]>([]);
@@ -30,7 +22,9 @@ export default function BackgroundGridHover() {
 
       setSquares((prev) => {
         if (prev.some((s) => s.id === id)) return prev;
-        return [...prev, { id, x, y, color: getBrutColor(x, y) }];
+        const next = [...prev, { id, x, y }];
+        // Cap array size to prevent unbounded growth on fast mouse movement
+        return next.length > 50 ? next.slice(-50) : next;
       });
 
       if (timeouts.current[id]) clearTimeout(timeouts.current[id]);
@@ -59,7 +53,7 @@ export default function BackgroundGridHover() {
             height: 40,
             left: sq.x,
             top: sq.y,
-            backgroundColor: sq.color,
+            backgroundColor: GRID_TRAIL_COLOR,
             outline: '2px solid #000',
             boxShadow: '3px 3px 0 #000',
             animation: 'grid-fadeout 0.5s ease-out forwards',
