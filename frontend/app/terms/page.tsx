@@ -1,6 +1,17 @@
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
+import Footer from "@/components/layout/Footer";
+import ContactModal from "@/components/modals/ContactModal";
+import ReportBugModal from "@/components/modals/ReportBugModal";
+
+type ModalType = "contact" | "bug" | null;
 
 export default function TermsPage() {
+  const [activeModal, setActiveModal] = useState<ModalType>(null);
+  const closeModal = () => setActiveModal(null);
+
   return (
     <div className="min-h-screen bg-background text-on-background font-['Space_Grotesk'] selection:bg-tertiary selection:text-black">
       {/* Header */}
@@ -135,6 +146,15 @@ export default function TermsPage() {
           </p>
         </div>
       </main>
+
+      <Footer
+        onContactClick={() => setActiveModal("contact")}
+        onBugClick={() => setActiveModal("bug")}
+      />
+
+      {/* Modals */}
+      <ContactModal isOpen={activeModal === "contact"} onClose={closeModal} />
+      <ReportBugModal isOpen={activeModal === "bug"} onClose={closeModal} />
     </div>
   );
 }

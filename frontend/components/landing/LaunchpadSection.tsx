@@ -33,7 +33,7 @@ export default function LaunchpadSection({ onCTAClick }: LaunchpadSectionProps) 
         </div>
       </div>
 
-      <div className="w-full max-w-5xl mx-auto rounded-xl border border-[#262626] bg-[#050505] p-2 relative z-10">
+      <div className="w-full max-w-5xl mx-auto p-2 relative z-10">
         <AnimatedIdeasDemo />
       </div>
     </section>

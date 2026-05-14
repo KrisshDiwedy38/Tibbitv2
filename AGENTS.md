@@ -9,7 +9,7 @@
 ## Last updated
 <!-- AUTO-UPDATED by memory-agent -->
 Date: 2026-05-15
-Last change: Major frontend refactor — extracted sections, DRY modal pattern, centralized API, reorganized file structure.
+Last change: Added main footer and functional support modals to Privacy and Terms pages.
 
 ---
 
