@@ -147,4 +147,4 @@ class WaitlistEntrySerializer(serializers.ModelSerializer):
 
 class ContactFormSerializer(serializers.Serializer):
    email = serializers.EmailField()
-   message = serializers.CharField()
+   message = serializers.CharField(max_length=2000)

@@ -48,7 +48,7 @@ export default function WaitlistModal({ isOpen, onClose }: WaitlistModalProps) {
     setIsSubmitting(true);
 
     try {
-      await apiPost("/api/users/waitlist/", { email, university_name: uniName });
+      await apiPost("/api/users/waitlist", { email, university_name: uniName });
       setToastState("success");
       setTimeout(handleClose, 3000);
     } catch (err: unknown) {
@@ -91,6 +91,7 @@ export default function WaitlistModal({ isOpen, onClose }: WaitlistModalProps) {
               value={uniName}
               onChange={(e) => setUniName(e.target.value.toUpperCase())}
               placeholder="UNIVERSITY OF VIBES"
+              maxLength={200}
               className="w-full bg-white border-4 border-black p-3 sm:p-4 font-bold text-black focus:outline-none focus:ring-4 focus:ring-secondary transition-all placeholder:text-black/20 text-sm sm:text-base"
             />
           </div>
@@ -104,6 +105,7 @@ export default function WaitlistModal({ isOpen, onClose }: WaitlistModalProps) {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="YOUR.EMAIL@VIBES.EDU"
+              maxLength={200}
               className="w-full bg-white border-4 border-black p-3 sm:p-4 font-bold text-black focus:outline-none focus:ring-4 focus:ring-secondary transition-all placeholder:text-black/20 text-sm sm:text-base"
             />
           </div>

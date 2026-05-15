@@ -48,7 +48,7 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
     setIsSubmitting(true);
 
     try {
-      await apiPost("/api/users/contact/", { email, message });
+      await apiPost("/api/users/contact", { email, message });
       setIsSuccess(true);
       setTimeout(handleClose, 3000);
     } catch (err: unknown) {
@@ -106,6 +106,7 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
               onKeyDown={handleKeyDown}
               placeholder="WHAT'S ON YOUR MIND? HIT ENTER TO SEND"
               rows={4}
+              maxLength={2000}
               className="w-full bg-white border-4 border-black p-3 sm:p-4 font-bold text-black focus:outline-none focus:ring-4 focus:ring-black transition-all placeholder:text-black/20 text-sm sm:text-base resize-none"
             />
           </div>
@@ -121,9 +122,8 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
             <button
               type="submit"
               disabled={isSubmitting}
-              className={`w-fit px-8 py-3 sm:px-12 sm:py-4 bg-black text-tertiary border-4 border-black font-black uppercase tracking-tighter text-base sm:text-lg transition-all shadow-[6px_6px_0px_0px_rgba(255,255,255,0.4)] active:shadow-none active:translate-x-1 active:translate-y-1 ${
-                isSubmitting ? "opacity-50 cursor-not-allowed" : "hover:bg-neutral-900"
-              }`}
+              className={`w-fit px-8 py-3 sm:px-12 sm:py-4 bg-black text-tertiary border-4 border-black font-black uppercase tracking-tighter text-base sm:text-lg transition-all shadow-[6px_6px_0px_0px_rgba(255,255,255,0.4)] active:shadow-none active:translate-x-1 active:translate-y-1 ${isSubmitting ? "opacity-50 cursor-not-allowed" : "hover:bg-neutral-900"
+                }`}
             >
               {isSubmitting ? "SENDING..." : "SEND MESSAGE"}
             </button>

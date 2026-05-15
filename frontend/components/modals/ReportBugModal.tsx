@@ -48,7 +48,7 @@ export default function ReportBugModal({ isOpen, onClose }: ReportBugModalProps)
     setIsSubmitting(true);
 
     try {
-      await apiPost("/api/users/report-bug/", { email, message });
+      await apiPost("/api/users/report-bug", { email, message });
       setIsSuccess(true);
       setTimeout(handleClose, 3000);
     } catch (err: unknown) {
@@ -107,6 +107,7 @@ export default function ReportBugModal({ isOpen, onClose }: ReportBugModalProps)
               onKeyDown={handleKeyDown}
               placeholder="WHAT WENT WRONG? BE SPECIFIC. HIT ENTER TO SEND"
               rows={4}
+              maxLength={2000}
               className="w-full bg-white border-4 border-black p-3 sm:p-4 font-bold text-black focus:outline-none focus:ring-4 focus:ring-black transition-all placeholder:text-black/20 text-sm sm:text-base resize-none"
             />
           </div>

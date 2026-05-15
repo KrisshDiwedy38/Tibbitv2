@@ -120,16 +120,13 @@ class ContactFounderView(APIView):
         email = serializer.validated_data['email']
         message = serializer.validated_data['message']
 
-        # Enforce max length to prevent abuse
-        if len(message) > 2000:
-            return Response({"error": "Message is too long (max 2000 characters)."}, status=status.HTTP_400_BAD_REQUEST)
+
 
         try:
             send_contact_email(email, message)
             return Response({"success": True}, status=status.HTTP_200_OK)
-        except Exception as e:
-            # Temporarily exposing for debug
-            return Response({"error": f"Failed to send message: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        except Exception:
+            return Response({"error": "Failed to send message. Please try again later."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class ReportBugView(APIView):
@@ -143,14 +140,11 @@ class ReportBugView(APIView):
         email = serializer.validated_data['email']
         description = serializer.validated_data['message']
 
-        # Enforce max length to prevent abuse
-        if len(description) > 2000:
-            return Response({"error": "Description is too long (max 2000 characters)."}, status=status.HTTP_400_BAD_REQUEST)
+
 
         try:
             send_bug_report(email, description)
             return Response({"success": True}, status=status.HTTP_200_OK)
-        except Exception as e:
-            # Temporarily exposing for debug
-            return Response({"error": f"Failed to send report: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        except Exception:
+            return Response({"error": "Failed to send report. Please try again later."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 

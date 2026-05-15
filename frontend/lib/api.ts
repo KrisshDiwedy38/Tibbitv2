@@ -1,6 +1,6 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL !== undefined 
+const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL !== undefined 
   ? process.env.NEXT_PUBLIC_API_URL 
-  : (typeof window !== 'undefined' && window.location.hostname !== 'localhost' ? '' : 'http://localhost:8000');
+  : (typeof window !== 'undefined' && window.location.hostname !== 'localhost' ? '' : 'http://localhost:8000')).replace(/\/$/, '');
 
 /**
  * Extract a human-readable error message from a DRF error response.
@@ -8,15 +8,24 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL !== undefined
  * or generic errors as { "detail": "..." } / { "error": "..." }.
  */
 function extractDRFError(data: Record<string, unknown>): string {
-  // Field-specific errors — { "email": ["msg"], "university_name": ["msg"] }
+  // 1. Check for 'non_field_errors' which is common in DRF
+  if (Array.isArray(data.non_field_errors) && data.non_field_errors.length > 0) {
+    return String(data.non_field_errors[0]);
+  }
+
+  // 2. Iterate through all keys to find field-specific errors
   for (const key of Object.keys(data)) {
     const val = data[key];
     if (Array.isArray(val) && val.length > 0 && typeof val[0] === "string") {
       return val[0];
     }
+    // Handle cases where the error might be a direct string instead of an array
+    if (typeof val === "string" && key !== "status") {
+      return val;
+    }
   }
 
-  // Generic error shapes
+  // 3. Fallback to generic error/detail/message keys
   if (typeof data.error === "string") return data.error;
   if (typeof data.detail === "string") return data.detail;
   if (typeof data.message === "string") return data.message;
