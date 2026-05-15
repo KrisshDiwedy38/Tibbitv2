@@ -45,12 +45,12 @@ export default function GlobalPreloader({ children }: { children: React.ReactNod
                 duration={8}
                 className="font-black text-tertiary uppercase tracking-widest text-lg sm:text-xl"
               >
-                Tibbit • Tibbit • Tibbit •
+                Tibbit • Trade • Build • Hustle •
               </SpinningText>
 
               {/* The number ticker in the center */}
               <div className="absolute flex items-center justify-center font-black text-4xl sm:text-5xl text-white">
-                <NumberTicker value={100} delay={0.6} className="text-white dark:text-white" />
+                <NumberTicker value={100} delay={1} className="text-white dark:text-white" />
                 <span className="text-[#abfc01] ml-1">%</span>
               </div>
             </div>
