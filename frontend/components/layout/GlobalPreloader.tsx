@@ -6,19 +6,35 @@ import { SpinningText } from "@/components/magicui/spinning-text";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function GlobalPreloader({ children }: { children: React.ReactNode }) {
-  const [isLoaded, setIsLoaded] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(true);
+  const [showPreloader, setShowPreloader] = useState(false);
 
   useEffect(() => {
-    // Wait for actual load or minimum timeout for the animation to look complete
-    const handleLoad = () => setIsLoaded(true);
+    const hasVisited = sessionStorage.getItem("tibbit_visited");
+    
+    if (hasVisited) {
+      setIsLoaded(true);
+      setShowPreloader(false);
+      return;
+    }
+
+    // If first time, show it
+    setIsLoaded(false);
+    setShowPreloader(true);
+
+    const handleLoad = () => {
+      setTimeout(() => {
+        setIsLoaded(true);
+        sessionStorage.setItem("tibbit_visited", "true");
+      }, 2500);
+    };
 
     if (document.readyState === "complete") {
-      // Minimum duration for the ticker to count to 100 smoothly
-      setTimeout(() => setIsLoaded(true), 2500);
+      handleLoad();
     } else {
       window.addEventListener("load", handleLoad);
-      // Fallback timeout
-      setTimeout(() => setIsLoaded(true), 3000);
+      // Fallback
+      setTimeout(handleLoad, 3000);
     }
 
     return () => window.removeEventListener("load", handleLoad);
@@ -27,7 +43,7 @@ export default function GlobalPreloader({ children }: { children: React.ReactNod
   return (
     <>
       <AnimatePresence>
-        {!isLoaded && (
+        {showPreloader && !isLoaded && (
           <motion.div
             initial={{ opacity: 1 }}
             exit={{ opacity: 0, y: "-100%" }}
@@ -58,7 +74,7 @@ export default function GlobalPreloader({ children }: { children: React.ReactNod
         )}
       </AnimatePresence>
 
-      <div className={!isLoaded ? "h-screen overflow-hidden fixed inset-0 pointer-events-none" : ""}>
+      <div className={showPreloader && !isLoaded ? "h-screen overflow-hidden fixed inset-0 pointer-events-none" : ""}>
         {children}
       </div>
     </>
