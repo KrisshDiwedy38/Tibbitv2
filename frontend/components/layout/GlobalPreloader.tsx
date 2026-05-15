@@ -11,7 +11,7 @@ export default function GlobalPreloader({ children }: { children: React.ReactNod
 
   useEffect(() => {
     const hasVisited = sessionStorage.getItem("tibbit_visited");
-    
+
     if (hasVisited) {
       setIsLoaded(true);
       setShowPreloader(false);
