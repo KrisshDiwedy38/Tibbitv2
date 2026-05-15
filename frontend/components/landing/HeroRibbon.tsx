@@ -138,6 +138,7 @@ export default function HeroRibbon() {
     let animationFrameId: number;
     let mouse = { x: -100, y: -100 };
     let time = 0;
+    let lastWidth = window.innerWidth;
 
     const initParticles = () => {
       particles = [];
@@ -177,8 +178,10 @@ export default function HeroRibbon() {
     };
 
 
-    // Replace the raw initParticles() in resize with a call to init then draw once
     const resize = () => {
+      const currentWidth = window.innerWidth;
+      const widthChanged = currentWidth !== lastWidth;
+      
       // Use devicePixelRatio for crisp rendering
       const dpr = window.devicePixelRatio || 1;
       const rect = canvas.parentElement?.getBoundingClientRect();
@@ -189,7 +192,12 @@ export default function HeroRibbon() {
         canvas.style.width = `${rect.width}px`;
         canvas.style.height = `${rect.height}px`;
       }
-      initParticles();
+
+      // Only re-init particles if width changed (to avoid mobile scroll restart)
+      if (widthChanged || particles.length === 0) {
+        initParticles();
+        lastWidth = currentWidth;
+      }
 
       // Cancel any ongoing animation and restart logic
       if (animationFrameId) cancelAnimationFrame(animationFrameId);

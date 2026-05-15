@@ -9,7 +9,7 @@
 ## Last updated
 <!-- AUTO-UPDATED by memory-agent -->
 Date: 2026-05-15
-Last change: Re-enabled smooth HeroRibbon animations on mobile and added touch interaction.
+Last change: Fixed HeroRibbon restarting on mobile scroll and optimized resize handling.
 
 ---
 
