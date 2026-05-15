@@ -5,7 +5,7 @@ export default function ManifestoSection() {
         OUR <span className="text-tertiary">MANIFESTO</span>
       </h2>
       <div className="max-w-5xl space-y-8 sm:space-y-10">
-        <div className="relative bg-[#0e0e0e]/80 backdrop-blur-xl p-5 sm:p-8 border-4 border-black overflow-hidden group text-left">
+        <div className="relative bg-[#0e0e0e]/80 backdrop-blur-xl p-5 sm:p-8 border-4 border-black overflow-hidden group text-center">
           {/* Translucent Tint */}
           <div className="pointer-events-none absolute inset-0 z-0 opacity-[0.05] mix-blend-screen bg-tertiary transition-opacity duration-300 group-hover:opacity-[0.1]" />
           <p className="relative z-10 text-base sm:text-lg lg:text-xl leading-relaxed text-white font-bold">

@@ -34,7 +34,7 @@ export const AnimatedBeam: React.FC<AnimatedBeamProps> = ({
   toRef,
   curvature = 0,
   reverse = false, // Include the reverse prop
-  duration = 5,
+  duration = 5.5,
   delay = 0,
   pathColor = "gray",
   pathWidth = 2,
@@ -55,17 +55,17 @@ export const AnimatedBeam: React.FC<AnimatedBeamProps> = ({
   // Calculate the gradient coordinates based on the reverse prop
   const gradientCoordinates = reverse
     ? {
-        x1: ["90%", "-10%"],
-        x2: ["100%", "0%"],
-        y1: ["0%", "0%"],
-        y2: ["0%", "0%"],
-      }
+      x1: ["90%", "-10%"],
+      x2: ["100%", "0%"],
+      y1: ["0%", "0%"],
+      y2: ["0%", "0%"],
+    }
     : {
-        x1: ["10%", "110%"],
-        x2: ["0%", "100%"],
-        y1: ["0%", "0%"],
-        y2: ["0%", "0%"],
-      }
+      x1: ["10%", "110%"],
+      x2: ["0%", "100%"],
+      y1: ["0%", "0%"],
+      y2: ["0%", "0%"],
+    }
 
   useEffect(() => {
     const updatePath = () => {
@@ -88,9 +88,8 @@ export const AnimatedBeam: React.FC<AnimatedBeamProps> = ({
           rectB.top - containerRect.top + rectB.height / 2 + endYOffset
 
         const controlY = startY - curvature
-        const d = `M ${startX},${startY} Q ${
-          (startX + endX) / 2
-        },${controlY} ${endX},${endY}`
+        const d = `M ${startX},${startY} Q ${(startX + endX) / 2
+          },${controlY} ${endX},${endY}`
         setPathD(d)
       }
     }

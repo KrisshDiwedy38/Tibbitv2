@@ -8,7 +8,7 @@ interface LaunchpadSectionProps {
 
 export default function LaunchpadSection({ onCTAClick }: LaunchpadSectionProps) {
   return (
-    <section className="relative px-4 sm:px-8 md:px-16 lg:px-20 py-16 sm:py-20 lg:py-24 flex flex-col items-center">
+    <section className="relative overflow-hidden px-4 sm:px-8 md:px-16 lg:px-20 py-16 sm:py-20 lg:py-24 flex flex-col items-center">
       {/* Ambient Glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] sm:w-[800px] h-[500px] sm:h-[800px] bg-tertiary opacity-[0.04] blur-[120px] sm:blur-[180px] rounded-full pointer-events-none -z-10"></div>
 

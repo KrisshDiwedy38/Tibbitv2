@@ -1,6 +1,6 @@
 export default function MarketplaceSection() {
   return (
-    <section className="relative px-4 sm:px-8 md:px-16 lg:px-20 py-16 sm:py-20 lg:py-24 flex flex-col items-center" id="ecosystem">
+    <section className="relative overflow-hidden px-4 sm:px-8 md:px-16 lg:px-20 py-16 sm:py-20 lg:py-24 flex flex-col items-center" id="ecosystem">
       {/* Ambient Glow */}
       <div className="absolute top-1/2 left-[-10%] -translate-y-1/2 w-[400px] sm:w-[600px] h-[400px] sm:h-[600px] bg-primary-container opacity-[0.04] blur-[100px] sm:blur-[150px] rounded-full pointer-events-none -z-10"></div>
       <div className="max-w-6xl w-full text-center space-y-8 relative z-10">
