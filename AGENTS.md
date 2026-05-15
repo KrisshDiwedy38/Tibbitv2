@@ -9,7 +9,7 @@
 ## Last updated
 <!-- AUTO-UPDATED by memory-agent -->
 Date: 2026-05-15
-Last change: Added main footer and functional support modals to Privacy and Terms pages.
+Last change: Optimized HeroRibbon for mobile and refined landing section layouts for better responsiveness.
 
 ---
 
