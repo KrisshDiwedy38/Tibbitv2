@@ -69,7 +69,7 @@ class RibbonParticle {
     this.spring = Math.random() * 0.04 + 0.02;
   }
 
-  update(mouseX: number, mouseY: number, time: number, cw: number, ch: number, isDesktop: boolean = true) {
+  update(mouseX: number, mouseY: number, time: number, cw: number, ch: number) {
     let dip = (1 - this.nx * this.nx);
 
     // Wave calculations to make the ribbon wave and swirl
@@ -91,35 +91,30 @@ class RibbonParticle {
     let targetX = cx + idleX;
     let targetY = cy + (this.spreadY * twist) + idleY;
 
-    if (isDesktop) {
-      // Mouse repulsion
-      let dx = this.x - mouseX;
-      let dy = this.y - mouseY;
-      let distSq = dx * dx + dy * dy;
-      let maxDist = 180; // 180px radius
+    // Mouse repulsion
+    let dx = this.x - mouseX;
+    let dy = this.y - mouseY;
+    let distSq = dx * dx + dy * dy;
+    let maxDist = 180; // 180px radius
 
-      if (distSq < maxDist * maxDist && mouseX !== -100) {
-        let dist = Math.sqrt(distSq);
-        // Inversely proportional force
-        let force = Math.pow((maxDist - dist) / maxDist, 2);
+    if (distSq < maxDist * maxDist && mouseX !== -100) {
+      let dist = Math.sqrt(distSq);
+      // Inversely proportional force
+      let force = Math.pow((maxDist - dist) / maxDist, 2);
 
-        // Scatter outward naturally with slight randomness
-        let angle = Math.atan2(dy, dx) + (Math.random() - 0.5) * 0.5;
-        let pushX = Math.cos(angle) * force * 100;
-        let pushY = Math.sin(angle) * force * 100;
+      // Scatter outward naturally with slight randomness
+      let angle = Math.atan2(dy, dx) + (Math.random() - 0.5) * 0.5;
+      let pushX = Math.cos(angle) * force * 100;
+      let pushY = Math.sin(angle) * force * 100;
 
-        targetX += pushX;
-        targetY += pushY;
-      }
-
-      // Elastic return using spring/lerp easing
-      this.x += (targetX - this.x) * this.spring;
-      this.y += (targetY - this.y) * this.spring;
-    } else {
-      // Fixed instantly on mobile/tablet
-      this.x = targetX;
-      this.y = targetY;
+      targetX += pushX;
+      targetY += pushY;
     }
+
+    // Elastic return using spring/lerp easing
+    this.x += (targetX - this.x) * this.spring;
+    this.y += (targetY - this.y) * this.spring;
+
   }
 
   draw(ctx: CanvasRenderingContext2D) {
@@ -153,13 +148,8 @@ export default function HeroRibbon() {
     };
 
     const drawFrame = () => {
-      const isDesktop = window.innerWidth >= 1024;
+      time++;
 
-      if (isDesktop) {
-        time++;
-      } else {
-        time = 0; // Lock time for static rendering
-      }
 
       const rect = canvas.getBoundingClientRect();
       ctx.clearRect(0, 0, rect.width, rect.height);
@@ -174,23 +164,18 @@ export default function HeroRibbon() {
       ctx.fillStyle = gradient;
       ctx.fillRect(0, 0, rect.width, rect.height);
 
-      let currentMouseX = isDesktop ? mouse.x : -100;
-      let currentMouseY = isDesktop ? mouse.y : -100;
-
       for (let i = 0; i < particles.length; i++) {
-        particles[i].update(currentMouseX, currentMouseY, time, rect.width, rect.height, isDesktop);
+        particles[i].update(mouse.x, mouse.y, time, rect.width, rect.height);
         particles[i].draw(ctx);
       }
 
-      return isDesktop;
     };
 
     const animate = () => {
-      const shouldAnimate = drawFrame();
-      if (shouldAnimate) {
-        animationFrameId = requestAnimationFrame(animate);
-      }
+      drawFrame();
+      animationFrameId = requestAnimationFrame(animate);
     };
+
 
     // Replace the raw initParticles() in resize with a call to init then draw once
     const resize = () => {
@@ -209,12 +194,8 @@ export default function HeroRibbon() {
       // Cancel any ongoing animation and restart logic
       if (animationFrameId) cancelAnimationFrame(animationFrameId);
 
-      const isDesktop = window.innerWidth >= 1024;
-      if (isDesktop) {
-        animate(); // Starts the loop
-      } else {
-        drawFrame(); // Draw exactly once for mobile
-      }
+      animate(); // Starts the loop
+
     };
 
     window.addEventListener("resize", resize);
@@ -232,15 +213,28 @@ export default function HeroRibbon() {
       mouse.y = -100;
     };
 
+    const handleTouch = (e: TouchEvent) => {
+      if (e.touches.length > 0) {
+        const rect = canvas.getBoundingClientRect();
+        mouse.x = e.touches[0].clientX - rect.left;
+        mouse.y = e.touches[0].clientY - rect.top;
+      }
+    };
+
     window.addEventListener("mousemove", handleMouseMove);
     window.addEventListener("mouseout", handleMouseLeave);
+    window.addEventListener("touchstart", handleTouch);
+    window.addEventListener("touchmove", handleTouch);
 
     return () => {
       window.removeEventListener("resize", resize);
       window.removeEventListener("mousemove", handleMouseMove);
       window.removeEventListener("mouseout", handleMouseLeave);
+      window.removeEventListener("touchstart", handleTouch);
+      window.removeEventListener("touchmove", handleTouch);
       cancelAnimationFrame(animationFrameId);
     };
+
   }, []);
 
   return (
