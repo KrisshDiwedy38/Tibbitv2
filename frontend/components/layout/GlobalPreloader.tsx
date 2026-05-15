@@ -6,8 +6,8 @@ import { SpinningText } from "@/components/magicui/spinning-text";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function GlobalPreloader({ children }: { children: React.ReactNode }) {
-  const [isLoaded, setIsLoaded] = useState(true);
-  const [showPreloader, setShowPreloader] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [showPreloader, setShowPreloader] = useState(true);
 
   useEffect(() => {
     const hasVisited = sessionStorage.getItem("tibbit_visited");
