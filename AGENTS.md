@@ -9,7 +9,7 @@
 ## Last updated
 <!-- AUTO-UPDATED by memory-agent -->
 Date: 2026-05-15
-Last change: Fixed HeroRibbon restarting on mobile scroll and optimized resize handling.
+Last change: Added GlobalPreloader with NumberTicker and SpinningText magicui components.
 
 ---
 
