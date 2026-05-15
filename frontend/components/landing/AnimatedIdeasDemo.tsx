@@ -92,7 +92,6 @@ export default function AnimatedIdeasDemo({
         fromRef={div2Ref}
         toRef={divTibbitRef}
         duration={3.3}
-        delay={0.5}
         pathColor="rgba(255, 255, 255, 0.15)"
         gradientStartColor="#abfc01"
         gradientStopColor="#abfc01"
@@ -102,7 +101,6 @@ export default function AnimatedIdeasDemo({
         fromRef={div3Ref}
         toRef={divTibbitRef}
         duration={3.3}
-        delay={1}
         pathColor="rgba(255, 255, 255, 0.15)"
         gradientStartColor="#abfc01"
         gradientStopColor="#abfc01"
@@ -124,7 +122,7 @@ export default function AnimatedIdeasDemo({
         fromRef={divTibbitRef}
         toRef={divStudent2Ref}
         duration={3.3}
-        delay={2}
+        delay={1.5}
         pathColor="rgba(255, 255, 255, 0.15)"
         gradientStartColor="#abfc01"
         gradientStopColor="#ff51fa"
