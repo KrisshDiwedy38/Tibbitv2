@@ -69,6 +69,8 @@ INSTALLED_APPS = [
     'listings',
     'messaging',
     'transactions',
+    'launchpad',
+    'community',
     'anymail'
 ]
 

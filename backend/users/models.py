@@ -13,6 +13,7 @@ class University(models.Model):
    """
 
    name = models.CharField(max_length=200)
+   slug = models.SlugField(max_length=200, unique=True, blank=True, null=True)
    email_domain = models.CharField(max_length=100, unique=True)
    location = models.CharField(max_length=200, blank=True, null=True)
    is_active = models.BooleanField(default=True)
@@ -27,16 +28,29 @@ class University(models.Model):
    def __str__(self):
       return self.name
    
+   def save(self, *args, **kwargs):
+      if not self.slug:
+         from django.utils.text import slugify
+         self.slug = slugify(self.name)
+      super().save(*args, **kwargs)
 
 class CustomUser(AbstractUser):
    """
    Custom User model that uses email as the primary identificator, includes OTP verification for student email validation
    """
+   ROLE_CHOICES = [
+      ('student', 'Student'),
+      ('alumni', 'Alumni'),
+      ('organization', 'Organization'),
+   ]
 
    # Making username optional/auto-generated
    username = models.CharField(max_length=100, unique=True, blank=True, null=True)
    # Email as primary identifier 
    email = models.EmailField(unique=True)
+   
+   role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='student')
+   
    # Setting relation from User to University
    university = models.ForeignKey(
       University,
@@ -87,6 +101,15 @@ class CustomUser(AbstractUser):
 
    def __str__(self):
       return self.email
+
+   @property
+   def reputation_score(self):
+      """Calculates average rating from reviews"""
+      reviews = self.reviews_received.all()
+      if reviews.exists():
+         from django.db.models import Avg
+         return round(reviews.aggregate(Avg('rating'))['rating__avg'], 2)
+      return 0.0
 
    def save(self, *args, **kwargs):
       """

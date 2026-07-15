@@ -8,6 +8,7 @@ class Category(models.Model):
    """
 
    name = models.CharField(max_length=100, unique=True)
+   slug = models.SlugField(max_length=100, unique=True, blank=True, null=True)
    description = models.TextField(blank=True, null=True)
    icon = models.CharField(max_length=50, blank=True, null=True)
    is_active = models.BooleanField(default=True)
@@ -20,6 +21,12 @@ class Category(models.Model):
    
    def __str__(self):
       return self.name
+      
+   def save(self, *args, **kwargs):
+      if not self.slug:
+         from django.utils.text import slugify
+         self.slug = slugify(self.name)
+      super().save(*args, **kwargs)
    
 class Listings(models.Model):
    """
@@ -34,6 +41,11 @@ class Listings(models.Model):
       ('deleted', 'Deleted'),
    ]
    
+   LISTING_TYPE_CHOICES = [
+      ('product', 'Product'),
+      ('service', 'Service'),
+   ]
+
    # Condition choices
    CONDITION_CHOICES = [
       ('new', 'New'),
@@ -59,10 +71,17 @@ class Listings(models.Model):
         null=True,
         related_name='listings'
     )
+   listing_type = models.CharField(
+      max_length=20,
+      choices=LISTING_TYPE_CHOICES,
+      default='product'
+   )
    condition = models.CharField(
       max_length=20,
       choices=CONDITION_CHOICES,
-      default='good'
+      default='good',
+      blank=True,
+      null=True
    )
    
    # Seller info

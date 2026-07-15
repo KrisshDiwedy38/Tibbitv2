@@ -17,15 +17,15 @@ class ConversationAdmin(admin.ModelAdmin):
       'id',
       'buyer',
       'seller',
-      'listing',
+      'content_type',
+      'object_id',
       'created_at',
       'updated_at'
    ]
-   list_filter = ['created_at', 'updated_at']
+   list_filter = ['created_at', 'updated_at', 'content_type']
    search_fields = [
       'buyer__email',
-      'seller__email',
-      'listing__title'
+      'seller__email'
    ]
    ordering = ['-updated_at']
    readonly_fields = ['created_at', 'updated_at']
