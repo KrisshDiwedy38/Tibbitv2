@@ -148,3 +148,16 @@ class ReportBugView(APIView):
         except Exception:
             return Response({"error": "Failed to send report. Please try again later."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+class HealthCheckView(APIView):
+    """
+    Health check endpoint to keep the database awake.
+    Performs a lightweight query on the University model.
+    """
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        try:
+            University.objects.exists()
+            return Response({"status": "ok"}, status=status.HTTP_200_OK)
+        except Exception:
+            return Response({"status": "error", "message": "Service unavailable."}, status=status.HTTP_503_SERVICE_UNAVAILABLE)

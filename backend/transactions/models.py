@@ -79,6 +79,15 @@ class Transaction(models.Model):
    
    def __str__(self):
       return f"Transaction #{self.id}: {self.seller.email} → {self.buyer.email}"
+      
+   def clean(self):
+      from django.core.exceptions import ValidationError
+      if self.buyer == self.seller:
+         raise ValidationError("Buyer and seller cannot be the same person.")
+         
+   def save(self, *args, **kwargs):
+      self.clean()
+      super().save(*args, **kwargs)
     
    def generate_otps(self):
       """
