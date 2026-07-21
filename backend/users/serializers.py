@@ -26,13 +26,25 @@ class RegistrationSerializer(serializers.ModelSerializer):
       return attrs
    
    def validate_email(self, value):
-      domain = value.split('@')[-1]
-      if not University.objects.filter(email_domain = domain, is_active = True).exists():
-         raise serializers.ValidationError("Entered email is not of a registered university.")
+      domain = value.split('@')[-1].lower()
+      generic_domains = ['gmail.com', 'yahoo.com', 'outlook.com', 'hotmail.com', 'icloud.com', 'aol.com', 'mail.com']
+      if domain in generic_domains:
+         raise serializers.ValidationError("Please use your university or institutional email address.")
       
       return value
    
    def create(self, validated_data):
+      validated_data.pop('password2', None)
+      email = validated_data.get('email')
+      domain = email.split('@')[-1].lower()
+      
+      # Find or passively create the university
+      university, created = University.objects.get_or_create(
+          email_domain=domain,
+          defaults={'name': domain, 'is_verified': False, 'is_active': False}
+      )
+      
+      validated_data['university'] = university
       user = CustomUser.objects.create_user(**validated_data)
 
       user.generate_otp()
@@ -57,12 +69,18 @@ class OTPVerifySerializer(serializers.Serializer):
          raise serializers.ValidationError({"otp": message})
       
       # When OTP passes
-      refresh = RefreshToken.for_user(user)
       attrs['user']= user
-      attrs['tokens']= {
-         'refresh' : str(refresh),
-         'access':str(refresh.access_token),
-      }
+      
+      if user.university and user.university.is_active:
+         refresh = RefreshToken.for_user(user)
+         attrs['tokens']= {
+            'refresh' : str(refresh),
+            'access':str(refresh.access_token),
+         }
+      else:
+         attrs['tokens'] = None
+         attrs['waitlist_message'] = "Email verified successfully! We will notify you once your university is allowed."
+         
       return attrs
    
 
@@ -101,6 +119,9 @@ class LoginSerializer(serializers.Serializer):
       
       if not user.is_active:
          raise serializers.ValidationError({'email': 'This account has been disabled.'})
+         
+      if user.university and not user.university.is_active:
+         raise serializers.ValidationError({'email': 'Your university is currently on the waitlist. We will notify you once it is allowed!'})
       
       # Verification Passed 
 
@@ -111,6 +132,45 @@ class LoginSerializer(serializers.Serializer):
          'access':str(refresh.access_token),
       }
       return attrs
+
+class PasswordResetRequestSerializer(serializers.Serializer):
+   email = serializers.EmailField()
+
+   def validate_email(self, value):
+      try:
+         user = CustomUser.objects.get(email=value)
+      except CustomUser.DoesNotExist:
+         raise serializers.ValidationError("User not found.")
+      if not user.is_active:
+         raise serializers.ValidationError("Account is disabled.")
+      self.context['user'] = user
+      return value
+
+class PasswordResetConfirmSerializer(serializers.Serializer):
+   email = serializers.EmailField()
+   otp = serializers.CharField(max_length=6, min_length=6)
+   password = serializers.CharField(write_only=True, required=True, validators=[validate_password])
+   password2 = serializers.CharField(write_only=True, required=True, label='Confirm Password')
+
+   def validate(self, attrs):
+      if attrs['password'] != attrs['password2']:
+         raise serializers.ValidationError({"password": "Passwords do not match."})
+      
+      try:
+         user = CustomUser.objects.get(email=attrs['email'])
+      except CustomUser.DoesNotExist:
+         raise serializers.ValidationError({"email": "User not found."})
+      
+      success, message = user.verify_otp(attrs['otp'])
+      if not success:
+         raise serializers.ValidationError({"otp": message})
+      
+      self.context['user'] = user
+      return attrs
+class UserProfileUpdateSerializer(serializers.ModelSerializer):
+   class Meta:
+      model = CustomUser
+      fields = ['first_name', 'last_name', 'phone_number', 'bio', 'profile_picture', 'graduation_year']
 
 
 class WaitlistEntrySerializer(serializers.ModelSerializer):

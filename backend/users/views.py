@@ -10,7 +10,10 @@ from .serializers import (
     LoginSerializer,
     UniversitySerializer,
     WaitlistEntrySerializer,
-    ContactFormSerializer
+    ContactFormSerializer,
+    UserProfileUpdateSerializer,
+    PasswordResetRequestSerializer,
+    PasswordResetConfirmSerializer
 )
 from .models import University
 from django.conf import settings
@@ -44,16 +47,42 @@ class OTPVerifyView(APIView):
         if serializer.is_valid():
             # The serializer validate method returns user and tokens
             user = serializer.validated_data['user']
-            tokens = serializer.validated_data['tokens']
-            return Response({
-                "message": "Email verified successfully.",
-                "tokens": tokens,
+            tokens = serializer.validated_data.get('tokens')
+            waitlist_message = serializer.validated_data.get('waitlist_message')
+            
+            response_data = {
                 "user": {
                     "email": user.email,
                     "first_name": user.first_name,
                     "last_name": user.last_name
                 }
-            }, status=status.HTTP_200_OK)
+            }
+            
+            if tokens:
+                response_data["message"] = "Email verified successfully."
+                # We don't send tokens in JSON anymore, only cookies
+                response = Response(response_data, status=status.HTTP_200_OK)
+                response.set_cookie(
+                    key=settings.SIMPLE_JWT['AUTH_COOKIE'] if 'AUTH_COOKIE' in settings.SIMPLE_JWT else 'access_token',
+                    value=tokens['access'],
+                    expires=settings.SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'],
+                    secure=not settings.DEBUG,
+                    httponly=True,
+                    samesite='Lax'
+                )
+                response.set_cookie(
+                    key='refresh_token',
+                    value=tokens['refresh'],
+                    expires=settings.SIMPLE_JWT['REFRESH_TOKEN_LIFETIME'],
+                    secure=not settings.DEBUG,
+                    httponly=True,
+                    samesite='Lax'
+                )
+                return response
+            else:
+                response_data["message"] = waitlist_message
+                
+            return Response(response_data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class ResendOTPView(APIView):
@@ -75,31 +104,143 @@ class LoginView(APIView):
         if serializer.is_valid():
             user = serializer.validated_data['user']
             tokens = serializer.validated_data['tokens']
-            return Response({
+            response = Response({
                 "message": "Login successful.",
-                "tokens": tokens,
                 "user": {
                     "email": user.email,
                     "first_name": user.first_name,
                     "last_name": user.last_name
                 }
             }, status=status.HTTP_200_OK)
+            
+            response.set_cookie(
+                key=settings.SIMPLE_JWT['AUTH_COOKIE'] if 'AUTH_COOKIE' in settings.SIMPLE_JWT else 'access_token',
+                value=tokens['access'],
+                expires=settings.SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'],
+                secure=not settings.DEBUG,
+                httponly=True,
+                samesite='Lax'
+            )
+            response.set_cookie(
+                key='refresh_token',
+                value=tokens['refresh'],
+                expires=settings.SIMPLE_JWT['REFRESH_TOKEN_LIFETIME'],
+                secure=not settings.DEBUG,
+                httponly=True,
+                samesite='Lax'
+            )
+            return response
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class PasswordResetRequestView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        serializer = PasswordResetRequestSerializer(data=request.data)
+        if serializer.is_valid():
+            user = serializer.context['user']
+            user.generate_otp()
+            return Response({"message": "Password reset OTP sent to email."}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class PasswordResetConfirmView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        serializer = PasswordResetConfirmSerializer(data=request.data)
+        if serializer.is_valid():
+            user = serializer.context['user']
+            user.set_password(serializer.validated_data['password'])
+            user.save()
+            return Response({"message": "Password has been reset successfully."}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+from rest_framework_simplejwt.views import TokenRefreshView
+from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
+
+class CookieTokenRefreshView(TokenRefreshView):
+    def post(self, request, *args, **kwargs):
+        refresh_token = request.COOKIES.get('refresh_token')
+        if refresh_token:
+            request.data['refresh'] = refresh_token
+            
+        try:
+            response = super().post(request, *args, **kwargs)
+        except (InvalidToken, TokenError) as e:
+            return Response({"error": "Invalid or expired refresh token"}, status=status.HTTP_401_UNAUTHORIZED)
+            
+        if response.status_code == 200:
+            access_token = response.data.get('access')
+            refresh_token = response.data.get('refresh')
+            
+            if access_token:
+                response.set_cookie(
+                    key=settings.SIMPLE_JWT.get('AUTH_COOKIE', 'access_token'),
+                    value=access_token,
+                    expires=settings.SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'],
+                    secure=not settings.DEBUG,
+                    httponly=True,
+                    samesite='Lax'
+                )
+            if refresh_token:
+                response.set_cookie(
+                    key='refresh_token',
+                    value=refresh_token,
+                    expires=settings.SIMPLE_JWT['REFRESH_TOKEN_LIFETIME'],
+                    secure=not settings.DEBUG,
+                    httponly=True,
+                    samesite='Lax'
+                )
+        return response
+
+class LogoutView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        try:
+            refresh_token = request.COOKIES.get("refresh_token") or request.data.get("refresh")
+            if refresh_token:
+                from rest_framework_simplejwt.tokens import RefreshToken
+                token = RefreshToken(refresh_token)
+                token.blacklist()
+                
+            response = Response({"message": "Logout successful."}, status=status.HTTP_200_OK)
+            response.delete_cookie(settings.SIMPLE_JWT.get('AUTH_COOKIE', 'access_token'))
+            response.delete_cookie('refresh_token')
+            return response
+            
+        except Exception as e:
+            response = Response({"error": "Invalid token."}, status=status.HTTP_400_BAD_REQUEST)
+            response.delete_cookie(settings.SIMPLE_JWT.get('AUTH_COOKIE', 'access_token'))
+            response.delete_cookie('refresh_token')
+            return response
 
 class UserProfileView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
         user = request.user
-        return Response({
-            "email": user.email,
-            "first_name": user.first_name,
-            "last_name": user.last_name,
-            "phone_number": user.phone_number,
-            "bio": user.bio,
-            "graduation_year": user.graduation_year,
-            "university": user.university.name if user.university else None
-        }, status=status.HTTP_200_OK)
+        serializer = UserProfileUpdateSerializer(user)
+        data = serializer.data
+        data["email"] = user.email
+        data["university"] = user.university.name if user.university else None
+        data["reputation_score"] = user.reputation_score
+        return Response(data, status=status.HTTP_200_OK)
+
+    def put(self, request):
+        serializer = UserProfileUpdateSerializer(request.user, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def patch(self, request):
+        serializer = UserProfileUpdateSerializer(request.user, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 from rest_framework import generics
 
