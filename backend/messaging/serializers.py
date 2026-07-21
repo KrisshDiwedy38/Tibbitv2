@@ -13,7 +13,7 @@ class MessageSerializer(serializers.ModelSerializer):
 class ConversationSerializer(serializers.ModelSerializer):
     buyer_email = serializers.CharField(source='buyer.email', read_only=True)
     seller_email = serializers.CharField(source='seller.email', read_only=True)
-    listing_title = serializers.CharField(source='listing.title', read_only=True)
+    context_object_str = serializers.SerializerMethodField()
     unread_count = serializers.SerializerMethodField()
     latest_message = serializers.SerializerMethodField()
 
@@ -21,10 +21,15 @@ class ConversationSerializer(serializers.ModelSerializer):
         model = Conversation
         fields = [
             'id', 'buyer', 'buyer_email', 'seller', 'seller_email',
-            'listing', 'listing_title', 'created_at', 'updated_at',
+            'content_type', 'object_id', 'context_object_str', 'created_at', 'updated_at',
             'unread_count', 'latest_message'
         ]
         read_only_fields = ['buyer', 'created_at', 'updated_at']
+
+    def get_context_object_str(self, obj):
+        if obj.content_object:
+            return str(obj.content_object)
+        return None
 
     def get_unread_count(self, obj):
         request = self.context.get('request')

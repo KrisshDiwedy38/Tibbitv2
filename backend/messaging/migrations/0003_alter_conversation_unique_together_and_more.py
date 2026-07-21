@@ -14,6 +14,10 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        migrations.AlterUniqueTogether(
+            name='conversation',
+            unique_together=set(),
+        ),
         migrations.RemoveField(
             model_name='conversation',
             name='listing',

@@ -37,6 +37,7 @@ CORS_ALLOWED_ORIGINS = os.environ.get('CORS_ORIGINS', 'http://localhost:3000').s
 
 # Disable allowing all origins
 CORS_ALLOW_ALL_ORIGINS = False
+CORS_ALLOW_CREDENTIALS = True
 
 # Security headers (production)
 SECURE_BROWSER_XSS_FILTER = True
@@ -160,6 +161,8 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
@@ -169,8 +172,28 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'users.CustomUser'
 
 # Media files configuration
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+if os.environ.get('SUPABASE_STORAGE_BUCKET_NAME'):
+    # Use Supabase Storage (S3-compatible)
+    STORAGES = {
+        "default": {
+            "BACKEND": "storages.backends.s3.S3Storage",
+            "OPTIONS": {
+                "access_key": os.environ.get("SUPABASE_ACCESS_KEY_ID"),
+                "secret_key": os.environ.get("SUPABASE_SECRET_ACCESS_KEY"),
+                "bucket_name": os.environ.get("SUPABASE_STORAGE_BUCKET_NAME"),
+                "endpoint_url": os.environ.get("SUPABASE_S3_ENDPOINT_URL"),
+                "region_name": os.environ.get("SUPABASE_REGION", "ap-south-1"), # Supabase region or standard S3 region
+                "default_acl": "public-read",
+            },
+        },
+        "staticfiles": {
+            "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+        },
+    }
+else:
+    # Fallback to local storage for dev if no bucket configured
+    MEDIA_URL = '/media/'
+    MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Email Config (Resend SMTP Backend)
 ANYMAIL = {
@@ -191,13 +214,17 @@ OTP_EXPIRY_MINUTES = 10
 OTP_MAX_ATTEMPTS = 5
 
 REST_FRAMEWORK = {
-   'DEFAULT_AUTHENTICATION_CLASSES' : ['rest_framework_simplejwt.authentication.JWTAuthentication'],
+   'DEFAULT_AUTHENTICATION_CLASSES' : ['users.authentication.CookieJWTAuthentication'],
    'DEFAULT_PERMISSION_CLASSES' : ['rest_framework.permissions.IsAuthenticated'],
+   'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+   'PAGE_SIZE': 20,
    'DEFAULT_THROTTLE_CLASSES': [
        'rest_framework.throttling.AnonRateThrottle',
+       'rest_framework.throttling.UserRateThrottle',
    ],
    'DEFAULT_THROTTLE_RATES': {
        'anon': '10/minute',
+       'user': '100/minute',
    }
 }
 

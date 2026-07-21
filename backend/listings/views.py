@@ -11,6 +11,8 @@ from .serializers import (
     SavedListingSerializer
 )
 
+from backend.permissions import IsOwnerOrReadOnly
+
 class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Category.objects.filter(is_active=True)
     serializer_class = CategorySerializer
@@ -27,6 +29,8 @@ class ListingViewSet(viewsets.ModelViewSet):
     def get_permissions(self):
         if self.action in ['list', 'retrieve']:
             return [permissions.AllowAny()]
+        if self.action in ['update', 'partial_update', 'destroy']:
+            return [permissions.IsAuthenticated(), IsOwnerOrReadOnly()]
         return [permissions.IsAuthenticated()]
 
     def get_serializer_class(self):

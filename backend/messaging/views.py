@@ -8,14 +8,14 @@ from .serializers import ConversationSerializer, MessageSerializer
 class ConversationViewSet(viewsets.ModelViewSet):
     serializer_class = ConversationSerializer
     permission_classes = [permissions.IsAuthenticated]
+    http_method_names = ['get', 'post', 'head', 'options']
 
     def get_queryset(self):
         user = self.request.user
-        return Conversation.objects.filter(Q(buyer=user) | Q(seller=user)).select_related('buyer', 'seller', 'listing')
+        return Conversation.objects.filter(Q(buyer=user) | Q(seller=user)).select_related('buyer', 'seller', 'content_type')
 
     def perform_create(self, serializer):
-        listing = serializer.validated_data['listing']
-        serializer.save(buyer=self.request.user, seller=listing.seller)
+        serializer.save(buyer=self.request.user)
 
     @action(detail=True, methods=['get'])
     def messages(self, request, pk=None):
@@ -33,6 +33,7 @@ class ConversationViewSet(viewsets.ModelViewSet):
 class MessageViewSet(viewsets.ModelViewSet):
     serializer_class = MessageSerializer
     permission_classes = [permissions.IsAuthenticated]
+    http_method_names = ['get', 'post', 'head', 'options']
 
     def get_queryset(self):
         user = self.request.user

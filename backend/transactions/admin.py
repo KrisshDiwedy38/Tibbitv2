@@ -65,9 +65,6 @@ class TransactionAdmin(admin.ModelAdmin):
                'buyer_verified_at'
          )
       }),
-      ('Meeting Details', {
-         'fields': ('meeting_location', 'meeting_time')
-      }),
       ('Additional Info', {
          'fields': ('notes',)
       }),
