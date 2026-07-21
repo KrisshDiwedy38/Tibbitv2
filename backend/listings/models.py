@@ -146,7 +146,7 @@ class ListingImage(models.Model):
       on_delete=models.CASCADE,
       related_name='images'
    )
-   image = models.ImageField(upload_to='backend/media/listing_images/')
+   image = models.ImageField(upload_to='listing_images/')
    order = models.IntegerField(default=0)  # For ordering images (first image is thumbnail)
    uploaded_at = models.DateTimeField(auto_now_add=True)
    

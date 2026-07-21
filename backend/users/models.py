@@ -3,6 +3,7 @@ from django.contrib.auth.models import AbstractUser
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.utils import timezone
 from datetime import timedelta
+from backend.storage_backends import AvatarStorage
 from .managers import CustomUserManager
 
 import secrets
@@ -69,7 +70,8 @@ class CustomUser(AbstractUser):
    #Profile Fields
    phone_number = models.CharField(max_length=15, blank=True, null=True)
    profile_picture = models.ImageField(
-      upload_to='backend/media/profile_pictures/',
+      upload_to='profile_pictures/',
+      storage=AvatarStorage(),
       blank=True,
       null=True,
       default='profile_pictures/default.jpg'
@@ -147,8 +149,12 @@ class CustomUser(AbstractUser):
       
       try:
           send_mail(subject, message, email_from, [self.email])
-      except Exception:
-          pass
+      except Exception as e:
+          import logging
+          logger = logging.getLogger(__name__)
+          logger.error(f"Failed to send OTP email to {self.email}: {str(e)}")
+          # Depending on requirements, we might want to raise this or return False.
+          # For now, just log the error so we can debug it.
 
       return otp
    
