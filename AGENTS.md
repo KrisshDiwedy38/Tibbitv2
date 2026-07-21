@@ -8,8 +8,8 @@
 
 ## Last updated
 <!-- AUTO-UPDATED by memory-agent -->
-Date: 2026-05-15
-Last change: Added GlobalPreloader with NumberTicker and SpinningText magicui components.
+Date: 2026-07-21
+Last change: Layer 1 & 2 completed: S3 Storage buckets, HttpOnly Cookie Auth, AuthContext, dedicated auth pages, and Marketplace app shell.
 
 ---
 
@@ -152,7 +152,7 @@ TibbitToDo.txt            # Product feature backlog / notes
 
 | Domain | Backend app | Backend views | Frontend route | Status |
 |--------|------------|---------------|----------------|--------|
-| Auth/Users | `users/` | `views.py` (Registration, Login, OTP, Profile) | — (no frontend yet) | Backend done |
+| Auth/Users | `users/` | `views.py` (Registration, Login, OTP, Profile) | `app/login`, `app/register`, `app/verify-otp`, `app/password-reset*` | Backend + Frontend Auth shell done |
 | Waitlist | `users/` | `views.py` (WaitlistCreateView) | `app/page.tsx` + `WaitlistModal.tsx` | Done — live |
 | Support | `users/` | `views.py` (ContactFounderView, ReportBugView) | `ContactModal.tsx`, `ReportBugModal.tsx` | Done |
 
@@ -386,16 +386,16 @@ FOUNDER_EMAIL         Destination email for contact/bug reports
 > Architectural decisions that affect how agents should write new code.
 > Update this when a significant decision is made.
 
-- **Auth pattern**: JWT via SimpleJWT — 15min access, 7d refresh, token rotation + blacklist. Email is the primary auth identifier (USERNAME_FIELD).
+- **Auth pattern**: Secure `HttpOnly` cookies for JWTs (`access_token` and `refresh_token`). Handled by `CookieJWTAuthentication` on backend and Axios interceptors on frontend for silent token refreshes via `CookieTokenRefreshView`.
 - **Email verification**: 6-digit OTP sent to student email, valid for 10 minutes, max 5 attempts before requiring re-request.
 - **Transaction verification**: Dual-OTP system — both buyer and seller get separate OTPs (24h expiry). Transaction completes only when both verify.
 - **User model**: Custom `AbstractUser` subclass with email as primary identifier. Username auto-generated from email prefix.
 - **University gating**: Users linked to University model via email domain matching. University must be active and verified.
 - **API style**: Django REST Framework ViewSets with DRF DefaultRouter. JWT auth required by default, overridden per-view as needed.
 - **Real-time messaging**: Django Channels with WebSocket consumers. Currently using `InMemoryChannelLayer` (must switch to Redis for production).
-- **File storage**: Local media storage configured. django-storages + boto3 installed for S3 migration.
+- **File storage**: Dual Supabase S3 bucket configuration via `django-storages`. `MediaStorage` (`tibbit-media`) for general media/listings and `AvatarStorage` (`user-avatars`) for profile pictures.
 - **Frontend approach**: Single landing page with waitlist modal. Space Grotesk font. Neobrutalist design with Material Design 3 color tokens via Tailwind.
-- **Frontend architecture**: Components organized by purpose (`effects/`, `landing/`, `layout/`, `modals/`). Shared hooks in `hooks/`. Centralized API client in `lib/api.ts`. All modals extend `BaseModal` for DRY scroll lock, Escape key, and backdrop.
+- **Frontend architecture**: Global `AuthContext` wrapper. Auth uses dedicated pages (no modals) like `/login` and `/register`. Protected routes wrapped in `app/marketplace/layout.tsx` which enforces authentication. Centralized Axios client in `lib/api.ts` with 401 refresh interceptors. All modals extend `BaseModal` for DRY scroll lock, Escape key, and backdrop.
 - **Path aliases**: TypeScript `@/*` alias maps to project root. All imports use `@/components/*`, `@/lib/*`, `@/hooks/*`.
 - **Deployment**: Vercel monorepo — frontend via `@vercel/next`, backend via `@vercel/python` (WSGI). Known limitation: WebSockets won't work on Vercel serverless.
 - **CORS**: Currently `CORS_ALLOW_ALL_ORIGINS = True` for waitlist phase. Must be restricted for production.
