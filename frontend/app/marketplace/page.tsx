@@ -1,100 +1,287 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { Package, Search, Filter, TrendingUp, Sparkles } from "lucide-react";
+import { api } from "@/lib/api";
+import Link from "next/link";
+import { 
+  Package, 
+  Search, 
+  PlusCircle, 
+  Bookmark, 
+  Loader2, 
+  Sparkles, 
+  MapPin,
+  Clock,
+  Heart
+} from "lucide-react";
+
+interface Category {
+  id: number;
+  name: string;
+  icon: string | null;
+  description: string | null;
+}
+
+interface ListingImage {
+  id: number;
+  image: string;
+  order: number;
+}
+
+interface Listing {
+  id: number;
+  title: string;
+  description: string;
+  price: string;
+  category: number | null;
+  category_name: string | null;
+  condition: string;
+  seller_name: string;
+  seller_avatar: string | null;
+  location: string;
+  views_count: number;
+  is_saved: boolean;
+  created_at: string;
+  images: ListingImage[];
+}
 
 export default function MarketplacePage() {
   const { user } = useAuth();
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [listings, setListings] = useState<Listing[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+
+  const fetchCategories = async () => {
+    try {
+      const res = await api.get("/api/listings/categories/");
+      setCategories(res.data.results || res.data);
+    } catch (err) {
+      console.error("Failed to load categories", err);
+    }
+  };
+
+  const fetchListings = async () => {
+    setIsLoading(true);
+    try {
+      const params: Record<string, any> = {};
+      if (selectedCategory) params.category = selectedCategory;
+      if (searchQuery) params.search = searchQuery;
+
+      const res = await api.get("/api/listings/items/", { params });
+      setListings(res.data.results || res.data);
+    } catch (err) {
+      console.error("Failed to load listings", err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      fetchListings();
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [selectedCategory, searchQuery]);
+
+  const toggleSave = async (e: React.MouseEvent, listingId: number, currentSaved: boolean) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    // Optimistic update
+    setListings(prev =>
+      prev.map(item =>
+        item.id === listingId ? { ...item, is_saved: !currentSaved } : item
+      )
+    );
+
+    try {
+      if (currentSaved) {
+        await api.post(`/api/listings/items/${listingId}/unsave/`);
+      } else {
+        await api.post(`/api/listings/items/${listingId}/save/`);
+      }
+    } catch (err) {
+      // Revert on error
+      setListings(prev =>
+        prev.map(item =>
+          item.id === listingId ? { ...item, is_saved: currentSaved } : item
+        )
+      );
+    }
+  };
+
+  const formatCondition = (cond: string) => {
+    switch (cond) {
+      case 'new': return 'Brand New';
+      case 'like_new': return 'Like New';
+      case 'good': return 'Good';
+      case 'fair': return 'Fair';
+      default: return cond;
+    }
+  };
 
   return (
     <div className="space-y-8 animate-fade-in-up">
-      {/* Header Section */}
-      <section className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-black text-on-surface tracking-tight">
+      {/* Top Banner & Search */}
+      <section className="bg-surface-container border-2 border-outline-variant/30 rounded-2xl p-6 sm:p-8 flex flex-col md:flex-row md:items-center justify-between gap-6 relative overflow-hidden">
+        <div className="space-y-2 z-10">
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 border border-primary/30 rounded-full text-xs font-black uppercase text-primary tracking-wider">
+            <Sparkles className="w-3.5 h-3.5" />
+            Verified Campus Marketplace
+          </div>
+          <h1 className="text-3xl sm:text-4xl font-black text-on-surface tracking-tight uppercase">
             Campus Feed
           </h1>
-          <p className="text-on-surface-variant mt-2 max-w-xl">
-            Welcome back, {user?.first_name}. Here's what's trending at {user?.university || 'your university'} today.
+          <p className="text-sm text-on-surface-variant max-w-lg">
+            Buy, sell, and trade safely with verified students at {user?.university || 'your campus'}.
           </p>
         </div>
-        
-        <div className="flex items-center gap-3">
-          <div className="relative group flex-1 md:w-64">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Search className="h-4 w-4 text-on-surface-variant group-focus-within:text-primary transition-colors" />
-            </div>
+
+        <div className="flex flex-col sm:flex-row gap-3 z-10 w-full md:w-auto">
+          <div className="relative flex-1 md:w-72">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-on-surface-variant" />
             <input
               type="text"
-              className="block w-full pl-10 pr-3 py-2.5 border-2 border-outline-variant/30 rounded-xl bg-surface focus:ring-0 focus:border-primary transition-colors text-on-surface placeholder:text-on-surface-variant/50 font-medium text-sm"
-              placeholder="Search listings..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search gear, books, tech..."
+              className="w-full pl-10 pr-4 py-3 bg-surface border-2 border-outline-variant/40 rounded-xl text-sm font-medium text-on-surface focus:outline-none focus:border-primary transition-colors"
             />
           </div>
-          <button className="p-2.5 border-2 border-outline-variant/30 rounded-xl bg-surface hover:border-primary/50 hover:bg-surface-container transition-colors text-on-surface-variant hover:text-on-surface">
-            <Filter className="h-5 w-5" />
+          
+          <Link
+            href="/marketplace/create"
+            className="flex items-center justify-center gap-2 px-6 py-3 bg-primary-container text-on-primary-container font-black uppercase tracking-tighter border-2 border-black rounded-xl hover:-translate-y-0.5 transition-all text-sm shadow-sm"
+          >
+            <PlusCircle className="w-4 h-4" />
+            Post Item
+          </Link>
+        </div>
+      </section>
+
+      {/* Category Pills */}
+      <section className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+        <button
+          onClick={() => setSelectedCategory(null)}
+          className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all whitespace-nowrap border-2 ${
+            selectedCategory === null
+              ? "bg-primary-container text-on-primary-container border-black shadow-sm"
+              : "bg-surface-container text-on-surface-variant border-outline-variant/30 hover:text-on-surface hover:border-primary/40"
+          }`}
+        >
+          All Items
+        </button>
+
+        {categories.map((cat) => (
+          <button
+            key={cat.id}
+            onClick={() => setSelectedCategory(cat.id)}
+            className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all whitespace-nowrap border-2 ${
+              selectedCategory === cat.id
+                ? "bg-primary-container text-on-primary-container border-black shadow-sm"
+                : "bg-surface-container text-on-surface-variant border-outline-variant/30 hover:text-on-surface hover:border-primary/40"
+            }`}
+          >
+            {cat.name}
           </button>
-        </div>
+        ))}
       </section>
 
-      {/* Quick Stats / Highlights */}
-      <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-gradient-to-br from-primary/10 to-transparent border border-primary/20 rounded-2xl p-6 relative overflow-hidden group">
-          <div className="absolute top-0 right-0 p-4 opacity-10 transform translate-x-4 -translate-y-4 group-hover:scale-110 transition-transform">
-            <TrendingUp className="w-24 h-24" />
-          </div>
-          <div className="flex items-center gap-2 text-primary font-bold mb-1">
-            <Sparkles className="w-4 h-4" />
-            <span>Top Categories</span>
-          </div>
-          <h3 className="text-2xl font-black text-on-surface">Tech & Books</h3>
-          <p className="text-sm text-on-surface-variant mt-1">+124 new items this week</p>
-        </div>
-
-        <div className="bg-surface-container border border-outline-variant/30 rounded-2xl p-6 relative overflow-hidden group hover:border-primary/30 transition-colors">
-          <div className="absolute top-0 right-0 p-4 opacity-5 transform translate-x-4 -translate-y-4 group-hover:scale-110 transition-transform text-on-surface">
-            <Package className="w-24 h-24" />
-          </div>
-          <div className="text-sm font-bold text-on-surface-variant mb-1">
-            Active Listings
-          </div>
-          <h3 className="text-2xl font-black text-on-surface">1,492</h3>
-          <p className="text-sm text-on-surface-variant mt-1">Across your campus</p>
-        </div>
-        
-        <div className="bg-surface-container border border-outline-variant/30 rounded-2xl p-6 relative overflow-hidden group hover:border-primary/30 transition-colors">
-          <div className="text-sm font-bold text-on-surface-variant mb-1">
-            Your Reputation
-          </div>
-          <h3 className="text-2xl font-black text-primary">{user?.reputation_score || 0}</h3>
-          <p className="text-sm text-on-surface-variant mt-1">Top 15% of sellers</p>
-        </div>
-      </section>
-
-      {/* Placeholder Feed */}
+      {/* Feed Grid */}
       <section>
-        <h2 className="text-xl font-bold text-on-surface mb-6">Recent Additions</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-            <div key={i} className="group cursor-pointer">
-              <div className="aspect-square rounded-2xl bg-surface-container-highest border border-outline-variant/20 mb-3 relative overflow-hidden">
-                <div className="absolute inset-0 bg-primary/0 group-hover:bg-primary/5 transition-colors duration-300"></div>
-                {/* Placeholder Image Icon */}
-                <div className="absolute inset-0 flex items-center justify-center text-outline-variant/50 group-hover:scale-110 transition-transform duration-500">
-                  <Package className="w-12 h-12" />
+        {isLoading ? (
+          <div className="flex flex-col items-center justify-center py-20">
+            <Loader2 className="w-10 h-10 animate-spin text-primary mb-4" />
+            <p className="text-sm font-semibold text-on-surface-variant">Loading campus items...</p>
+          </div>
+        ) : listings.length === 0 ? (
+          <div className="bg-surface-container border-2 border-dashed border-outline-variant/30 rounded-2xl p-12 text-center max-w-md mx-auto my-12">
+            <Package className="w-12 h-12 text-on-surface-variant mx-auto mb-4" />
+            <h3 className="text-lg font-bold text-on-surface">No listings found</h3>
+            <p className="text-sm text-on-surface-variant mt-1 mb-6">
+              Be the first to post an item in this category!
+            </p>
+            <Link
+              href="/marketplace/create"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-on-primary font-bold rounded-xl text-sm"
+            >
+              <PlusCircle className="w-4 h-4" /> Create Listing
+            </Link>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {listings.map((item) => (
+              <Link
+                key={item.id}
+                href={`/marketplace/listings/${item.id}`}
+                className="group bg-surface-container border-2 border-outline-variant/30 rounded-2xl overflow-hidden hover:border-primary/50 transition-all duration-200 flex flex-col hover:-translate-y-1"
+              >
+                {/* Thumbnail Image */}
+                <div className="aspect-square bg-surface-container-highest relative overflow-hidden">
+                  {item.images && item.images.length > 0 ? (
+                    <img
+                      src={item.images[0].image}
+                      alt={item.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-on-surface-variant/40">
+                      <Package className="w-16 h-16" />
+                    </div>
+                  )}
+
+                  {/* Price Tag */}
+                  <div className="absolute bottom-3 left-3 bg-surface/90 backdrop-blur-md px-3 py-1 rounded-lg border border-white/10 font-black text-sm text-primary">
+                    ${parseFloat(item.price).toFixed(2)}
+                  </div>
+
+                  {/* Bookmark Button */}
+                  <button
+                    onClick={(e) => toggleSave(e, item.id, item.is_saved)}
+                    className="absolute top-3 right-3 p-2 rounded-full bg-surface/80 backdrop-blur-md text-on-surface hover:text-primary transition-colors border border-white/10"
+                    title={item.is_saved ? "Remove from saved" : "Save item"}
+                  >
+                    <Heart className={`w-4 h-4 ${item.is_saved ? "fill-primary text-primary" : ""}`} />
+                  </button>
                 </div>
-                <div className="absolute top-3 right-3 px-2 py-1 bg-surface/80 backdrop-blur-md rounded-lg text-xs font-bold text-on-surface">
-                  ${(Math.random() * 100 + 10).toFixed(0)}
+
+                {/* Content */}
+                <div className="p-4 flex-1 flex flex-col justify-between space-y-3">
+                  <div>
+                    <div className="flex items-center justify-between text-xs text-on-surface-variant mb-1 font-semibold">
+                      <span className="text-primary font-bold">{item.category_name || "General"}</span>
+                      <span>{formatCondition(item.condition)}</span>
+                    </div>
+                    <h3 className="font-bold text-on-surface line-clamp-1 group-hover:text-primary transition-colors">
+                      {item.title}
+                    </h3>
+                  </div>
+
+                  <div className="pt-2 border-t border-outline-variant/20 flex items-center justify-between text-xs text-on-surface-variant font-medium">
+                    <div className="flex items-center gap-1.5 truncate">
+                      <div className="w-5 h-5 rounded-full bg-primary/20 flex items-center justify-center text-[10px] font-bold text-primary">
+                        {item.seller_name.charAt(0).toUpperCase()}
+                      </div>
+                      <span className="truncate">{item.seller_name}</span>
+                    </div>
+
+                    <div className="flex items-center gap-1 text-[11px] shrink-0">
+                      <MapPin className="w-3 h-3" />
+                      <span className="truncate max-w-[80px]">{item.location}</span>
+                    </div>
+                  </div>
                 </div>
-              </div>
-              <h4 className="font-bold text-on-surface group-hover:text-primary transition-colors">
-                Item Title Placeholder
-              </h4>
-              <p className="text-sm text-on-surface-variant mt-0.5">
-                {['Like New', 'Good', 'Fair'][i % 3]} • 2h ago
-              </p>
-            </div>
-          ))}
-        </div>
+              </Link>
+            ))}
+          </div>
+        )}
       </section>
     </div>
   );
