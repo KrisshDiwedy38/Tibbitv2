@@ -8,8 +8,8 @@
 
 ## Last updated
 <!-- AUTO-UPDATED by memory-agent -->
-Date: 2026-07-21
-Last change: Layer 1 & 2 completed: S3 Storage buckets, HttpOnly Cookie Auth, AuthContext, dedicated auth pages, and Marketplace app shell.
+Date: 2026-07-22
+Last change: Layer 3 completed: Updated Landing Page CTAs to /register & /login. Built Marketplace Feed, Create Listing (with S3 image upload), Listing Detail, and Saved Wishlist pages.
 
 ---
 

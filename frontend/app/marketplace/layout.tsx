@@ -3,7 +3,7 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { Loader2, LogOut, MessageSquare, PlusCircle, Settings, User as UserIcon } from "lucide-react";
+import { Loader2, LogOut, MessageSquare, PlusCircle, Settings, User as UserIcon, Heart } from "lucide-react";
 import Link from "next/link";
 
 export default function MarketplaceLayout({
@@ -45,25 +45,36 @@ export default function MarketplaceLayout({
             <Link href="/marketplace" className="text-sm font-bold text-on-surface hover:text-primary transition-colors">
               Feed
             </Link>
-            <Link href="/marketplace/startups" className="text-sm font-bold text-on-surface-variant hover:text-primary transition-colors">
-              Launchpad
+            <Link href="/marketplace/saved" className="text-sm font-bold text-on-surface-variant hover:text-primary transition-colors">
+              Wishlist
             </Link>
           </nav>
         </div>
 
         <div className="flex items-center gap-4">
           <Link 
-            href="/marketplace/messages"
-            className="p-2 rounded-full hover:bg-surface-container transition-colors relative"
+            href="/marketplace/saved"
+            className="p-2 rounded-full hover:bg-surface-container transition-colors text-on-surface-variant hover:text-primary"
+            title="Saved Items"
           >
-            <MessageSquare className="w-5 h-5 text-on-surface" />
-            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-error rounded-full border border-surface"></span>
+            <Heart className="w-5 h-5" />
+          </Link>
+
+          <Link 
+            href="/marketplace/messages"
+            className="p-2 rounded-full hover:bg-surface-container transition-colors relative text-on-surface-variant hover:text-primary"
+            title="Messages"
+          >
+            <MessageSquare className="w-5 h-5" />
           </Link>
           
-          <button className="hidden sm:flex items-center gap-2 px-4 py-2 bg-primary text-on-primary rounded-xl font-bold text-sm shadow-sm hover:-translate-y-0.5 hover:shadow-md transition-all active:translate-y-0">
+          <Link
+            href="/marketplace/create"
+            className="hidden sm:flex items-center gap-2 px-4 py-2 bg-primary-container text-on-primary-container border-2 border-black rounded-xl font-black text-sm shadow-sm hover:-translate-y-0.5 transition-all"
+          >
             <PlusCircle className="w-4 h-4" />
             Create Listing
-          </button>
+          </Link>
 
           <div className="relative group">
             <button className="flex items-center gap-2 p-1 pl-3 pr-1 rounded-full border-2 border-outline-variant/50 hover:border-primary/50 transition-colors bg-surface-container">
@@ -76,12 +87,9 @@ export default function MarketplaceLayout({
             </button>
             
             {/* Dropdown Menu */}
-            <div className="absolute right-0 top-full mt-2 w-48 bg-surface-container-high rounded-xl shadow-lg border border-outline-variant/30 py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all transform origin-top-right scale-95 group-hover:scale-100">
-              <Link href="/marketplace/profile" className="flex items-center gap-3 px-4 py-2 text-sm font-semibold text-on-surface hover:bg-surface-container-highest transition-colors">
-                <UserIcon className="w-4 h-4" /> Profile
-              </Link>
-              <Link href="/marketplace/settings" className="flex items-center gap-3 px-4 py-2 text-sm font-semibold text-on-surface hover:bg-surface-container-highest transition-colors">
-                <Settings className="w-4 h-4" /> Settings
+            <div className="absolute right-0 top-full mt-2 w-48 bg-surface-container-high rounded-xl shadow-lg border border-outline-variant/30 py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all transform origin-top-right scale-95 group-hover:scale-100 z-50">
+              <Link href="/marketplace/saved" className="flex items-center gap-3 px-4 py-2 text-sm font-semibold text-on-surface hover:bg-surface-container-highest transition-colors">
+                <Heart className="w-4 h-4 text-primary" /> Wishlist
               </Link>
               <div className="h-px bg-outline-variant/30 my-1"></div>
               <button 
