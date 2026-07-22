@@ -14,16 +14,37 @@ class ListingImageSerializer(serializers.ModelSerializer):
 class ListingSerializer(serializers.ModelSerializer):
     images = ListingImageSerializer(many=True, read_only=True)
     category_name = serializers.CharField(source='category.name', read_only=True)
-    seller_name = serializers.CharField(source='seller.get_full_name', read_only=True)
+    seller_name = serializers.SerializerMethodField()
+    seller_avatar = serializers.SerializerMethodField()
+    is_saved = serializers.SerializerMethodField()
 
     class Meta:
         model = Listings
         fields = [
             'id', 'title', 'description', 'price', 'category', 'category_name',
-            'condition', 'seller', 'seller_name', 'location', 'status',
-            'views_count', 'created_at', 'updated_at', 'expires_at', 'images'
+            'listing_type', 'condition', 'seller', 'seller_name', 'seller_avatar',
+            'location', 'status', 'views_count', 'is_saved', 'created_at',
+            'updated_at', 'expires_at', 'images'
         ]
         read_only_fields = ['seller', 'status', 'views_count', 'created_at', 'updated_at']
+
+    def get_seller_name(self, obj):
+        name = obj.seller.get_full_name()
+        return name if name.strip() else obj.seller.email.split('@')[0]
+
+    def get_seller_avatar(self, obj):
+        if obj.seller.profile_picture:
+            try:
+                return obj.seller.profile_picture.url
+            except Exception:
+                return None
+        return None
+
+    def get_is_saved(self, obj):
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            return SavedListing.objects.filter(user=request.user, listing=obj).exists()
+        return False
 
 class ListingCreateUpdateSerializer(serializers.ModelSerializer):
     uploaded_images = serializers.ListField(
