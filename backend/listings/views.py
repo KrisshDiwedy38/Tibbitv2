@@ -14,9 +14,22 @@ from .serializers import (
 from backend.permissions import IsOwnerOrReadOnly
 
 class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Category.objects.filter(is_active=True)
     serializer_class = CategorySerializer
     permission_classes = [permissions.AllowAny]
+
+    def get_queryset(self):
+        if not Category.objects.exists():
+            defaults = [
+                {"name": "Electronics", "icon": "devices", "description": "Laptops, phones, audio gear & accessories"},
+                {"name": "Books & Notes", "icon": "menu_book", "description": "Textbooks, course packs & study guides"},
+                {"name": "Furniture", "icon": "chair", "description": "Dorm & apartment chairs, desks & lamps"},
+                {"name": "Apparel & Gear", "icon": "apparel", "description": "Campus hoodies, jackets & activewear"},
+                {"name": "Services & Tutoring", "icon": "design_services", "description": "Peer tutoring, design, coding & photography"},
+                {"name": "Housing & Sublets", "icon": "home", "description": "Sublets, lease transfers & roommate searches"},
+            ]
+            for cat in defaults:
+                Category.objects.get_or_create(name=cat["name"], defaults=cat)
+        return Category.objects.filter(is_active=True)
 
 class ListingViewSet(viewsets.ModelViewSet):
     queryset = Listings.objects.filter(status='active').select_related('category', 'seller').prefetch_related('images')
