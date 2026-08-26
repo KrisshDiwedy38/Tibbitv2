@@ -9,7 +9,7 @@ import {
   Upload, 
   X, 
   Loader2, 
-  DollarSign, 
+  IndianRupee, 
   Tag, 
   MapPin, 
   AlignLeft, 
@@ -202,18 +202,18 @@ export default function CreateListingPage() {
 
             <div>
               <label className="block text-sm font-bold text-on-surface uppercase tracking-wider mb-2">
-                Price ($)
+                Price (₹)
               </label>
               <div className="relative">
-                <DollarSign className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-on-surface-variant" />
+                <IndianRupee className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-on-surface-variant" />
                 <input
                   type="number"
-                  step="0.01"
+                  step="1"
                   min="0"
                   required
                   value={price}
                   onChange={(e) => setPrice(e.target.value)}
-                  placeholder="0.00"
+                  placeholder="0"
                   className="w-full pl-10 pr-4 py-3 bg-surface border-2 border-outline-variant/30 rounded-xl text-sm font-medium text-on-surface focus:outline-none focus:border-primary transition-colors"
                 />
               </div>

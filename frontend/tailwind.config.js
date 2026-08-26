@@ -74,13 +74,13 @@ module.exports = {
           "to": { "transform": "rotate(360deg)" }
         },
         "fade-in-up": {
-          "0%": { "opacity": "0", "transform": "translate(-50%, 10px)" },
-          "100%": { "opacity": "1", "transform": "translate(-50%, 0)" }
+          "0%": { "opacity": "0", "transform": "translateY(12px)" },
+          "100%": { "opacity": "1", "transform": "translateY(0)" }
         }
       },
       animation: {
         "spin-slow": "spin-slow 20s linear infinite",
-        "fade-in-up": "fade-in-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards",
+        "fade-in-up": "fade-in-up 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards",
       }
     },
   },

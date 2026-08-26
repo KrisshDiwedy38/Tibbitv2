@@ -127,7 +127,7 @@ export default function SavedListingsPage() {
                 )}
 
                 <div className="absolute bottom-3 left-3 bg-surface/90 backdrop-blur-md px-3 py-1 rounded-lg border border-white/10 font-black text-sm text-primary">
-                  ${parseFloat(listing.price).toFixed(2)}
+                  ₹{parseFloat(listing.price).toLocaleString('en-IN')}
                 </div>
 
                 <button
