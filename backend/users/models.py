@@ -73,8 +73,7 @@ class CustomUser(AbstractUser):
       upload_to='profile_pictures/',
       storage=AvatarStorage(),
       blank=True,
-      null=True,
-      default='profile_pictures/default.jpg'
+      null=True
    )
         
    bio = models.TextField(max_length=500, blank=True, null=True)
@@ -111,7 +110,7 @@ class CustomUser(AbstractUser):
       if reviews.exists():
          from django.db.models import Avg
          return round(reviews.aggregate(Avg('rating'))['rating__avg'], 2)
-      return 0.0
+      return None
 
    def save(self, *args, **kwargs):
       """
@@ -145,16 +144,18 @@ class CustomUser(AbstractUser):
       
       subject = 'Your Tibbit Verification OTP'
       message = f'Your OTP (One Time Password) is {otp}. It is valid for 10 minutes.'
-      email_from = getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@tibbit.com')
+      email_from = getattr(settings, 'DEFAULT_FROM_EMAIL', 'onboarding@resend.dev')
       
+      if getattr(settings, 'DEBUG', False):
+          print(f"\n=======================================================\n[DEV OTP] Email: {self.email} | OTP: {otp}\n=======================================================\n", flush=True)
+
       try:
           send_mail(subject, message, email_from, [self.email])
       except Exception as e:
           import logging
           logger = logging.getLogger(__name__)
           logger.error(f"Failed to send OTP email to {self.email}: {str(e)}")
-          # Depending on requirements, we might want to raise this or return False.
-          # For now, just log the error so we can debug it.
+          print(f"\n[FALLBACK OTP] Email: {self.email} | OTP: {otp} (Reason: {e})\n", flush=True)
 
       return otp
    

@@ -69,20 +69,25 @@ class OTPVerifySerializer(serializers.Serializer):
          raise serializers.ValidationError({"otp": message})
       
       # When OTP passes
-      attrs['user']= user
+      attrs['user'] = user
       
-      if user.university and user.university.is_active:
+      is_uni_approved = bool(user.university and user.university.is_active and user.university.is_verified)
+      
+      if is_uni_approved:
          refresh = RefreshToken.for_user(user)
-         attrs['tokens']= {
+         attrs['tokens'] = {
             'refresh' : str(refresh),
-            'access':str(refresh.access_token),
+            'access': str(refresh.access_token),
          }
+         attrs['university_pending'] = False
       else:
          attrs['tokens'] = None
-         attrs['waitlist_message'] = "Email verified successfully! We will notify you once your university is allowed."
+         attrs['university_pending'] = True
+         uni_name = user.university.name if user.university else "Your campus"
+         attrs['waitlist_message'] = f"Your email has been verified! However, {uni_name} is not yet approved on Tibbit. We will notify you via email as soon as your campus goes live."
          
       return attrs
-   
+    
 
 class ResendOTPSerializer(serializers.Serializer):
    email = serializers.EmailField()
@@ -120,8 +125,9 @@ class LoginSerializer(serializers.Serializer):
       if not user.is_active:
          raise serializers.ValidationError({'email': 'This account has been disabled.'})
          
-      if user.university and not user.university.is_active:
-         raise serializers.ValidationError({'email': 'Your university is currently on the waitlist. We will notify you once it is allowed!'})
+      if user.university and (not user.university.is_active or not user.university.is_verified):
+         uni_name = user.university.name or "Your university"
+         raise serializers.ValidationError({'email': f"Your university ({uni_name}) is pending approval. You will receive an email once campus access is activated."})
       
       # Verification Passed 
 
@@ -172,6 +178,17 @@ class UserProfileUpdateSerializer(serializers.ModelSerializer):
       model = CustomUser
       fields = ['first_name', 'last_name', 'phone_number', 'bio', 'profile_picture', 'graduation_year']
 
+   def to_representation(self, instance):
+      data = super().to_representation(instance)
+      if instance.profile_picture:
+         try:
+            data['profile_picture'] = instance.profile_picture.url
+         except Exception:
+            data['profile_picture'] = None
+      else:
+         data['profile_picture'] = None
+      return data
+
 
 class WaitlistEntrySerializer(serializers.ModelSerializer):
    email = serializers.EmailField()
@@ -208,3 +225,48 @@ class WaitlistEntrySerializer(serializers.ModelSerializer):
 class ContactFormSerializer(serializers.Serializer):
    email = serializers.EmailField()
    message = serializers.CharField(max_length=2000)
+
+class PublicUserProfileSerializer(serializers.ModelSerializer):
+    name = serializers.SerializerMethodField()
+    avatar = serializers.SerializerMethodField()
+    university = serializers.CharField(source='university.name', read_only=True, default=None)
+    reviews = serializers.SerializerMethodField()
+    reviews_count = serializers.SerializerMethodField()
+    listings = serializers.SerializerMethodField()
+    member_since = serializers.DateTimeField(source='date_joined', read_only=True)
+
+    class Meta:
+        model = CustomUser
+        fields = [
+            'id', 'name', 'first_name', 'last_name', 'avatar', 'university',
+            'bio', 'graduation_year', 'reputation_score', 'reviews_count',
+            'reviews', 'listings', 'member_since'
+        ]
+
+    def get_name(self, obj):
+        full_name = obj.get_full_name().strip()
+        return full_name if full_name else obj.email.split('@')[0]
+
+    def get_avatar(self, obj):
+        if obj.profile_picture:
+            try:
+                return obj.profile_picture.url
+            except Exception:
+                return None
+        return None
+
+    def get_reviews_count(self, obj):
+        from transactions.models import Review
+        return Review.objects.filter(reviewee=obj).count()
+
+    def get_reviews(self, obj):
+        from transactions.serializers import ReviewSerializer
+        from transactions.models import Review
+        reviews = Review.objects.filter(reviewee=obj).select_related('transaction', 'reviewer', 'reviewee').order_by('-created_at')[:20]
+        return ReviewSerializer(reviews, many=True).data
+
+    def get_listings(self, obj):
+        from listings.serializers import ListingSerializer
+        from listings.models import Listings
+        listings = Listings.objects.filter(seller=obj, status='active').select_related('category', 'seller').prefetch_related('images').order_by('-created_at')
+        return ListingSerializer(listings, many=True, context=self.context).data

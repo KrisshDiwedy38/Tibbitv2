@@ -13,9 +13,10 @@ from .serializers import (
     ContactFormSerializer,
     UserProfileUpdateSerializer,
     PasswordResetRequestSerializer,
-    PasswordResetConfirmSerializer
+    PasswordResetConfirmSerializer,
+    PublicUserProfileSerializer
 )
-from .models import University
+from .models import University, CustomUser
 from django.conf import settings
 
 class UniversityListView(APIView):
@@ -60,6 +61,7 @@ class OTPVerifyView(APIView):
             
             if tokens:
                 response_data["message"] = "Email verified successfully."
+                response_data["university_approved"] = True
                 # We don't send tokens in JSON anymore, only cookies
                 response = Response(response_data, status=status.HTTP_200_OK)
                 response.set_cookie(
@@ -81,8 +83,9 @@ class OTPVerifyView(APIView):
                 return response
             else:
                 response_data["message"] = waitlist_message
-                
-            return Response(response_data, status=status.HTTP_200_OK)
+                response_data["university_approved"] = False
+                response_data["university_name"] = user.university.name if user.university else "Your campus"
+                return Response(response_data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class ResendOTPView(APIView):
@@ -223,6 +226,7 @@ class UserProfileView(APIView):
         user = request.user
         serializer = UserProfileUpdateSerializer(user)
         data = serializer.data
+        data["id"] = user.id
         data["email"] = user.email
         data["university"] = user.university.name if user.university else None
         data["reputation_score"] = user.reputation_score
@@ -288,6 +292,18 @@ class ReportBugView(APIView):
             return Response({"success": True}, status=status.HTTP_200_OK)
         except Exception:
             return Response({"error": "Failed to send report. Please try again later."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class PublicUserProfileView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request, pk):
+        try:
+            user = CustomUser.objects.select_related('university').get(pk=pk, is_active=True)
+        except CustomUser.DoesNotExist:
+            return Response({"error": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = PublicUserProfileSerializer(user, context={'request': request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 class HealthCheckView(APIView):
     """
