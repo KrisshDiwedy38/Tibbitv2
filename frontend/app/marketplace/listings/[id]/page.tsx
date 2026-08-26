@@ -17,7 +17,8 @@ import {
   Loader2, 
   Package, 
   User as UserIcon,
-  CheckCircle2
+  CheckCircle2,
+  ExternalLink
 } from "lucide-react";
 
 interface ListingImage {
@@ -216,15 +217,22 @@ export default function ListingDetailPage() {
                 </span>
               </div>
               
-              <h1 className="text-2xl sm:text-3xl font-black text-on-surface tracking-tight">
-                {listing.title}
-              </h1>
+              <div className="flex items-start justify-between gap-4">
+                <h1 className="text-2xl sm:text-3xl font-black text-on-surface tracking-tight">
+                  {listing.title}
+                </h1>
+                {listing.status === 'sold' && (
+                  <span className="px-3 py-1 bg-error text-white font-black text-xs uppercase tracking-widest rounded-lg border-2 border-black shrink-0">
+                    SOLD OUT
+                  </span>
+                )}
+              </div>
 
               <div className="mt-4 flex items-baseline gap-2">
                 <span className="text-3xl font-black text-primary font-['Space_Grotesk']">
-                  ${parseFloat(listing.price).toFixed(2)}
+                  ₹{parseFloat(listing.price).toLocaleString('en-IN')}
                 </span>
-                <span className="text-xs text-on-surface-variant uppercase font-bold">USD</span>
+                <span className="text-xs text-on-surface-variant uppercase font-bold">INR</span>
               </div>
             </div>
 
@@ -242,15 +250,29 @@ export default function ListingDetailPage() {
             {/* Action Buttons */}
             <div className="space-y-3 pt-4 border-t border-outline-variant/20">
               {!isSeller ? (
-                <button
-                  onClick={handleStartConversation}
-                  className="w-full flex items-center justify-center gap-2 py-4 px-6 bg-primary-container text-on-primary-container font-black uppercase tracking-tighter border-4 border-black rounded-xl hover:-translate-y-0.5 transition-all text-base shadow-sm"
-                >
-                  <MessageSquare className="w-5 h-5" /> Message Seller
-                </button>
+                listing.status === 'sold' ? (
+                  <div className="p-4 rounded-xl bg-error/10 border-2 border-error/30 text-error text-center font-bold text-sm">
+                    This item has already been marked as sold.
+                  </div>
+                ) : (
+                  <button
+                    onClick={handleStartConversation}
+                    className="w-full flex items-center justify-center gap-2 py-4 px-6 bg-primary-container text-on-primary-container font-black uppercase tracking-tighter border-4 border-black rounded-xl hover:-translate-y-0.5 transition-all text-base shadow-sm cursor-pointer"
+                  >
+                    <MessageSquare className="w-5 h-5" /> Message Seller
+                  </button>
+                )
               ) : (
-                <div className="p-3 rounded-xl bg-primary/10 border border-primary/30 text-primary text-xs font-bold text-center">
-                  You are the owner of this listing
+                <div className="space-y-2">
+                  <div className="p-3 rounded-xl bg-primary/10 border border-primary/30 text-primary text-xs font-bold text-center">
+                    You are the owner of this listing
+                  </div>
+                  <Link
+                    href={`/marketplace/listings/${listing.id}/edit`}
+                    className="w-full flex items-center justify-center gap-2 py-3 px-6 bg-surface-container-highest text-on-surface font-black uppercase text-xs border-2 border-outline-variant/40 rounded-xl hover:border-primary hover:text-primary transition-all"
+                  >
+                    Edit Listing Details
+                  </Link>
                 </div>
               )}
 
@@ -271,12 +293,23 @@ export default function ListingDetailPage() {
 
           {/* Seller Card */}
           <div className="bg-surface-container border-2 border-outline-variant/30 rounded-2xl p-6 space-y-4">
-            <h3 className="text-xs font-black uppercase tracking-wider text-on-surface-variant">
-              Seller Information
-            </h3>
+            <div className="flex items-center justify-between">
+              <h3 className="text-xs font-black uppercase tracking-wider text-on-surface-variant">
+                Seller Information
+              </h3>
+              <Link
+                href={`/marketplace/users/${listing.seller}`}
+                className="text-xs font-bold text-primary hover:underline flex items-center gap-1"
+              >
+                View Profile <ExternalLink className="w-3 h-3" />
+              </Link>
+            </div>
 
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center overflow-hidden border border-primary/40 shrink-0">
+            <Link 
+              href={`/marketplace/users/${listing.seller}`}
+              className="flex items-center gap-4 group cursor-pointer"
+            >
+              <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center overflow-hidden border border-primary/40 shrink-0 group-hover:scale-105 transition-transform">
                 {listing.seller_avatar ? (
                   <img src={listing.seller_avatar} alt="" className="w-full h-full object-cover" />
                 ) : (
@@ -285,7 +318,7 @@ export default function ListingDetailPage() {
               </div>
 
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-1.5 font-bold text-on-surface text-base truncate">
+                <div className="flex items-center gap-1.5 font-bold text-on-surface text-base truncate group-hover:text-primary transition-colors">
                   <span>{listing.seller_name}</span>
                   <CheckCircle2 className="w-4 h-4 text-primary shrink-0" />
                 </div>
@@ -293,7 +326,7 @@ export default function ListingDetailPage() {
                   {user?.university || "Verified University Student"}
                 </p>
               </div>
-            </div>
+            </Link>
 
             <div className="p-3 bg-surface rounded-xl border border-outline-variant/20 flex items-center justify-between text-xs font-medium text-on-surface-variant">
               <span className="flex items-center gap-1 text-primary">

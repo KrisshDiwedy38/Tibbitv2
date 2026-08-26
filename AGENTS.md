@@ -8,8 +8,8 @@
 
 ## Last updated
 <!-- AUTO-UPDATED by memory-agent -->
-Date: 2026-07-22
-Last change: Layer 3 completed: Updated Landing Page CTAs to /register & /login. Built Marketplace Feed, Create Listing (with S3 image upload), Listing Detail, and Saved Wishlist pages.
+Date: 2026-08-27
+Last change: Implemented University Verification Gating — students from unapproved/inactive campuses have their accounts and emails verified, but are blocked from marketplace access with a dedicated 'Campus Awaiting Approval' screen until an admin approves their university in /admin.
 
 ---
 
@@ -68,6 +68,8 @@ components/
     ├── SuccessToast.tsx         # Shared success overlay
     ├── WaitlistModal.tsx        # Waitlist signup
     ├── ContactModal.tsx         # Contact founder
+    ├── VerifyExchangeModal.tsx  # Physical exchange OTP modal
+    ├── ReviewModal.tsx          # 5-star rating & review modal
     └── ReportBugModal.tsx       # Bug reporting
 
 hooks/
@@ -155,10 +157,10 @@ TibbitToDo.txt            # Product feature backlog / notes
 | Auth/Users | `users/` | `views.py` (Registration, Login, OTP, Profile) | `app/login`, `app/register`, `app/verify-otp`, `app/password-reset*` | Backend + Frontend Auth shell done |
 | Waitlist | `users/` | `views.py` (WaitlistCreateView) | `app/page.tsx` + `WaitlistModal.tsx` | Done — live |
 | Support | `users/` | `views.py` (ContactFounderView, ReportBugView) | `ContactModal.tsx`, `ReportBugModal.tsx` | Done |
-
-| Listings | `listings/` | `views.py` (Category, Listing, SavedListing ViewSets) | — (no frontend yet) | Backend done |
-| Messaging | `messaging/` | `views.py` + `consumers.py` (WebSocket) | — (no frontend yet) | Backend done |
-| Transactions | `transactions/` | `views.py` (Transaction, Review ViewSets) | — (no frontend yet) | Backend done |
+| Listings | `listings/` | `views.py` (Category, Listing, SavedListing ViewSets) | `app/marketplace`, `app/marketplace/create`, `app/marketplace/listings/[id]`, `app/marketplace/my-listings`, `app/marketplace/saved` | Backend + Frontend done |
+| Messaging | `messaging/` | `views.py` + `consumers.py` (WebSocket) | `app/marketplace/messages` | Backend + Frontend done |
+| Profile | `users/` | `views.py` (UserProfileView) | `app/marketplace/profile` | Backend + Frontend done |
+| Transactions | `transactions/` | `views.py` (Transaction, Review ViewSets) | `app/marketplace/messages` (In-chat widget & modals) | Backend + Frontend done |
 
 ---
 
@@ -393,7 +395,8 @@ FOUNDER_EMAIL         Destination email for contact/bug reports
 - **University gating**: Users linked to University model via email domain matching. University must be active and verified.
 - **API style**: Django REST Framework ViewSets with DRF DefaultRouter. JWT auth required by default, overridden per-view as needed.
 - **Real-time messaging**: Django Channels with WebSocket consumers. Currently using `InMemoryChannelLayer` (must switch to Redis for production).
-- **File storage**: Dual Supabase S3 bucket configuration via `django-storages`. `MediaStorage` (`tibbit-media`) for general media/listings and `AvatarStorage` (`user-avatars`) for profile pictures.
+- **File storage**: Dual Supabase S3 bucket configuration (`MediaStorage` for `tibbit-media` and `AvatarStorage` for `user-avatars`) with `@deconstructible` proxy fallback to `FileSystemStorage` when S3 credentials are not configured locally.
+- **Email verification**: 6-digit OTP sent to student email (valid 10 mins). In development (`DEBUG=True`), OTP is logged directly to console to prevent blocking from email service sandbox limits.
 - **Frontend approach**: Single landing page with waitlist modal. Space Grotesk font. Neobrutalist design with Material Design 3 color tokens via Tailwind.
 - **Frontend architecture**: Global `AuthContext` wrapper. Auth uses dedicated pages (no modals) like `/login` and `/register`. Protected routes wrapped in `app/marketplace/layout.tsx` which enforces authentication. Centralized Axios client in `lib/api.ts` with 401 refresh interceptors. All modals extend `BaseModal` for DRY scroll lock, Escape key, and backdrop.
 - **Path aliases**: TypeScript `@/*` alias maps to project root. All imports use `@/components/*`, `@/lib/*`, `@/hooks/*`.

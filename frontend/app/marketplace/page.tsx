@@ -40,6 +40,7 @@ interface Listing {
   seller_name: string;
   seller_avatar: string | null;
   location: string;
+  status: 'active' | 'sold' | 'expired' | 'deleted' | string;
   views_count: number;
   is_saved: boolean;
   created_at: string;
@@ -229,7 +230,9 @@ export default function MarketplacePage() {
                     <img
                       src={item.images[0].image}
                       alt={item.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      className={`w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 ${
+                        item.status === 'sold' ? "grayscale brightness-75" : ""
+                      }`}
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-on-surface-variant/40">
@@ -237,9 +240,19 @@ export default function MarketplacePage() {
                     </div>
                   )}
 
+                  {item.status === 'sold' && (
+                    <div className="absolute inset-0 bg-black/50 backdrop-blur-[1px] flex items-center justify-center pointer-events-none">
+                      <span className="px-3 py-1 bg-error text-white font-black text-xs uppercase tracking-widest rounded-lg border-2 border-black shadow-lg transform -rotate-6">
+                        SOLD OUT
+                      </span>
+                    </div>
+                  )}
+
                   {/* Price Tag */}
-                  <div className="absolute bottom-3 left-3 bg-surface/90 backdrop-blur-md px-3 py-1 rounded-lg border border-white/10 font-black text-sm text-primary">
-                    ${parseFloat(item.price).toFixed(2)}
+                  <div className="absolute bottom-3 left-3 bg-surface/90 backdrop-blur-md px-3 py-1 rounded-lg border border-white/10">
+                    <p className="text-xl font-black text-primary font-['Space_Grotesk']">
+                      ₹{parseFloat(item.price).toLocaleString('en-IN')}
+                    </p>
                   </div>
 
                   {/* Bookmark Button */}

@@ -56,7 +56,7 @@ class ListingCreateUpdateSerializer(serializers.ModelSerializer):
         model = Listings
         fields = [
             'id', 'title', 'description', 'price', 'category', 'condition',
-            'location', 'uploaded_images'
+            'location', 'status', 'uploaded_images'
         ]
 
     def create(self, validated_data):
