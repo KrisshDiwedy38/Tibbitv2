@@ -76,9 +76,23 @@ class ConversationViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(conversation)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-    @action(detail=True, methods=['get'])
+    @action(detail=True, methods=['get', 'post'])
     def messages(self, request, pk=None):
         conversation = self.get_object()
+
+        if request.method == 'POST':
+            serializer = MessageSerializer(
+                data={
+                    'conversation': conversation.id,
+                    'content': request.data.get('content', ''),
+                },
+                context={'request': request},
+            )
+            serializer.is_valid(raise_exception=True)
+            message = serializer.save(sender=request.user)
+            conversation.save(update_fields=['updated_at'])
+            return Response(MessageSerializer(message).data, status=status.HTTP_201_CREATED)
+
         messages = conversation.messages.all().order_by('timestamp').select_related('sender')
         
         # Mark unread messages as read
