@@ -95,7 +95,6 @@ export default function VerifyExchangeModal({
                 maxLength={6}
                 inputMode="numeric"
                 pattern="[0-9]*"
-                autoFocus
                 value={otp}
                 onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
                 placeholder="• • • • • •"

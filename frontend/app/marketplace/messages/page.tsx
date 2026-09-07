@@ -132,6 +132,8 @@ function MessagesContent() {
   const [copiedOtp, setCopiedOtp] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const partnerName = selectedConversation?.other_user?.name || "Peer";
+  const partnerFirstName = partnerName.split(" ")[0];
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -180,20 +182,25 @@ function MessagesContent() {
   };
 
   // Fetch transaction context for current conversation
-  const fetchTransactionContext = async () => {
+  const fetchTransactionContext = async (isInitial = false) => {
     if (!selectedConversation?.context_details?.id) {
       setActiveTransaction(null);
       return;
     }
 
     try {
-      setIsLoadingTransaction(true);
+      if (isInitial) setIsLoadingTransaction(true);
       const res = await api.get(`/api/transactions/for_context/?listing_id=${selectedConversation.context_details.id}&other_user_id=${selectedConversation.other_user.id}`);
-      setActiveTransaction(res.data);
+      const transaction = res.data?.transaction ?? res.data;
+      if (transaction?.id) {
+        setActiveTransaction(transaction);
+      } else {
+        setActiveTransaction(null);
+      }
     } catch (err) {
       console.error("Failed to load transaction context", err);
     } finally {
-      setIsLoadingTransaction(false);
+      if (isInitial) setIsLoadingTransaction(false);
     }
   };
 
@@ -227,7 +234,7 @@ function MessagesContent() {
   useEffect(() => {
     if (selectedConversation) {
       fetchMessages(selectedConversation.id, true);
-      fetchTransactionContext();
+      fetchTransactionContext(true);
     }
   }, [selectedConversation?.id]);
 
@@ -236,12 +243,14 @@ function MessagesContent() {
     const interval = setInterval(() => {
       if (selectedConversation && document.visibilityState === "visible") {
         fetchMessages(selectedConversation.id, false);
-        fetchTransactionContext();
+        if (!isVerifyModalOpen && !isReviewModalOpen) {
+          fetchTransactionContext(false);
+        }
       }
     }, 4000);
 
     return () => clearInterval(interval);
-  }, [selectedConversation?.id]);
+  }, [selectedConversation?.id, isVerifyModalOpen, isReviewModalOpen]);
 
   // Send message
   const handleSendMessage = async (e: React.FormEvent) => {
@@ -315,10 +324,25 @@ function MessagesContent() {
     }
   };
 
-  const handleCopyOtp = (otp: string) => {
-    navigator.clipboard.writeText(otp);
-    setCopiedOtp(true);
-    setTimeout(() => setCopiedOtp(false), 2000);
+  const handleCopyOtp = async (otp: string) => {
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(otp);
+      } else {
+        const textArea = document.createElement("textarea");
+        textArea.value = otp;
+        textArea.style.position = "fixed";
+        textArea.style.opacity = "0";
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textArea);
+      }
+      setCopiedOtp(true);
+      setTimeout(() => setCopiedOtp(false), 2000);
+    } catch (err) {
+      console.error("Failed to copy OTP", err);
+    }
   };
 
   const filteredConversations = conversations.filter(c => 
@@ -446,6 +470,12 @@ function MessagesContent() {
         }`}>
           {selectedConversation ? (
             <>
+              <div className="px-4 pt-4 md:pt-5">
+                <Link href="/marketplace" className="inline-flex items-center gap-2 text-sm font-bold text-on-surface-variant hover:text-primary transition-colors">
+                  <ArrowLeft className="w-4 h-4" />
+                  Back to Feed
+                </Link>
+              </div>
               {/* Chat Top Header */}
               <div className="p-4 border-b border-outline-variant/20 flex items-center justify-between bg-surface-container shrink-0">
                 <div className="flex items-center gap-3">
@@ -471,7 +501,7 @@ function MessagesContent() {
 
                     <div>
                       <h3 className="font-bold text-sm text-on-surface flex items-center gap-1.5 group-hover:text-primary transition-colors">
-                        {selectedConversation.other_user.name}
+                        {partnerName}
                         <ShieldCheck className="w-3.5 h-3.5 text-primary" />
                       </h3>
                       <p className="text-xs text-on-surface-variant font-medium">
@@ -557,8 +587,13 @@ function MessagesContent() {
                             className="flex items-center gap-2 px-4 py-2.5 bg-primary-container text-on-primary-container border-2 border-black rounded-xl font-black text-xs uppercase tracking-tight hover:translate-x-[1px] hover:translate-y-[1px] transition-all shadow-sm cursor-pointer"
                           >
                             <KeyRound className="w-4 h-4" />
-                            Enter {selectedConversation.other_user.name.split(' ')[0]}'s Code
+                            Enter {partnerFirstName}'s Code
                           </button>
+                          {activeTransaction.i_verified && (
+                            <p className="text-xs font-bold text-primary">
+                              You verified your partner&apos;s code. Waiting for peer to enter your code...
+                            </p>
+                          )}
                         </div>
                       </div>
                     ) : activeTransaction.status === 'completed' ? (
@@ -624,7 +659,7 @@ function MessagesContent() {
                     </div>
                     <h4 className="font-bold text-base text-on-surface">Start the conversation</h4>
                     <p className="text-xs text-on-surface-variant max-w-xs leading-relaxed">
-                      Say hello to {selectedConversation.other_user.name} and ask questions or arrange a safe campus meetup.
+                      Say hello to {partnerName} and ask questions or arrange a safe campus meetup.
                     </p>
                   </div>
                 ) : (
@@ -681,7 +716,7 @@ function MessagesContent() {
                     type="text"
                     value={inputMessage}
                     onChange={(e) => setInputMessage(e.target.value)}
-                    placeholder={`Message ${selectedConversation.other_user.name}...`}
+                    placeholder={`Message ${partnerName}...`}
                     className="flex-1 px-4 py-3 bg-surface border-2 border-outline-variant/30 rounded-2xl text-xs sm:text-sm font-medium text-on-surface focus:outline-none focus:border-primary transition-colors"
                   />
 
@@ -723,7 +758,7 @@ function MessagesContent() {
             isOpen={isVerifyModalOpen}
             onClose={() => setIsVerifyModalOpen(false)}
             transactionId={activeTransaction.id}
-            partnerName={selectedConversation.other_user.name}
+            partnerName={partnerName}
             onSuccess={(updatedTransaction) => {
               setActiveTransaction(updatedTransaction);
               fetchMessages(selectedConversation.id, false);
@@ -734,7 +769,7 @@ function MessagesContent() {
             isOpen={isReviewModalOpen}
             onClose={() => setIsReviewModalOpen(false)}
             transactionId={activeTransaction.id}
-            partnerName={selectedConversation.other_user.name}
+            partnerName={partnerName}
             onSuccess={() => {
               fetchTransactionContext();
             }}
