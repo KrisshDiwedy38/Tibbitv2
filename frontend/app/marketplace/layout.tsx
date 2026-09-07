@@ -59,27 +59,21 @@ export default function MarketplaceLayout({
   }
 
   return (
-    <div className="min-h-screen bg-surface flex flex-col">
+    <div className="min-h-screen flex flex-col">
       {/* Top Navbar */}
       <header className="sticky top-0 z-50 bg-surface/90 backdrop-blur-md border-b border-outline-variant/30 px-4 sm:px-6 py-3.5">
         <div className="max-w-7xl mx-auto w-full flex items-center justify-between">
           <div className="flex items-center gap-6 sm:gap-8">
-            <Link href="/marketplace" className="text-2xl font-black tracking-tighter text-primary hover:scale-105 transition-transform font-['Space_Grotesk']">
+            <Link href="/" className="text-2xl font-black tracking-tighter text-primary hover:scale-105 transition-transform font-['Space_Grotesk']">
               TIBBIT
             </Link>
             
             <nav className="hidden md:flex items-center gap-6">
-              <Link href="/marketplace" className="text-sm font-bold text-on-surface hover:text-primary transition-colors">
-                Feed
+              <Link href="/launchpad" className="text-sm font-bold text-on-surface-variant hover:text-primary transition-colors">
+                Launchpad
               </Link>
-              <Link href="/marketplace/my-listings" className="text-sm font-bold text-on-surface-variant hover:text-primary transition-colors">
-                My Listings
-              </Link>
-              <Link href="/marketplace/saved" className="text-sm font-bold text-on-surface-variant hover:text-primary transition-colors">
-                Wishlist
-              </Link>
-              <Link href="/" className="text-sm font-bold text-on-surface-variant hover:text-primary transition-colors">
-                Home
+              <Link href="/community" className="text-sm font-bold text-on-surface-variant hover:text-primary transition-colors">
+                Community
               </Link>
             </nav>
           </div>

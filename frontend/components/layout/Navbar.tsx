@@ -16,12 +16,6 @@ export default function Navbar() {
           TIBBIT
         </Link>
         <div className="flex items-center gap-4 sm:gap-6">
-          <nav className="hidden md:flex items-center gap-6">
-            <Link className="text-white/70 hover:text-primary-container hover:bg-[#262626] transition-none font-['Space_Grotesk'] uppercase tracking-tighter text-sm font-bold px-2 py-1" href="/marketplace">Marketplace</Link>
-            <a className="text-white/70 hover:text-primary-container hover:bg-[#262626] transition-none font-['Space_Grotesk'] uppercase tracking-tighter text-sm font-bold px-2 py-1" href="#ecosystem">Ecosystem</a>
-            <a className="text-white/70 hover:text-primary-container hover:bg-[#262626] transition-none font-['Space_Grotesk'] uppercase tracking-tighter text-sm font-bold px-2 py-1" href="#manifesto">Manifesto</a>
-          </nav>
-          
           <div className="hidden sm:flex items-center gap-3">
             {user ? (
               <Link
@@ -68,28 +62,6 @@ export default function Navbar() {
           menuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
         }`}
       >
-        <Link
-          onClick={() => setMenuOpen(false)}
-          className="text-white/80 hover:text-primary-container font-['Space_Grotesk'] uppercase tracking-tighter text-2xl font-black px-4 py-2 transition-colors"
-          href="/marketplace"
-        >
-          Marketplace
-        </Link>
-        <a
-          onClick={() => setMenuOpen(false)}
-          className="text-white/80 hover:text-primary-container font-['Space_Grotesk'] uppercase tracking-tighter text-2xl font-black px-4 py-2 transition-colors"
-          href="#ecosystem"
-        >
-          Ecosystem
-        </a>
-        <a
-          onClick={() => setMenuOpen(false)}
-          className="text-white/80 hover:text-primary-container font-['Space_Grotesk'] uppercase tracking-tighter text-2xl font-black px-4 py-2 transition-colors"
-          href="#manifesto"
-        >
-          Manifesto
-        </a>
-        
         {user ? (
           <Link
             onClick={() => setMenuOpen(false)}
