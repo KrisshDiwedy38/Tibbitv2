@@ -7,12 +7,14 @@
     overflow-x: hidden;
   }
   
-  body {
+  /* Project UI rule: every route inherits the Tibbit grid through the root shell. */
+  .site-shell {
     background-color: #0e0e0e;
     background-image:
       linear-gradient(rgba(38, 38, 38, 0.4) 1px, transparent 1px),
       linear-gradient(90deg, rgba(38, 38, 38, 0.4) 1px, transparent 1px);
     background-size: 40px 40px;
+    background-attachment: fixed;
     font-family: 'Space Grotesk', sans-serif;
     cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><circle cx="16" cy="16" r="15" fill="%23ffffff" opacity="0.2"/><circle cx="16" cy="16" r="12" fill="%23ffffff" opacity="0.5"/><circle cx="16" cy="16" r="7" fill="%23ffffff"/></svg>') 16 16, auto;
   }
@@ -26,7 +28,7 @@
   }
 
   @media (max-width: 639px) {
-    body {
+    .site-shell {
       background-size: 24px 24px;
     }
   }
