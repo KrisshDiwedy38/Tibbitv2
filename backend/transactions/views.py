@@ -69,7 +69,7 @@ class TransactionViewSet(viewsets.ModelViewSet):
         ).order_by('-created_at').first()
 
         if not transaction:
-            return Response(None, status=status.HTTP_200_OK)
+            return Response({"transaction": None}, status=status.HTTP_200_OK)
 
         serializer = TransactionSerializer(transaction, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)

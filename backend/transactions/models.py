@@ -124,6 +124,9 @@ class Transaction(models.Model):
       Verify seller's OTP (entered by buyer)
       Returns (success: bool, message: str)
       """
+      if self.seller_verified:
+         return True, "Seller is already verified."
+         
       if not self.seller_otp:
          return False, "No OTP found for seller."
       
@@ -148,6 +151,9 @@ class Transaction(models.Model):
       Verify buyer's OTP (entered by seller)
       Returns (success: bool, message: str)
       """
+      if self.buyer_verified:
+         return True, "Buyer is already verified."
+         
       if not self.buyer_otp:
          return False, "No OTP found for buyer."
       
