@@ -4,13 +4,23 @@ import { useEffect, useState } from "react";
 import { NumberTicker } from "@/components/magicui/number-ticker";
 import { SpinningText } from "@/components/magicui/spinning-text";
 import { motion, AnimatePresence } from "framer-motion";
+import { usePathname } from "next/navigation";
 
 export default function GlobalPreloader({ children }: { children: React.ReactNode }) {
-  const [isLoaded, setIsLoaded] = useState(false);
-  const [showPreloader, setShowPreloader] = useState(true);
+  const pathname = usePathname();
+  const [isLoaded, setIsLoaded] = useState(true);
+  const [showPreloader, setShowPreloader] = useState(false);
 
   useEffect(() => {
-    const hasVisited = sessionStorage.getItem("tibbit_visited");
+    const routeKey = pathname.startsWith("/marketplace")
+      ? "marketplace"
+      : pathname === "/launchpad"
+        ? "launchpad"
+        : pathname === "/community"
+          ? "community"
+          : "app";
+    const storageKey = `tibbit_visited_${routeKey}`;
+    const hasVisited = sessionStorage.getItem(storageKey);
 
     if (hasVisited) {
       setIsLoaded(true);
@@ -22,23 +32,31 @@ export default function GlobalPreloader({ children }: { children: React.ReactNod
     setIsLoaded(false);
     setShowPreloader(true);
 
+    let loadTimer: ReturnType<typeof setTimeout> | null = null;
     const handleLoad = () => {
-      setTimeout(() => {
+      if (loadTimer) return;
+
+      loadTimer = setTimeout(() => {
         setIsLoaded(true);
-        sessionStorage.setItem("tibbit_visited", "true");
+        sessionStorage.setItem(storageKey, "true");
       }, 2500);
     };
 
+    let fallbackTimer: ReturnType<typeof setTimeout> | null = null;
     if (document.readyState === "complete") {
       handleLoad();
     } else {
       window.addEventListener("load", handleLoad);
       // Fallback
-      setTimeout(handleLoad, 3000);
+      fallbackTimer = setTimeout(handleLoad, 3000);
     }
 
-    return () => window.removeEventListener("load", handleLoad);
-  }, []);
+    return () => {
+      window.removeEventListener("load", handleLoad);
+      if (loadTimer) clearTimeout(loadTimer);
+      if (fallbackTimer) clearTimeout(fallbackTimer);
+    };
+  }, [pathname]);
 
   return (
     <>
