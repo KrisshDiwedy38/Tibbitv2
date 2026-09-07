@@ -4,7 +4,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { api, extractDRFError } from "@/lib/api";
 import Link from "next/link";
-import { ArrowRight, Loader2, Mail, Lock, User } from "lucide-react";
+import { ArrowRight, Loader2, Mail, Lock, User, Eye, EyeOff } from "lucide-react";
+import { getPostAuthDestination } from "@/lib/utils";
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
@@ -16,6 +17,8 @@ export default function RegisterPage() {
   });
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showPassword2, setShowPassword2] = useState(false);
   const router = useRouter();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -34,9 +37,14 @@ export default function RegisterPage() {
     setIsLoading(true);
 
     try {
-      await api.post("/api/users/register/", formData);
+      const normalizedEmail = formData.email.trim().toLowerCase();
+      await api.post("/api/users/register/", { ...formData, email: normalizedEmail });
       // Redirect to OTP Verification page and pass email
-      router.push(`/verify-otp?email=${encodeURIComponent(formData.email)}`);
+      const redirect = getPostAuthDestination(new URLSearchParams(window.location.search).get("redirect"));
+      const redirectQuery = redirect !== "/marketplace"
+        ? `&redirect=${encodeURIComponent(redirect)}`
+        : "";
+      router.push(`/verify-otp?email=${encodeURIComponent(normalizedEmail)}${redirectQuery}`);
     } catch (err: any) {
       setError(extractDRFError(err?.response?.data));
     } finally {
@@ -142,15 +150,23 @@ export default function RegisterPage() {
                     <Lock className="h-5 w-5 text-on-surface-variant" />
                   </div>
                   <input
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     name="password"
                     required
                     minLength={8}
                     value={formData.password}
                     onChange={handleChange}
-                    className="block w-full pl-10 pr-3 py-3 border-2 border-primary/20 rounded-xl bg-surface focus:ring-0 focus:border-primary transition-colors text-on-surface font-medium"
+                    className="block w-full pl-10 pr-12 py-3 border-2 border-primary/20 rounded-xl bg-surface focus:ring-0 focus:border-primary transition-colors text-on-surface font-medium"
                     placeholder="••••••••"
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((visible) => !visible)}
+                    className="absolute inset-y-0 right-0 px-3 flex items-center text-on-surface-variant hover:text-primary"
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                  >
+                    {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  </button>
                 </div>
               </div>
 
@@ -163,15 +179,23 @@ export default function RegisterPage() {
                     <Lock className="h-5 w-5 text-on-surface-variant" />
                   </div>
                   <input
-                    type="password"
+                    type={showPassword2 ? "text" : "password"}
                     name="password2"
                     required
                     minLength={8}
                     value={formData.password2}
                     onChange={handleChange}
-                    className="block w-full pl-10 pr-3 py-3 border-2 border-primary/20 rounded-xl bg-surface focus:ring-0 focus:border-primary transition-colors text-on-surface font-medium"
+                    className="block w-full pl-10 pr-12 py-3 border-2 border-primary/20 rounded-xl bg-surface focus:ring-0 focus:border-primary transition-colors text-on-surface font-medium"
                     placeholder="••••••••"
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword2((visible) => !visible)}
+                    className="absolute inset-y-0 right-0 px-3 flex items-center text-on-surface-variant hover:text-primary"
+                    aria-label={showPassword2 ? "Hide confirm password" : "Show confirm password"}
+                  >
+                    {showPassword2 ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  </button>
                 </div>
               </div>
             </div>

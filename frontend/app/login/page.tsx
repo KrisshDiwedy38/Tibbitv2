@@ -5,11 +5,13 @@ import { useRouter } from "next/navigation";
 import { api, extractDRFError } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 import Link from "next/link";
-import { ArrowRight, Loader2, Mail, Lock } from "lucide-react";
+import { ArrowRight, Loader2, Mail, Lock, Eye, EyeOff } from "lucide-react";
+import { getPostAuthDestination } from "@/lib/utils";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
@@ -21,9 +23,9 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-      await api.post("/api/users/login/", { email, password });
+      await api.post("/api/users/login/", { email: email.trim().toLowerCase(), password });
       await checkAuth(); // Reload user state
-      router.push("/marketplace");
+      router.push(getPostAuthDestination(new URLSearchParams(window.location.search).get("redirect")));
     } catch (err: any) {
       setError(extractDRFError(err?.response?.data));
     } finally {
@@ -91,13 +93,21 @@ export default function LoginPage() {
                     <Lock className="h-5 w-5 text-on-surface-variant" />
                   </div>
                   <input
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="block w-full pl-10 pr-3 py-3 border-2 border-primary/20 rounded-xl bg-surface focus:ring-0 focus:border-primary transition-colors text-on-surface font-medium"
+                    className="block w-full pl-10 pr-12 py-3 border-2 border-primary/20 rounded-xl bg-surface focus:ring-0 focus:border-primary transition-colors text-on-surface font-medium"
                     placeholder="••••••••"
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((visible) => !visible)}
+                    className="absolute inset-y-0 right-0 px-3 flex items-center text-on-surface-variant hover:text-primary"
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                  >
+                    {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  </button>
                 </div>
               </div>
             </div>
@@ -121,7 +131,7 @@ export default function LoginPage() {
           <div className="mt-8 text-center">
             <p className="text-sm text-on-surface-variant">
               Don't have an account?{" "}
-              <Link href="/register" className="font-bold text-primary hover:text-primary-container transition-colors">
+                  <Link href="/register" className="font-bold text-primary hover:text-primary-container transition-colors">
                 Apply for access
               </Link>
             </p>
