@@ -6,6 +6,7 @@ import { api, extractDRFError } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 import Link from "next/link";
 import { ArrowRight, Loader2, KeyRound, CheckCircle2, GraduationCap, BellRing, ArrowLeft } from "lucide-react";
+import { getPostAuthDestination } from "@/lib/utils";
 
 function VerifyOTPContent() {
   const [otp, setOtp] = useState("");
@@ -17,6 +18,7 @@ function VerifyOTPContent() {
   
   const searchParams = useSearchParams();
   const email = searchParams.get("email") || "";
+  const redirect = searchParams.get("redirect");
   const router = useRouter();
   const { checkAuth } = useAuth();
 
@@ -32,7 +34,7 @@ function VerifyOTPContent() {
     setIsLoading(true);
 
     try {
-      const response = await api.post("/api/users/verify-otp/", { email, otp });
+      const response = await api.post("/api/users/verify-otp/", { email: email.trim().toLowerCase(), otp });
       
       if (response.data.university_approved === false || (response.data.message && response.data.message.includes("not yet approved"))) {
         // Unapproved University Gating Screen
@@ -42,7 +44,7 @@ function VerifyOTPContent() {
       } else {
         // University is approved -> Log in and access Marketplace
         await checkAuth();
-        router.push("/marketplace");
+        router.push(getPostAuthDestination(redirect));
       }
     } catch (err: any) {
       setError(extractDRFError(err?.response?.data));
@@ -53,7 +55,7 @@ function VerifyOTPContent() {
 
   const handleResend = async () => {
     try {
-      await api.post("/api/users/resend-otp/", { email });
+      await api.post("/api/users/resend-otp/", { email: email.trim().toLowerCase() });
       setError("");
       setSuccessMessage("A new OTP has been sent to your email.");
       setTimeout(() => setSuccessMessage(""), 5000);

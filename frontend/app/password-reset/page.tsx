@@ -18,9 +18,10 @@ export default function PasswordResetPage() {
     setIsLoading(true);
 
     try {
-      await api.post("/api/users/password-reset/", { email });
+      const normalizedEmail = email.trim().toLowerCase();
+      await api.post("/api/users/password-reset/", { email: normalizedEmail });
       // Go to confirm page and pass email
-      router.push(`/password-reset-confirm?email=${encodeURIComponent(email)}`);
+      router.push(`/password-reset-confirm?email=${encodeURIComponent(normalizedEmail)}`);
     } catch (err: any) {
       setError(extractDRFError(err?.response?.data));
     } finally {
