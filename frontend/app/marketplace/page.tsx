@@ -1,16 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useAuth } from "@/contexts/AuthContext";
+import { Suspense, useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { api } from "@/lib/api";
 import Link from "next/link";
-import { 
-  Package, 
-  Search, 
-  PlusCircle, 
-  Bookmark, 
-  Loader2, 
-  Sparkles, 
+import {
+  Package,
+  PlusCircle,
+  Bookmark,
+  Loader2,
   MapPin,
   Clock,
   Heart
@@ -47,12 +45,12 @@ interface Listing {
   images: ListingImage[];
 }
 
-export default function MarketplacePage() {
-  const { user } = useAuth();
+function MarketplacePageContent() {
+  const searchParams = useSearchParams();
+  const searchQuery = searchParams.get('q') || "";
   const [categories, setCategories] = useState<Category[]>([]);
   const [listings, setListings] = useState<Listing[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
-  const [searchQuery, setSearchQuery] = useState("");
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchCategories = async () => {
@@ -130,43 +128,6 @@ export default function MarketplacePage() {
 
   return (
     <div className="space-y-8 animate-fade-in-up">
-      {/* Top Banner & Search */}
-      <section className="bg-surface-container border-2 border-outline-variant/30 rounded-2xl p-6 sm:p-8 flex flex-col md:flex-row md:items-center justify-between gap-6 relative overflow-hidden">
-        <div className="space-y-2 z-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 border border-primary/30 rounded-full text-xs font-black uppercase text-primary tracking-wider">
-            <Sparkles className="w-3.5 h-3.5" />
-            Verified Campus Marketplace
-          </div>
-          <h1 className="text-3xl sm:text-4xl font-black text-on-surface tracking-tight uppercase">
-            Campus Feed
-          </h1>
-          <p className="text-sm text-on-surface-variant max-w-lg">
-            Buy, sell, and trade safely with verified students at {user?.university || 'your campus'}.
-          </p>
-        </div>
-
-        <div className="flex flex-col sm:flex-row gap-3 z-10 w-full md:w-auto">
-          <div className="relative flex-1 md:w-72">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-on-surface-variant" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search gear, books, tech..."
-              className="w-full pl-10 pr-4 py-3 bg-surface border-2 border-outline-variant/40 rounded-xl text-sm font-medium text-on-surface focus:outline-none focus:border-primary transition-colors"
-            />
-          </div>
-          
-          <Link
-            href="/marketplace/create"
-            className="flex items-center justify-center gap-2 px-6 py-3 bg-primary-container text-on-primary-container font-black uppercase tracking-tighter border-2 border-black rounded-xl hover:-translate-y-0.5 transition-all text-sm shadow-sm"
-          >
-            <PlusCircle className="w-4 h-4" />
-            Post Item
-          </Link>
-        </div>
-      </section>
-
       {/* Category Pills */}
       <section className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
         <button
@@ -297,5 +258,17 @@ export default function MarketplacePage() {
         )}
       </section>
     </div>
+  );
+}
+
+export default function MarketplacePage() {
+  return (
+    <Suspense fallback={
+      <div className="flex flex-col items-center justify-center py-20">
+        <Loader2 className="w-10 h-10 animate-spin text-primary" />
+      </div>
+    }>
+      <MarketplacePageContent />
+    </Suspense>
   );
 }
