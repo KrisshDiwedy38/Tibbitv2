@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 
-import CursorTrail from "@/components/effects/CursorTrail";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import DynamicHUD from "@/components/layout/DynamicHUD";
@@ -24,8 +23,6 @@ export default function Home() {
 
   return (
     <>
-      <CursorTrail />
-
       <Navbar />
 
       <main>

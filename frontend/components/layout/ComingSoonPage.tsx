@@ -1,24 +1,19 @@
 import Link from "next/link";
-import { ArrowLeft, ArrowRight, Rocket, Users } from "lucide-react";
+import { ArrowLeft, ArrowRight } from "lucide-react";
+import HeroRibbon from "@/components/landing/HeroRibbon";
 
 type ComingSoonPageProps = {
-  eyebrow: string;
   title: string;
   description: string;
-  icon: "launchpad" | "community";
 };
 
-export default function ComingSoonPage({ eyebrow, title, description, icon }: ComingSoonPageProps) {
-  const Icon = icon === "launchpad" ? Rocket : Users;
-
+export default function ComingSoonPage({ title, description }: ComingSoonPageProps) {
   return (
-    <main className="min-h-[calc(100vh-72px)] flex items-center justify-center px-4 py-16 sm:px-8">
-      <div className="w-full max-w-3xl text-center">
-        <div className="inline-flex items-center gap-3 bg-primary-container text-on-primary-container px-4 py-2 border-4 border-black neo-shadow-primary text-xs font-black uppercase tracking-[0.2em]">
-          <Icon className="h-4 w-4" />
-          {eyebrow}
-        </div>
-        <h1 className="mt-8 text-5xl sm:text-7xl lg:text-8xl font-black uppercase leading-[0.85] tracking-tighter text-on-surface">
+    <main className="relative min-h-[calc(100vh-72px)] flex items-center justify-center px-4 py-16 sm:px-8 overflow-hidden">
+      <HeroRibbon />
+
+      <div className="relative z-10 w-full max-w-3xl text-center">
+        <h1 className="text-5xl sm:text-7xl lg:text-8xl font-black uppercase leading-[0.85] tracking-tighter text-on-surface">
           {title}
         </h1>
         <p className="mx-auto mt-8 max-w-xl text-base sm:text-lg font-medium leading-relaxed text-on-surface-variant">

@@ -34,7 +34,7 @@ class RibbonParticle {
     let dip = (1 - nx * nx);
 
     // Thickness profile: thicker in middle-left
-    let thickness = (canvasHeight * 0.12) * dip * (1 - 0.3 * nx);
+    let thickness = (canvasHeight * 0.2) * dip * (1 - 0.3 * nx);
 
     // Distance from medial axis (Gaussian-like spread)
     let spreadY = (Math.random() + Math.random() + Math.random() - 1.5) * thickness;
@@ -138,7 +138,9 @@ export default function HeroRibbon() {
     let animationFrameId: number;
     let mouse = { x: -100, y: -100 };
     let time = 0;
+    let lastFrameTime = performance.now();
     let lastWidth = window.innerWidth;
+    let canvasRect = { width: 0, height: 0 };
 
     const initParticles = () => {
       particles = [];
@@ -149,30 +151,33 @@ export default function HeroRibbon() {
     };
 
     const drawFrame = () => {
-      time++;
-
-
-      const rect = canvas.getBoundingClientRect();
-      ctx.clearRect(0, 0, rect.width, rect.height);
+      const { width, height } = canvasRect;
+      ctx.clearRect(0, 0, width, height);
 
       // Subtle radial glow behind the ribbon center
-      let cx = rect.width / 2;
-      let cy = rect.height * 0.55 + (rect.height * 0.15); // aligned with deepest dip
-      let gradient = ctx.createRadialGradient(cx, cy, 0, cx, cy, rect.width * 0.35);
+      let cx = width / 2;
+      let cy = height * 0.55 + (height * 0.15); // aligned with deepest dip
+      let gradient = ctx.createRadialGradient(cx, cy, 0, cx, cy, width * 0.35);
       gradient.addColorStop(0, 'rgba(255, 255, 255, 0.04)');
       gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
 
       ctx.fillStyle = gradient;
-      ctx.fillRect(0, 0, rect.width, rect.height);
+      ctx.fillRect(0, 0, width, height);
 
       for (let i = 0; i < particles.length; i++) {
-        particles[i].update(mouse.x, mouse.y, time, rect.width, rect.height);
+        particles[i].update(mouse.x, mouse.y, time, width, height);
         particles[i].draw(ctx);
       }
 
     };
 
-    const animate = () => {
+    const animate = (now: number) => {
+      // Advance time based on real elapsed ms (normalized so 60fps matches the original +1/frame pace)
+      // instead of a flat time++ per frame, which ran the animation faster on high-refresh-rate displays.
+      const dt = now - lastFrameTime;
+      lastFrameTime = now;
+      time += dt * 0.06;
+
       drawFrame();
       animationFrameId = requestAnimationFrame(animate);
     };
@@ -191,6 +196,7 @@ export default function HeroRibbon() {
         ctx.scale(dpr, dpr);
         canvas.style.width = `${rect.width}px`;
         canvas.style.height = `${rect.height}px`;
+        canvasRect = { width: rect.width, height: rect.height };
       }
 
       // Only re-init particles if width changed (to avoid mobile scroll restart)
@@ -202,12 +208,22 @@ export default function HeroRibbon() {
       // Cancel any ongoing animation and restart logic
       if (animationFrameId) cancelAnimationFrame(animationFrameId);
 
-      animate(); // Starts the loop
+      // Reset the frame clock so the paused time during resize doesn't show up as one big jump
+      lastFrameTime = performance.now();
+      animationFrameId = requestAnimationFrame(animate); // Starts the loop
 
     };
 
-    window.addEventListener("resize", resize);
-    // Allow DOM to settle before calculating sizes
+    // Debounce the resize *listener* so dragging a window edge doesn't
+    // reinitialize thousands of particles on every intermediate frame.
+    let resizeDebounceId: ReturnType<typeof setTimeout>;
+    const debouncedResize = () => {
+      clearTimeout(resizeDebounceId);
+      resizeDebounceId = setTimeout(resize, 120);
+    };
+
+    window.addEventListener("resize", debouncedResize);
+    // Allow DOM to settle before calculating sizes (initial paint, not debounced)
     setTimeout(resize, 0);
 
     const handleMouseMove = (e: MouseEvent) => {
@@ -235,7 +251,8 @@ export default function HeroRibbon() {
     window.addEventListener("touchmove", handleTouch);
 
     return () => {
-      window.removeEventListener("resize", resize);
+      clearTimeout(resizeDebounceId);
+      window.removeEventListener("resize", debouncedResize);
       window.removeEventListener("mousemove", handleMouseMove);
       window.removeEventListener("mouseout", handleMouseLeave);
       window.removeEventListener("touchstart", handleTouch);
