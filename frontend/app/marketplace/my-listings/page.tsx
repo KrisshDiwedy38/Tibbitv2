@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { api, extractDRFError } from "@/lib/api";
 import Link from "next/link";
-import { 
+import ConfirmModal from "@/components/modals/ConfirmModal";
+import {
   Package, 
   PlusCircle, 
   Eye, 
@@ -47,6 +48,7 @@ export default function MyListingsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [actionLoadingId, setActionLoadingId] = useState<number | null>(null);
   const [errorMsg, setErrorMsg] = useState("");
+  const [pendingDeleteId, setPendingDeleteId] = useState<number | null>(null);
 
   const fetchMyListings = async () => {
     try {
@@ -81,10 +83,9 @@ export default function MyListingsPage() {
     }
   };
 
-  const handleDelete = async (listingId: number) => {
-    if (!confirm("Are you sure you want to delete this listing? This action cannot be undone.")) {
-      return;
-    }
+  const handleDelete = async () => {
+    if (pendingDeleteId === null) return;
+    const listingId = pendingDeleteId;
 
     setActionLoadingId(listingId);
     setErrorMsg("");
@@ -92,6 +93,7 @@ export default function MyListingsPage() {
     try {
       await api.delete(`/api/listings/items/${listingId}/`);
       setListings(prev => prev.filter(l => l.id !== listingId));
+      setPendingDeleteId(null);
     } catch (err: any) {
       setErrorMsg(extractDRFError(err?.response?.data));
     } finally {
@@ -320,7 +322,7 @@ export default function MyListingsPage() {
                   </button>
 
                   <button
-                    onClick={() => handleDelete(item.id)}
+                    onClick={() => setPendingDeleteId(item.id)}
                     disabled={isItemLoading}
                     className="p-2.5 rounded-xl bg-surface border border-error/30 text-error hover:bg-error hover:text-white transition-colors cursor-pointer"
                     title="Delete Listing"
@@ -333,6 +335,18 @@ export default function MyListingsPage() {
           })}
         </div>
       )}
+
+      <ConfirmModal
+        isOpen={pendingDeleteId !== null}
+        onClose={() => setPendingDeleteId(null)}
+        onConfirm={handleDelete}
+        title="Delete Listing"
+        message="Are you sure you want to delete this listing? This action cannot be undone."
+        confirmLabel="Delete"
+        cancelLabel="Keep Listing"
+        variant="danger"
+        isLoading={actionLoadingId === pendingDeleteId}
+      />
     </div>
   );
 }

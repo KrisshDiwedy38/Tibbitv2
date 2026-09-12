@@ -7,6 +7,7 @@ import { api, extractDRFError } from "@/lib/api";
 import Link from "next/link";
 import VerifyExchangeModal from "@/components/modals/VerifyExchangeModal";
 import ReviewModal from "@/components/modals/ReviewModal";
+import ConfirmModal from "@/components/modals/ConfirmModal";
 import { 
   MessageSquare, 
   Send, 
@@ -24,7 +25,8 @@ import {
   Star,
   CheckCircle2,
   Handshake,
-  Copy
+  Copy,
+  XCircle
 } from "lucide-react";
 
 interface OtherUser {
@@ -127,6 +129,8 @@ function MessagesContent() {
   const [activeTransaction, setActiveTransaction] = useState<TransactionData | null>(null);
   const [isLoadingTransaction, setIsLoadingTransaction] = useState(false);
   const [isInitiatingTrade, setIsInitiatingTrade] = useState(false);
+  const [isCancellingTrade, setIsCancellingTrade] = useState(false);
+  const [isCancelConfirmOpen, setIsCancelConfirmOpen] = useState(false);
   const [isVerifyModalOpen, setIsVerifyModalOpen] = useState(false);
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
   const [copiedOtp, setCopiedOtp] = useState(false);
@@ -134,6 +138,10 @@ function MessagesContent() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const partnerName = selectedConversation?.other_user?.name || "Peer";
   const partnerFirstName = partnerName.split(" ")[0];
+  const isCurrentUserSeller = Boolean(
+    selectedConversation && (selectedConversation.seller === user?.id || (user?.email && selectedConversation.seller_email === user.email))
+  );
+  const partnerRole = isCurrentUserSeller ? "buyer" : "seller";
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -321,6 +329,29 @@ function MessagesContent() {
       console.error("Failed to initiate trade", err);
     } finally {
       setIsInitiatingTrade(false);
+    }
+  };
+
+  // Cancel Trade (available to either party while verification is still pending)
+  const handleCancelTrade = async () => {
+    if (!activeTransaction || isCancellingTrade) return;
+    setIsCancellingTrade(true);
+
+    try {
+      const res = await api.post(`/api/transactions/${activeTransaction.id}/cancel/`);
+      setActiveTransaction(res.data.transaction);
+
+      if (selectedConversation) {
+        await api.post(`/api/messaging/conversations/${selectedConversation.id}/messages/`, {
+          content: `❌ Trade cancelled before exchange codes were verified.`
+        });
+        fetchMessages(selectedConversation.id, false);
+      }
+      setIsCancelConfirmOpen(false);
+    } catch (err) {
+      console.error("Failed to cancel trade", err);
+    } finally {
+      setIsCancellingTrade(false);
     }
   };
 
@@ -582,18 +613,32 @@ function MessagesContent() {
                         </div>
 
                         <div className="flex items-center gap-2 self-end sm:self-center">
-                          <button
-                            onClick={() => setIsVerifyModalOpen(true)}
-                            className="flex items-center gap-2 px-4 py-2.5 bg-primary-container text-on-primary-container border-2 border-black rounded-xl font-black text-xs uppercase tracking-tight hover:translate-x-[1px] hover:translate-y-[1px] transition-all shadow-sm cursor-pointer"
-                          >
-                            <KeyRound className="w-4 h-4" />
-                            Enter {partnerFirstName}'s Code
-                          </button>
-                          {activeTransaction.i_verified && (
-                            <p className="text-xs font-bold text-primary">
-                              You verified your partner&apos;s code. Waiting for peer to enter your code...
-                            </p>
+                          {activeTransaction.i_verified ? (
+                            <span className="flex items-center gap-2 px-4 py-2.5 bg-primary/10 text-primary border-2 border-primary/30 rounded-xl font-black text-xs uppercase tracking-tight">
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                              Waiting for {partnerRole} confirmation
+                            </span>
+                          ) : (
+                            <button
+                              onClick={() => setIsVerifyModalOpen(true)}
+                              className="flex items-center gap-2 px-4 py-2.5 bg-primary-container text-on-primary-container border-2 border-black rounded-xl font-black text-xs uppercase tracking-tight hover:translate-x-[1px] hover:translate-y-[1px] transition-all shadow-sm cursor-pointer"
+                            >
+                              <KeyRound className="w-4 h-4" />
+                              Enter {partnerFirstName}'s Code
+                            </button>
                           )}
+                          <button
+                            onClick={() => setIsCancelConfirmOpen(true)}
+                            disabled={isCancellingTrade}
+                            className="flex items-center gap-1.5 px-3 py-2.5 bg-surface text-error border-2 border-error/40 rounded-xl font-black text-xs uppercase tracking-tight hover:bg-error/10 transition-all cursor-pointer disabled:opacity-50"
+                          >
+                            {isCancellingTrade ? (
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                            ) : (
+                              <XCircle className="w-4 h-4" />
+                            )}
+                            Cancel Trade
+                          </button>
                         </div>
                       </div>
                     ) : activeTransaction.status === 'completed' ? (
@@ -617,6 +662,29 @@ function MessagesContent() {
                             <Check className="w-3.5 h-3.5" /> Reviewed
                           </span>
                         )}
+                      </div>
+                    ) : activeTransaction.status === 'cancelled' ? (
+                      /* Cancelled Transaction Bar */
+                      <div className="flex items-center justify-between gap-3 bg-error/10 border-2 border-error/30 rounded-2xl p-3 sm:p-4">
+                        <div className="flex items-center gap-2 text-error font-bold text-xs">
+                          <XCircle className="w-5 h-5" />
+                          <span>Trade was cancelled before verification.</span>
+                        </div>
+
+                        <button
+                          onClick={handleInitiateTrade}
+                          disabled={isInitiatingTrade}
+                          className="flex items-center gap-1.5 px-3 py-1.5 bg-primary-container text-on-primary-container border-2 border-black rounded-xl font-black text-xs uppercase tracking-tight hover:scale-105 transition-transform cursor-pointer shadow-sm disabled:opacity-50"
+                        >
+                          {isInitiatingTrade ? (
+                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                          ) : (
+                            <>
+                              <KeyRound className="w-3.5 h-3.5" />
+                              Start New Trade
+                            </>
+                          )}
+                        </button>
                       </div>
                     ) : null
                   ) : (
@@ -773,6 +841,18 @@ function MessagesContent() {
             onSuccess={() => {
               fetchTransactionContext();
             }}
+          />
+
+          <ConfirmModal
+            isOpen={isCancelConfirmOpen}
+            onClose={() => setIsCancelConfirmOpen(false)}
+            onConfirm={handleCancelTrade}
+            title="Cancel Trade"
+            message="Cancel this trade? This can't be undone."
+            confirmLabel="Cancel Trade"
+            cancelLabel="Keep Trade"
+            variant="danger"
+            isLoading={isCancellingTrade}
           />
         </>
       )}

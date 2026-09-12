@@ -96,7 +96,10 @@ export default function VerifyExchangeModal({
                 inputMode="numeric"
                 pattern="[0-9]*"
                 value={otp}
-                onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
+                onChange={(e) => {
+                  setOtp(e.target.value.replace(/\D/g, ""));
+                  if (errorMsg) setErrorMsg("");
+                }}
                 placeholder="• • • • • •"
                 className="w-full text-center text-3xl tracking-[0.6em] font-black py-4 px-4 bg-surface border-4 border-black rounded-2xl text-primary focus:outline-none focus:border-primary-container font-mono"
               />
