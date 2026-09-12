@@ -77,23 +77,25 @@ class TransactionSerializer(serializers.ModelSerializer):
         return None
 
     def get_i_verified(self, obj):
+        """Has the current user completed THEIR verification action (entered the other party's OTP)?"""
         request = self.context.get('request')
         if not request or not request.user.is_authenticated:
             return False
         if request.user == obj.seller:
-            return obj.seller_verified
-        if request.user == obj.buyer:
             return obj.buyer_verified
+        if request.user == obj.buyer:
+            return obj.seller_verified
         return False
 
     def get_other_party_verified(self, obj):
+        """Has the other party completed THEIR verification action (entered the current user's OTP)?"""
         request = self.context.get('request')
         if not request or not request.user.is_authenticated:
             return False
         if request.user == obj.seller:
-            return obj.buyer_verified
-        if request.user == obj.buyer:
             return obj.seller_verified
+        if request.user == obj.buyer:
+            return obj.buyer_verified
         return False
 
     def get_has_reviewed(self, obj):

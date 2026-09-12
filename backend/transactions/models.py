@@ -124,18 +124,18 @@ class Transaction(models.Model):
       Verify seller's OTP (entered by buyer)
       Returns (success: bool, message: str)
       """
-      if self.seller_verified:
-         return True, "Seller is already verified."
-         
       if not self.seller_otp:
          return False, "No OTP found for seller."
-      
+
       if not self.is_seller_otp_valid():
          return False, "Seller OTP has expired."
-      
+
       if self.seller_otp != entered_otp:
          return False, "Invalid seller OTP."
-      
+
+      if self.seller_verified:
+         return True, "Seller is already verified."
+
       # Mark seller as verified
       self.seller_verified = True
       self.seller_verified_at = timezone.now()
@@ -151,18 +151,18 @@ class Transaction(models.Model):
       Verify buyer's OTP (entered by seller)
       Returns (success: bool, message: str)
       """
-      if self.buyer_verified:
-         return True, "Buyer is already verified."
-         
       if not self.buyer_otp:
          return False, "No OTP found for buyer."
-      
+
       if not self.is_buyer_otp_valid():
          return False, "Buyer OTP has expired."
-      
+
       if self.buyer_otp != entered_otp:
          return False, "Invalid buyer OTP."
-      
+
+      if self.buyer_verified:
+         return True, "Buyer is already verified."
+
       # Mark buyer as verified
       self.buyer_verified = True
       self.buyer_verified_at = timezone.now()

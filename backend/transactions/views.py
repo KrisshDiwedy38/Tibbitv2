@@ -27,6 +27,8 @@ class TransactionViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.action == 'create':
             return TransactionCreateSerializer
+        if self.action == 'verify_otp':
+            return OTPVerifySerializer
         return TransactionSerializer
 
     def create(self, request, *args, **kwargs):
