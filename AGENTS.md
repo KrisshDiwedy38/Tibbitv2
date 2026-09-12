@@ -8,8 +8,8 @@
 
 ## Last updated
 <!-- AUTO-UPDATED by memory-agent -->
-Date: 2026-08-27
-Last change: Implemented University Verification Gating — students from unapproved/inactive campuses have their accounts and emails verified, but are blocked from marketplace access with a dedicated 'Campus Awaiting Approval' screen until an admin approves their university in /admin.
+Date: 2026-09-13
+Last change: Refreshed stale sections — codebase map now includes `launchpad`/`community` backend apps and the full frontend route list (auth pages, legal pages, coming-soon pages); known issues updated to reflect that CORS/ALLOWED_HOSTS/SECRET_KEY hardening already shipped and that `messaging`/`transactions` have real test suites.
 
 ---
 
@@ -19,7 +19,7 @@ Last change: Implemented University Verification Gating — students from unappr
 Tibbit is a student-only peer-to-peer marketplace and ecosystem platform. Students can trade goods, offer freelance services, message each other, and complete OTP-verified transactions — all gated by university email verification. Currently in pre-launch waitlist phase.
 
 **Current status:**
-Pre-launch — waitlist landing page is live on Vercel. Backend API and data models are built but not yet connected to the frontend beyond the waitlist endpoint.
+Pre-launch — waitlist landing page is live on Vercel. The core marketplace loop (auth, listings, messaging, profile, transactions) has both backend and frontend built and connected (see Domain map below); `launchpad` and `community` are backend-only scaffolds behind "coming soon" frontend stubs.
 
 **Stack:**
 - Frontend: Next.js 16, React 19, TypeScript, Tailwind CSS 3, Space Grotesk font
@@ -28,7 +28,7 @@ Pre-launch — waitlist landing page is live on Vercel. Backend API and data mod
 - Auth: JWT via `djangorestframework-simplejwt` (access 15min, refresh 7d, rotation + blacklist)
 - Real-time: Django Channels 4 + Daphne (WebSocket consumers for messaging)
 - Hosting: Vercel (monorepo — frontend via `@vercel/next`, backend via `@vercel/python` WSGI)
-- Other: Pillow (image handling), django-storages + boto3 (S3-ready), Celery (task queue, not yet configured), Redis (planned for Channels & Celery)
+- Other: Pillow (image handling), django-storages + boto3 (S3-ready). Celery and Redis are installed but currently unused (see Known issues)
 
 ---
 
@@ -42,7 +42,26 @@ Pre-launch — waitlist landing page is live on Vercel. Backend API and data mod
 app/
 ├── globals.css           # Global styles — MD3 tokens, shake animation, custom cursors
 ├── layout.tsx            # Root layout — Space Grotesk font, metadata, dark mode
-└── page.tsx              # Landing page — composes sections, single modal state
+├── page.tsx              # Landing page — composes sections, single modal state
+├── not-found.tsx         # 404 page
+├── login/                # Standalone login page (outside marketplace auth gate)
+├── register/             # Standalone registration page
+├── verify-otp/           # Email OTP verification page
+├── password-reset/       # Request password reset
+├── password-reset-confirm/  # Confirm password reset with token
+├── terms/                # Terms of service (static)
+├── privacy/              # Privacy policy (static)
+├── community/            # "Coming soon" stub (ComingSoonPage) — backend `community` app has no routes yet
+├── launchpad/             # "Coming soon" stub (ComingSoonPage) — backend `launchpad` app has no routes yet
+└── marketplace/          # Auth-gated app shell (see layout.tsx below)
+    ├── layout.tsx            # Wraps children in AuthContext gate
+    ├── create/               # Create listing
+    ├── listings/[id]/        # Listing detail
+    ├── my-listings/          # Seller's own listings
+    ├── saved/                # Saved listings
+    ├── messages/             # Conversations + in-chat transaction widget
+    ├── profile/              # Own profile
+    └── users/[id]/           # Public seller profile
 
 components/
 ├── effects/              # Visual/canvas effects
@@ -58,8 +77,10 @@ components/
 │   ├── MarketplaceSection.tsx   # Marketplace showcase
 │   └── ServicesSection.tsx      # Student services cards
 ├── layout/               # Shared layout components
+│   ├── ComingSoonPage.tsx       # Shared "coming soon" template (used by /community, /launchpad)
 │   ├── DynamicHUD.tsx           # Typewriter status bar
 │   ├── Footer.tsx               # Footer with links + bug report
+│   ├── GlobalPreloader.tsx      # Route-scoped preloader (session-scoped, see recent commits)
 │   └── Navbar.tsx               # Sticky nav with mobile hamburger
 ├── magicui/              # Third-party design components
 │   └── animated-beam.tsx        # MagicUI animated beam
@@ -72,12 +93,15 @@ components/
     ├── ReviewModal.tsx          # 5-star rating & review modal
     └── ReportBugModal.tsx       # Bug reporting
 
+contexts/
+└── AuthContext.tsx       # Global auth state, gates app/marketplace/layout.tsx
+
 hooks/
 ├── useBodyScrollLock.ts  # Body scroll lock with cleanup
 └── useTypewriter.ts      # Typewriter cycling effect
 
 lib/
-├── api.ts                # Centralized API client (apiPost, DRF error extraction)
+├── api.ts                # Centralized Axios client (401 refresh interceptor), extractDRFError, legacy apiPost wrapper
 └── utils.ts              # cn() utility (clsx + tailwind-merge)
 
 public/
@@ -127,6 +151,19 @@ transactions/             # Transaction & review domain
 ├── serializers.py        # DRF serializers
 ├── urls.py               # /api/transactions/* routes (DRF router)
 └── admin.py              # Admin config
+
+launchpad/                # Startup launchpad domain — SCAFFOLD ONLY, not routed
+├── models.py             # StartupProject (idea/building/launched status)
+├── views.py              # Empty stub — no logic yet
+└── admin.py              # Admin config
+                          # No urls.py, no serializers.py — unreachable from any endpoint;
+                          # in INSTALLED_APPS but not mounted in backend/backend/urls.py
+
+community/                # Student forum domain — SCAFFOLD ONLY, not routed
+├── models.py             # ForumBoard, etc.
+├── views.py              # Empty stub — no logic yet
+└── admin.py              # Admin config
+                          # Same caveats as launchpad/ above
 ```
 
 ### Other
@@ -161,6 +198,8 @@ TibbitToDo.txt            # Product feature backlog / notes
 | Messaging | `messaging/` | `views.py` + `consumers.py` (WebSocket) | `app/marketplace/messages` | Backend + Frontend done |
 | Profile | `users/` | `views.py` (UserProfileView) | `app/marketplace/profile` | Backend + Frontend done |
 | Transactions | `transactions/` | `views.py` (Transaction, Review ViewSets) | `app/marketplace/messages` (In-chat widget & modals) | Backend + Frontend done |
+| Launchpad | `launchpad/` | Stub only — no urls.py/serializers.py | `app/launchpad` (ComingSoonPage) | Models only, not routed — frontend is a stub |
+| Community | `community/` | Stub only — no urls.py/serializers.py | `app/community` (ComingSoonPage) | Models only, not routed — frontend is a stub |
 
 ---
 
@@ -401,8 +440,8 @@ FOUNDER_EMAIL         Destination email for contact/bug reports
 - **Frontend architecture**: Global `AuthContext` wrapper. Auth uses dedicated pages (no modals) like `/login` and `/register`. Protected routes wrapped in `app/marketplace/layout.tsx` which enforces authentication. Centralized Axios client in `lib/api.ts` with 401 refresh interceptors. All modals extend `BaseModal` for DRY scroll lock, Escape key, and backdrop.
 - **Path aliases**: TypeScript `@/*` alias maps to project root. All imports use `@/components/*`, `@/lib/*`, `@/hooks/*`.
 - **Deployment**: Vercel monorepo — frontend via `@vercel/next`, backend via `@vercel/python` (WSGI). Known limitation: WebSockets won't work on Vercel serverless.
-- **CORS**: Currently `CORS_ALLOW_ALL_ORIGINS = True` for waitlist phase. Must be restricted for production.
-- **ALLOWED_HOSTS**: Currently `['*']` — must be restricted for production.
+- **CORS**: `CORS_ALLOW_ALL_ORIGINS = False`; origins come from `CORS_ORIGINS` env var (`CORS_ALLOWED_ORIGINS` in settings), defaulting to `http://localhost:3000`. Already locked down — not a waitlist-phase shortcut.
+- **ALLOWED_HOSTS**: Driven by `ALLOWED_HOSTS` env var, defaulting to `localhost,127.0.0.1`. Already environment-driven, not wildcarded.
 - **Email integration**: Using `django-anymail[resend]` for transactional emails. Contact and bug reports are routed to the founder's email.
 
 
@@ -430,15 +469,19 @@ FOUNDER_EMAIL         Destination email for contact/bug reports
 > "fix" these without being asked.
 
 - WebSockets cannot work on Vercel serverless — need separate hosting for Channels/Daphne
-- `InMemoryChannelLayer` is dev-only — must switch to `channels-redis` for production
-- `CORS_ALLOW_ALL_ORIGINS = True` — acceptable for waitlist, must restrict before full launch
-- `ALLOWED_HOSTS = ['*']` — same as above
-- `SECRET_KEY` has a hardcoded fallback in settings.py — must be removed for production
-- No Celery broker configured — Redis integration pending
-- File uploads using local media — S3 migration pending
-- No frontend pages exist beyond the waitlist landing page
-- No tests written for any backend app
+- `InMemoryChannelLayer` is dev-only — must switch to `channels-redis` for production (package is already installed, just not wired into `CHANNEL_LAYERS`)
+- `celery`, `redis`, and `django-filter` are in `requirements.txt`/`INSTALLED_APPS` with zero usage anywhere in the codebase (no `@shared_task`, no `celery.py`, no `DjangoFilterBackend`) — either wire them up or drop them
+- `launchpad`/`community` apps have full model schemas but no `urls.py`/`serializers.py` and empty `views.py` — unreachable from any endpoint; frontend routes for both are "coming soon" stubs
+- File uploads using local media — S3 migration pending (storage backend already supports both via `ProxyStorage`, just needs Supabase env vars set)
+- Test coverage is uneven: `messaging` and `transactions` have real test suites; `users` (the auth/OTP app), `listings`, `community`, and `launchpad` only have empty stub `tests.py` files
+- No frontend tests configured (no test runner in `frontend/package.json`)
 - `profile_picture` upload_to path includes `backend/media/` prefix — potentially incorrect nesting
+- `lib/api.ts`'s `apiPost` is labeled a "Legacy wrapper for backwards compatibility" in its own docstring but is still the active call path for `ContactModal`, `ReportBugModal`, and `WaitlistModal`
+
+### Resolved (previously listed here, verify still true before re-flagging)
+- ~~`CORS_ALLOW_ALL_ORIGINS = True`~~ — now `False`, origins whitelisted via `CORS_ORIGINS` env var
+- ~~`ALLOWED_HOSTS = ['*']`~~ — now driven by `ALLOWED_HOSTS` env var
+- ~~`SECRET_KEY` hardcoded fallback~~ — now `os.environ['SECRET_KEY']`, hard-fails if unset (no fallback)
 
 ---
 
