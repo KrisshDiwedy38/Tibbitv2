@@ -4,7 +4,7 @@ import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { api, extractDRFError } from "@/lib/api";
 import Link from "next/link";
-import { ArrowRight, Loader2, Lock, KeyRound, Eye, EyeOff } from "lucide-react";
+import { ArrowRight, Loader2, Lock, Eye, EyeOff } from "lucide-react";
 
 function PasswordResetConfirmContent() {
   const [otp, setOtp] = useState("");
@@ -50,17 +50,17 @@ function PasswordResetConfirmContent() {
 
   if (success) {
     return (
-      <div className="bg-surface-container shadow-xl border-2 border-primary/20 rounded-2xl p-10 backdrop-blur-sm text-center">
-        <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
-          <Lock className="w-10 h-10 text-primary" />
+      <div className="bg-surface-container border-4 border-black neo-shadow-primary p-10 text-center">
+        <div className="w-16 h-16 bg-primary-container/10 border-2 border-primary-container flex items-center justify-center mx-auto mb-6">
+          <Lock className="w-8 h-8 text-primary-container" />
         </div>
-        <h2 className="text-2xl font-bold text-on-surface mb-4">Password Reset!</h2>
+        <h2 className="text-2xl sm:text-3xl font-black uppercase tracking-tighter text-on-surface mb-4">Password reset</h2>
         <p className="text-on-surface-variant mb-8 leading-relaxed">
-          Your password has been changed successfully. You can now log in with your new password.
+          Your password has been changed. Sign in with your new password.
         </p>
         <Link
           href="/login"
-          className="inline-flex items-center justify-center py-3 px-6 border-2 border-transparent rounded-xl shadow-sm text-sm font-bold text-on-primary bg-primary hover:bg-primary-container hover:text-on-primary-container transition-all"
+          className="inline-flex items-center justify-center py-3 px-6 border-4 border-black text-sm font-black uppercase tracking-tighter text-on-primary-container bg-primary-container neo-shadow-secondary hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all duration-75"
         >
           Sign in
         </Link>
@@ -69,36 +69,31 @@ function PasswordResetConfirmContent() {
   }
 
   return (
-    <div className="bg-surface-container shadow-xl border-2 border-primary/20 rounded-2xl p-8 backdrop-blur-sm">
+    <div className="bg-surface-container border-4 border-black neo-shadow-primary p-8">
       <form onSubmit={handleSubmit} className="space-y-6">
         {error && (
-          <div className="p-4 rounded-xl bg-error/10 border border-error/20 text-error text-sm font-medium animate-shake">
+          <div className="p-4 border-2 border-error bg-error/10 text-error text-sm font-medium animate-shake">
             {error}
           </div>
         )}
 
         <div>
-          <label className="block text-sm font-semibold text-on-surface mb-2">
-            Reset Code
+          <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2 text-center">
+            Reset code
           </label>
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <KeyRound className="h-5 w-5 text-on-surface-variant" />
-            </div>
-            <input
-              type="text"
-              required
-              maxLength={6}
-              value={otp}
-              onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
-              className="block w-full pl-10 pr-3 py-3 border-2 border-primary/20 rounded-xl bg-surface focus:ring-0 focus:border-primary transition-colors text-on-surface text-center tracking-[0.5em] font-bold text-lg"
-              placeholder="000000"
-            />
-          </div>
+          <input
+            type="text"
+            required
+            maxLength={6}
+            value={otp}
+            onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
+            placeholder="000000"
+            className="w-full text-center text-3xl sm:text-4xl font-black tracking-[0.35em] py-4 px-4 border-4 border-black bg-surface text-on-surface placeholder:text-outline-variant focus:outline-none focus:border-primary-container transition-colors"
+          />
         </div>
 
         <div>
-          <label className="block text-sm font-semibold text-on-surface mb-2">
+          <label className="block text-sm font-bold text-on-surface mb-2">
             New Password
           </label>
           <div className="relative">
@@ -111,13 +106,13 @@ function PasswordResetConfirmContent() {
               minLength={8}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="block w-full pl-10 pr-12 py-3 border-2 border-primary/20 rounded-xl bg-surface focus:ring-0 focus:border-primary transition-colors text-on-surface font-medium"
+              className="block w-full pl-10 pr-12 py-3 border-2 border-outline-variant bg-surface focus:outline-none focus:border-primary-container transition-colors text-on-surface font-medium"
               placeholder="••••••••"
             />
             <button
               type="button"
               onClick={() => setShowPassword((visible) => !visible)}
-              className="absolute inset-y-0 right-0 px-3 flex items-center text-on-surface-variant hover:text-primary"
+              className="absolute inset-y-0 right-0 px-3 flex items-center text-on-surface-variant hover:text-primary-container"
               aria-label={showPassword ? "Hide password" : "Show password"}
             >
               {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
@@ -126,7 +121,7 @@ function PasswordResetConfirmContent() {
         </div>
 
         <div>
-          <label className="block text-sm font-semibold text-on-surface mb-2">
+          <label className="block text-sm font-bold text-on-surface mb-2">
             Confirm New Password
           </label>
           <div className="relative">
@@ -139,23 +134,23 @@ function PasswordResetConfirmContent() {
               minLength={8}
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              className={`block w-full pl-10 pr-12 py-3 border-2 rounded-xl bg-surface focus:ring-0 transition-colors text-on-surface font-medium ${showMismatch
-                  ? "border-error/50 focus:border-error"
-                  : "border-primary/20 focus:border-primary"
+              className={`block w-full pl-10 pr-12 py-3 border-2 bg-surface focus:outline-none transition-colors text-on-surface font-medium ${showMismatch
+                  ? "border-error focus:border-error"
+                  : "border-outline-variant focus:border-primary-container"
                 }`}
               placeholder="••••••••"
             />
             <button
               type="button"
               onClick={() => setShowPassword2((visible) => !visible)}
-              className="absolute inset-y-0 right-0 px-3 flex items-center text-on-surface-variant hover:text-primary"
+              className="absolute inset-y-0 right-0 px-3 flex items-center text-on-surface-variant hover:text-primary-container"
               aria-label={showPassword2 ? "Hide confirm password" : "Show confirm password"}
             >
               {showPassword2 ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
             </button>
           </div>
           {showMismatch && (
-            <p className="mt-2 text-xs font-medium text-error">
+            <p className="mt-2 text-xs font-bold text-error">
               Passwords do not match.
             </p>
           )}
@@ -170,7 +165,7 @@ function PasswordResetConfirmContent() {
             confirmPassword.length < 8 ||
             !passwordsMatch
           }
-          className="w-full flex items-center justify-center py-3.5 px-4 border-2 border-transparent rounded-xl shadow-sm text-sm font-bold text-on-primary bg-primary hover:bg-primary-container hover:text-on-primary-container hover:-translate-y-0.5 active:translate-y-0 transition-all disabled:opacity-50 disabled:cursor-not-allowed group"
+          className="w-full flex items-center justify-center py-3.5 px-4 border-4 border-black text-sm font-black uppercase tracking-tighter text-on-primary-container bg-primary-container neo-shadow-secondary hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all duration-75 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-x-0 disabled:hover:translate-y-0 disabled:hover:shadow-[4px_4px_0px_0px_#8e94ff] group"
         >
           {isLoading ? (
             <Loader2 className="h-5 w-5 animate-spin" />
@@ -188,26 +183,24 @@ function PasswordResetConfirmContent() {
 
 export default function PasswordResetConfirmPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-surface px-4 py-12 relative overflow-hidden">
-      <div className="absolute inset-0 z-0 opacity-20 pointer-events-none bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-primary/20 via-surface to-surface" />
-
-      <div className="w-full max-w-md z-10">
+    <main className="relative min-h-screen flex items-center justify-center px-4 py-16 sm:px-8">
+      <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <Link href="/" className="inline-block text-3xl font-black tracking-tighter text-primary hover:scale-105 transition-transform duration-200">
+          <Link href="/" className="inline-block text-3xl font-black italic uppercase tracking-tighter text-primary-container hover:scale-105 transition-transform duration-200">
             TIBBIT
           </Link>
-          <h1 className="mt-6 text-3xl font-bold tracking-tight text-on-surface">
-            Set New Password
+          <h1 className="mt-6 text-3xl sm:text-4xl font-black uppercase tracking-tighter text-on-surface">
+            Set new password
           </h1>
           <p className="mt-2 text-sm text-on-surface-variant">
             Enter the 6-digit code sent to your email and your new password.
           </p>
         </div>
 
-        <Suspense fallback={<div className="flex justify-center p-12"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}>
+        <Suspense fallback={<div className="flex justify-center p-12 border-4 border-black bg-surface-container"><Loader2 className="h-8 w-8 animate-spin text-primary-container" /></div>}>
           <PasswordResetConfirmContent />
         </Suspense>
       </div>
-    </div>
+    </main>
   );
 }

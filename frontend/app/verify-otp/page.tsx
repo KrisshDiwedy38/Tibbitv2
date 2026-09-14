@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { api, extractDRFError } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 import Link from "next/link";
-import { ArrowRight, Loader2, KeyRound, CheckCircle2, GraduationCap, BellRing, ArrowLeft } from "lucide-react";
+import { ArrowRight, Loader2, CheckCircle2, GraduationCap, BellRing, ArrowLeft } from "lucide-react";
 import { getPostAuthDestination } from "@/lib/utils";
 
 function VerifyOTPContent() {
@@ -15,7 +15,7 @@ function VerifyOTPContent() {
   const [isLoading, setIsLoading] = useState(false);
   const [isWaitlisted, setIsWaitlisted] = useState(false);
   const [universityName, setUniversityName] = useState("");
-  
+
   const searchParams = useSearchParams();
   const email = searchParams.get("email") || "";
   const redirect = searchParams.get("redirect");
@@ -35,7 +35,7 @@ function VerifyOTPContent() {
 
     try {
       const response = await api.post("/api/users/verify-otp/", { email: email.trim().toLowerCase(), otp });
-      
+
       if (response.data.university_approved === false || (response.data.message && response.data.message.includes("not yet approved"))) {
         // Unapproved University Gating Screen
         setIsWaitlisted(true);
@@ -66,20 +66,20 @@ function VerifyOTPContent() {
 
   if (isWaitlisted) {
     return (
-      <div className="bg-surface-container shadow-2xl border-2 border-outline-variant/30 rounded-3xl p-8 sm:p-10 text-center space-y-6 animate-fade-in-up">
-        {/* Animated Badge & Icon */}
+      <div className="bg-surface-container border-4 border-black neo-shadow-primary p-8 sm:p-10 text-center space-y-6">
+        {/* Badge & Icon */}
         <div className="relative w-20 h-20 mx-auto">
-          <div className="absolute inset-0 bg-primary/20 rounded-full animate-ping opacity-50"></div>
-          <div className="relative w-20 h-20 bg-primary/20 border-2 border-primary/40 rounded-full flex items-center justify-center text-primary">
+          <div className="absolute inset-0 bg-primary-container/20 rounded-full animate-ping opacity-50"></div>
+          <div className="relative w-20 h-20 bg-primary-container/10 border-2 border-primary-container flex items-center justify-center text-primary-container">
             <GraduationCap className="w-10 h-10" />
           </div>
         </div>
 
         <div className="space-y-2">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 border border-primary/30 text-xs font-black text-primary uppercase tracking-wider">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 border-2 border-primary-container bg-primary-container/10 text-xs font-black text-primary-container uppercase tracking-wider">
             <CheckCircle2 className="w-3.5 h-3.5" /> Email Verified
           </span>
-          <h2 className="text-2xl sm:text-3xl font-black text-on-surface uppercase tracking-tight">
+          <h2 className="text-2xl sm:text-3xl font-black uppercase tracking-tighter text-on-surface">
             Campus Awaiting Approval
           </h2>
         </div>
@@ -89,20 +89,20 @@ function VerifyOTPContent() {
         </p>
 
         {/* Reassurance Info Box */}
-        <div className="p-4 rounded-2xl bg-surface border-2 border-outline-variant/20 flex items-start gap-3 text-left">
-          <BellRing className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+        <div className="p-4 border-2 border-outline-variant/40 bg-surface flex items-start gap-3 text-left">
+          <BellRing className="w-5 h-5 text-primary-container shrink-0 mt-0.5" />
           <div className="space-y-0.5">
             <p className="text-xs font-bold text-on-surface">You're on the priority list</p>
             <p className="text-xs text-on-surface-variant">
-              We will notify you at <span className="font-bold text-primary">{email}</span> as soon as your university is approved by the Tibbit team.
+              We will notify you at <span className="font-bold text-primary-container">{email}</span> as soon as your university is approved by the Tibbit team.
             </p>
           </div>
         </div>
 
         <div className="pt-2">
-          <Link 
+          <Link
             href="/"
-            className="inline-flex items-center justify-center gap-2 py-3.5 px-8 border-4 border-black rounded-xl text-xs font-black uppercase tracking-tight text-on-primary-container bg-primary-container hover:translate-x-[1px] hover:translate-y-[1px] transition-all shadow-md"
+            className="inline-flex items-center justify-center gap-2 py-3.5 px-8 border-4 border-black text-xs font-black uppercase tracking-tighter text-on-primary-container bg-primary-container neo-shadow-secondary hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all duration-75"
           >
             <ArrowLeft className="w-4 h-4" /> Return to Home
           </Link>
@@ -112,55 +112,49 @@ function VerifyOTPContent() {
   }
 
   return (
-    <div className="bg-surface-container shadow-xl border-2 border-outline-variant/30 rounded-2xl p-8 backdrop-blur-sm">
+    <div className="bg-surface-container border-4 border-black neo-shadow-primary p-8">
       <div className="text-center mb-6">
-        <h2 className="text-2xl font-bold text-on-surface">Verify your email</h2>
+        <h2 className="text-2xl sm:text-3xl font-black uppercase tracking-tighter text-on-surface">Verify your email</h2>
         <p className="text-sm text-on-surface-variant mt-2">
-          We sent a 6-digit code to <span className="font-semibold text-primary">{email}</span>
+          We sent a 6-digit code to <span className="font-bold text-primary-container">{email}</span>
         </p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {error && (
-          <div className="p-4 rounded-xl bg-error/10 border border-error/20 text-error text-sm font-medium animate-shake">
+          <div className="p-4 border-2 border-error bg-error/10 text-error text-sm font-medium animate-shake">
             {error}
           </div>
         )}
         {successMessage && !isWaitlisted && (
-          <div className="p-4 rounded-xl bg-primary/10 border border-primary/20 text-primary text-sm font-medium">
+          <div className="p-4 border-2 border-primary-container bg-primary-container/10 text-primary-container text-sm font-medium">
             {successMessage}
           </div>
         )}
 
         <div>
-          <label className="block text-xs font-medium text-on-surface-variant uppercase tracking-wider mb-2">
-            6-Digit OTP Code
-          </label>
-          <div className="relative">
-            <input
-              type="text"
-              required
-              maxLength={6}
-              value={otp}
-              onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
-              placeholder="123456"
-              className="w-full text-center text-2xl tracking-[0.5em] font-mono py-3 px-4 rounded-xl bg-surface border-2 border-outline-variant/30 text-on-surface placeholder:text-outline-variant focus:outline-none focus:border-primary transition-colors"
-            />
-            <KeyRound className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-on-surface-variant pointer-events-none" />
-          </div>
+          <input
+            type="text"
+            required
+            maxLength={6}
+            value={otp}
+            onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
+            placeholder="123456"
+            className="w-full text-center text-3xl sm:text-4xl font-black tracking-[0.35em] py-4 px-4 border-4 border-black bg-surface text-on-surface placeholder:text-outline-variant focus:outline-none focus:border-primary-container transition-colors"
+          />
         </div>
 
         <button
           type="submit"
           disabled={isLoading || otp.length !== 6}
-          className="w-full flex items-center justify-center py-3.5 px-4 border-2 border-transparent rounded-xl shadow-sm text-sm font-bold text-on-primary bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+          className="w-full flex items-center justify-center py-3.5 px-4 border-4 border-black text-sm font-black uppercase tracking-tighter text-on-primary-container bg-primary-container neo-shadow-secondary hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all duration-75 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-x-0 disabled:hover:translate-y-0 disabled:hover:shadow-[4px_4px_0px_0px_#8e94ff] group"
         >
           {isLoading ? (
             <Loader2 className="w-5 h-5 animate-spin" />
           ) : (
             <>
               Verify & Enter
-              <ArrowRight className="ml-2 w-4 h-4" />
+              <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </>
           )}
         </button>
@@ -171,7 +165,7 @@ function VerifyOTPContent() {
           Didn't receive the code?{" "}
           <button
             onClick={handleResend}
-            className="text-primary hover:underline font-bold"
+            className="text-primary-container hover:text-primary underline font-bold"
           >
             Resend OTP
           </button>
@@ -183,24 +177,22 @@ function VerifyOTPContent() {
 
 export default function VerifyOTPPage() {
   return (
-    <div className="min-h-screen bg-surface flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <Link href="/" className="flex justify-center mb-6">
-          <span className="text-3xl font-black tracking-tight text-on-surface font-['Space_Grotesk']">
-            tibbit<span className="text-primary">.</span>
-          </span>
+    <main className="relative min-h-screen flex flex-col justify-center px-4 py-16 sm:px-8">
+      <div className="sm:mx-auto sm:w-full sm:max-w-md text-center mb-8">
+        <Link href="/" className="inline-block text-3xl font-black italic uppercase tracking-tighter text-primary-container hover:scale-105 transition-transform duration-200">
+          TIBBIT
         </Link>
       </div>
 
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <Suspense fallback={
-          <div className="bg-surface-container shadow-xl border-2 border-primary/20 rounded-2xl p-8 flex justify-center">
-            <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          <div className="bg-surface-container border-4 border-black neo-shadow-primary p-8 flex justify-center">
+            <Loader2 className="w-8 h-8 animate-spin text-primary-container" />
           </div>
         }>
           <VerifyOTPContent />
         </Suspense>
       </div>
-    </div>
+    </main>
   );
 }
