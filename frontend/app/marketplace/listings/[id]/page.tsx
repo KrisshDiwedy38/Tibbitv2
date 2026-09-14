@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { api } from "@/lib/api";
+import { listingHref } from "@/lib/utils";
 import Link from "next/link";
 import { 
   ArrowLeft, 
@@ -29,6 +30,7 @@ interface ListingImage {
 
 interface ListingDetail {
   id: number;
+  slug: string | null;
   title: string;
   description: string;
   price: string;
@@ -36,6 +38,7 @@ interface ListingDetail {
   condition: string;
   seller: number;
   seller_name: string;
+  seller_username: string;
   seller_avatar: string | null;
   location: string;
   status: string;
@@ -46,7 +49,8 @@ interface ListingDetail {
 }
 
 export default function ListingDetailPage() {
-  const { id } = useParams();
+  const { id: rawParam } = useParams();
+  const id = String(rawParam).split('-')[0];
   const { user } = useAuth();
   const router = useRouter();
 
@@ -268,7 +272,7 @@ export default function ListingDetailPage() {
                     You are the owner of this listing
                   </div>
                   <Link
-                    href={`/marketplace/listings/${listing.id}/edit`}
+                    href={`${listingHref(listing.id, listing.slug)}/edit`}
                     className="w-full flex items-center justify-center gap-2 py-3 px-6 bg-surface-container-highest text-on-surface font-black uppercase text-xs border-2 border-outline-variant/40 rounded-xl hover:border-primary hover:text-primary transition-all"
                   >
                     Edit Listing Details
@@ -298,15 +302,15 @@ export default function ListingDetailPage() {
                 Seller Information
               </h3>
               <Link
-                href={`/marketplace/users/${listing.seller}`}
+                href={`/marketplace/users/${listing.seller_username}`}
                 className="text-xs font-bold text-primary hover:underline flex items-center gap-1"
               >
                 View Profile <ExternalLink className="w-3 h-3" />
               </Link>
             </div>
 
-            <Link 
-              href={`/marketplace/users/${listing.seller}`}
+            <Link
+              href={`/marketplace/users/${listing.seller_username}`}
               className="flex items-center gap-4 group cursor-pointer"
             >
               <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center overflow-hidden border border-primary/40 shrink-0 group-hover:scale-105 transition-transform">

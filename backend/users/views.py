@@ -227,6 +227,7 @@ class UserProfileView(APIView):
         serializer = UserProfileUpdateSerializer(user)
         data = serializer.data
         data["id"] = user.id
+        data["username"] = user.username
         data["email"] = user.email
         data["university"] = user.university.name if user.university else None
         data["reputation_score"] = user.reputation_score
@@ -296,9 +297,9 @@ class ReportBugView(APIView):
 class PublicUserProfileView(APIView):
     permission_classes = [AllowAny]
 
-    def get(self, request, pk):
+    def get(self, request, username):
         try:
-            user = CustomUser.objects.select_related('university').get(pk=pk, is_active=True)
+            user = CustomUser.objects.select_related('university').get(username=username, is_active=True)
         except CustomUser.DoesNotExist:
             return Response({"error": "User not found."}, status=status.HTTP_404_NOT_FOUND)
 

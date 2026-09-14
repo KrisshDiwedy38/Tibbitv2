@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { api } from "@/lib/api";
+import { listingHref } from "@/lib/utils";
 import Link from "next/link";
 import { 
   User as UserIcon, 
@@ -39,6 +40,7 @@ interface ListingImage {
 
 interface ListingItem {
   id: number;
+  slug: string | null;
   title: string;
   description: string;
   price: string;
@@ -51,6 +53,7 @@ interface ListingItem {
 
 interface PublicUserProfile {
   id: number;
+  username: string;
   name: string;
   first_name: string;
   last_name: string;
@@ -66,7 +69,7 @@ interface PublicUserProfile {
 }
 
 export default function PublicUserProfilePage() {
-  const { id } = useParams();
+  const { username } = useParams();
   const { user } = useAuth();
   const router = useRouter();
 
@@ -75,13 +78,13 @@ export default function PublicUserProfilePage() {
   const [isStartingChat, setIsStartingChat] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
-  const isMe = user?.id === Number(id);
+  const isMe = user?.username === username;
 
   useEffect(() => {
     const fetchProfile = async () => {
       try {
         setIsLoading(true);
-        const res = await api.get(`/api/users/${id}/profile/`);
+        const res = await api.get(`/api/users/${username}/profile/`);
         setProfile(res.data);
       } catch (err) {
         console.error("Failed to load user profile", err);
@@ -91,10 +94,10 @@ export default function PublicUserProfilePage() {
       }
     };
 
-    if (id) {
+    if (username) {
       fetchProfile();
     }
-  }, [id]);
+  }, [username]);
 
   const handleStartChat = async () => {
     if (!profile || isStartingChat) return;
@@ -265,7 +268,7 @@ export default function PublicUserProfilePage() {
               {profile.listings.map((item) => (
                 <Link
                   key={item.id}
-                  href={`/marketplace/listings/${item.id}`}
+                  href={listingHref(item.id, item.slug)}
                   className="group bg-surface-container border-2 border-outline-variant/30 rounded-2xl overflow-hidden hover:border-primary/50 transition-all flex flex-col hover:-translate-y-0.5 shadow-sm"
                 >
                   <div className="aspect-video bg-surface-container-highest relative overflow-hidden">

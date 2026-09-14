@@ -3,6 +3,7 @@
 import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { api } from "@/lib/api";
+import { listingHref } from "@/lib/utils";
 import Link from "next/link";
 import {
   Package,
@@ -29,6 +30,7 @@ interface ListingImage {
 
 interface Listing {
   id: number;
+  slug: string | null;
   title: string;
   description: string;
   price: string;
@@ -182,7 +184,7 @@ function MarketplacePageContent() {
             {listings.map((item) => (
               <Link
                 key={item.id}
-                href={`/marketplace/listings/${item.id}`}
+                href={listingHref(item.id, item.slug)}
                 className="group bg-surface-container border-2 border-outline-variant/30 rounded-2xl overflow-hidden hover:border-primary/50 transition-all duration-200 flex flex-col hover:-translate-y-1"
               >
                 {/* Thumbnail Image */}

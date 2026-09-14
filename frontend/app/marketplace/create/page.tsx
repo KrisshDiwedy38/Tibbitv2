@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { api, extractDRFError } from "@/lib/api";
+import { listingHref } from "@/lib/utils";
 import Link from "next/link";
 import { 
   ArrowLeft, 
@@ -89,7 +90,7 @@ export default function CreateListingPage() {
         headers: { "Content-Type": "multipart/form-data" }
       });
 
-      router.push(`/marketplace/listings/${res.data.id}`);
+      router.push(listingHref(res.data.id, res.data.slug));
     } catch (err: any) {
       setError(extractDRFError(err?.response?.data));
     } finally {

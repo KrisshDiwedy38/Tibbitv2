@@ -30,7 +30,8 @@ interface ListingImage {
 }
 
 export default function EditListingPage() {
-  const { id } = useParams();
+  const { id: rawParam } = useParams();
+  const id = String(rawParam).split('-')[0];
   const { user } = useAuth();
   const router = useRouter();
 
@@ -64,7 +65,7 @@ export default function EditListingPage() {
 
         // Security check: only owner can edit
         if (user && listing.seller !== user.id) {
-          router.replace(`/marketplace/listings/${id}`);
+          router.replace(`/marketplace/listings/${rawParam}`);
           return;
         }
 
@@ -135,7 +136,7 @@ export default function EditListingPage() {
 
       setSuccessMsg("Listing updated successfully!");
       setTimeout(() => {
-        router.push(`/marketplace/listings/${id}`);
+        router.push(`/marketplace/listings/${rawParam}`);
       }, 1000);
     } catch (err: any) {
       setErrorMsg(extractDRFError(err?.response?.data) || "Failed to update listing.");
@@ -158,7 +159,7 @@ export default function EditListingPage() {
       {/* Header */}
       <div>
         <Link
-          href={`/marketplace/listings/${id}`}
+          href={`/marketplace/listings/${rawParam}`}
           className="inline-flex items-center gap-2 text-xs font-bold text-on-surface-variant hover:text-primary transition-colors mb-3"
         >
           <ArrowLeft className="w-3.5 h-3.5" /> Back to Listing
@@ -358,7 +359,7 @@ export default function EditListingPage() {
           </button>
 
           <Link
-            href={`/marketplace/listings/${id}`}
+            href={`/marketplace/listings/${rawParam}`}
             className="px-6 py-4 rounded-xl border-2 border-outline-variant/40 text-on-surface font-bold text-sm hover:border-outline-variant hover:bg-surface-container transition-colors text-center"
           >
             Cancel

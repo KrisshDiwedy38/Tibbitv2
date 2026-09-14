@@ -15,14 +15,15 @@ class ListingSerializer(serializers.ModelSerializer):
     images = ListingImageSerializer(many=True, read_only=True)
     category_name = serializers.CharField(source='category.name', read_only=True)
     seller_name = serializers.SerializerMethodField()
+    seller_username = serializers.CharField(source='seller.username', read_only=True)
     seller_avatar = serializers.SerializerMethodField()
     is_saved = serializers.SerializerMethodField()
 
     class Meta:
         model = Listings
         fields = [
-            'id', 'title', 'description', 'price', 'category', 'category_name',
-            'listing_type', 'condition', 'seller', 'seller_name', 'seller_avatar',
+            'id', 'slug', 'title', 'description', 'price', 'category', 'category_name',
+            'listing_type', 'condition', 'seller', 'seller_name', 'seller_username', 'seller_avatar',
             'location', 'status', 'views_count', 'is_saved', 'created_at',
             'updated_at', 'expires_at', 'images'
         ]
@@ -55,9 +56,10 @@ class ListingCreateUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Listings
         fields = [
-            'id', 'title', 'description', 'price', 'category', 'condition',
+            'id', 'slug', 'title', 'description', 'price', 'category', 'condition',
             'location', 'status', 'uploaded_images'
         ]
+        read_only_fields = ['slug']
 
     def create(self, validated_data):
         uploaded_images = validated_data.pop('uploaded_images', [])

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
+import { listingHref } from "@/lib/utils";
 import Link from "next/link";
 import { 
   ArrowLeft, 
@@ -17,6 +18,7 @@ interface SavedListingItem {
   saved_at: string;
   listing: {
     id: number;
+    slug: string | null;
     title: string;
     description: string;
     price: string;
@@ -109,7 +111,7 @@ export default function SavedListingsPage() {
           {savedItems.map(({ listing }) => (
             <Link
               key={listing.id}
-              href={`/marketplace/listings/${listing.id}`}
+              href={listingHref(listing.id, listing.slug)}
               className="group bg-surface-container border-2 border-outline-variant/30 rounded-2xl overflow-hidden hover:border-primary/50 transition-all duration-200 flex flex-col hover:-translate-y-1"
             >
               {/* Image */}

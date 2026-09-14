@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { api, extractDRFError } from "@/lib/api";
+import { listingHref } from "@/lib/utils";
 import Link from "next/link";
 import ConfirmModal from "@/components/modals/ConfirmModal";
 import {
@@ -29,6 +30,7 @@ interface ListingImage {
 
 interface Listing {
   id: number;
+  slug: string | null;
   title: string;
   description: string;
   price: string;
@@ -259,7 +261,7 @@ export default function MyListingsPage() {
                     </div>
 
                     <Link
-                      href={`/marketplace/listings/${item.id}`}
+                      href={listingHref(item.id, item.slug)}
                       className="text-base sm:text-lg font-black text-on-surface hover:text-primary transition-colors truncate block"
                     >
                       {item.title}
@@ -284,7 +286,7 @@ export default function MyListingsPage() {
                 {/* Right Actions */}
                 <div className="flex items-center gap-2 w-full sm:w-auto justify-end pt-3 sm:pt-0 border-t sm:border-t-0 border-outline-variant/20">
                   <Link
-                    href={`/marketplace/listings/${item.id}/edit`}
+                    href={`${listingHref(item.id, item.slug)}/edit`}
                     className="p-2.5 rounded-xl bg-surface border border-outline-variant/30 text-on-surface-variant hover:text-primary hover:border-primary/50 transition-colors"
                     title="Edit Listing"
                   >
@@ -292,7 +294,7 @@ export default function MyListingsPage() {
                   </Link>
 
                   <Link
-                    href={`/marketplace/listings/${item.id}`}
+                    href={listingHref(item.id, item.slug)}
                     className="p-2.5 rounded-xl bg-surface border border-outline-variant/30 text-on-surface-variant hover:text-primary hover:border-primary/50 transition-colors"
                     title="View Public Listing"
                   >

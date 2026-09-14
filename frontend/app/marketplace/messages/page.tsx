@@ -4,6 +4,7 @@ import { useEffect, useState, useRef, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { api, extractDRFError } from "@/lib/api";
+import { listingHref } from "@/lib/utils";
 import Link from "next/link";
 import VerifyExchangeModal from "@/components/modals/VerifyExchangeModal";
 import ReviewModal from "@/components/modals/ReviewModal";
@@ -31,6 +32,7 @@ import {
 
 interface OtherUser {
   id: number;
+  username: string;
   name: string;
   email: string;
   avatar: string | null;
@@ -39,6 +41,7 @@ interface OtherUser {
 
 interface ContextDetails {
   id: number;
+  slug?: string | null;
   title: string;
   price?: string;
   image?: string | null;
@@ -519,7 +522,7 @@ function MessagesContent() {
                   </button>
 
                   <Link
-                    href={`/marketplace/users/${selectedConversation.other_user.id}`}
+                    href={`/marketplace/users/${selectedConversation.other_user.username}`}
                     className="flex items-center gap-3 group hover:opacity-90 transition-opacity"
                   >
                     <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center overflow-hidden border border-outline-variant/30 shrink-0 group-hover:scale-105 transition-transform">
@@ -545,7 +548,7 @@ function MessagesContent() {
                 {/* Linked context card quick view */}
                 {selectedConversation.context_details && (
                   <Link
-                    href={`/marketplace/listings/${selectedConversation.context_details.id}`}
+                    href={listingHref(selectedConversation.context_details.id, selectedConversation.context_details.slug)}
                     className="flex items-center gap-3 p-1.5 pr-3 bg-surface hover:bg-surface-container-highest border border-outline-variant/30 rounded-xl transition-all group"
                   >
                     {selectedConversation.context_details.image ? (

@@ -55,8 +55,9 @@ class Listings(models.Model):
       ('poor', 'Poor'),
    ]
 
-   # Basic Info 
+   # Basic Info
    title = models.CharField(max_length=200)
+   slug = models.SlugField(max_length=220, blank=True, null=True)  # readability only; id is the authoritative lookup key
    description = models.TextField()
    price = models.DecimalField(
       max_digits=10,
@@ -122,7 +123,13 @@ class Listings(models.Model):
    
    def __str__(self):
       return f"{self.title} - ${self.price}"
-   
+
+   def save(self, *args, **kwargs):
+      if not self.slug:
+         from django.utils.text import slugify
+         self.slug = slugify(self.title)
+      super().save(*args, **kwargs)
+
    def increment_views(self):
       """Increment listing view count"""
       self.views_count += 1
