@@ -172,6 +172,12 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'users.CustomUser'
 
 # Media files configuration
+# MEDIA_URL/MEDIA_ROOT are always defined: ProxyStorage (backend/storage_backends.py) falls
+# back to local FileSystemStorage whenever Supabase S3 credentials are incomplete, and that
+# fallback needs these to exist and to be served (see urls.py) or uploaded files 404.
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
 if os.environ.get('SUPABASE_STORAGE_BUCKET_NAME'):
     # Use Supabase Storage (S3-compatible)
     STORAGES = {
@@ -190,10 +196,6 @@ if os.environ.get('SUPABASE_STORAGE_BUCKET_NAME'):
             "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
         },
     }
-else:
-    # Fallback to local storage for dev if no bucket configured
-    MEDIA_URL = '/media/'
-    MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Email Config (Resend SMTP Backend)
 ANYMAIL = {

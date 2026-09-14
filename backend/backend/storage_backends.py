@@ -9,8 +9,19 @@ def has_supabase_credentials():
     endpoint = os.environ.get("SUPABASE_S3_ENDPOINT_URL")
     return bool(access_key and endpoint and access_key.strip() and endpoint.strip())
 
+class SupabasePublicURLMixin:
+    """
+    Supabase's S3-compatible gateway (/storage/v1/s3/...) is for signed S3-protocol
+    uploads, not public reads — public objects are served from a different path
+    (/storage/v1/object/public/...). S3Boto3Storage.url() builds the former, which
+    404s/403s for a public bucket, so override it to build the latter instead.
+    """
+    def url(self, name, parameters=None, expire=None, http_method=None):
+        base = self.endpoint_url.rstrip('/').removesuffix('/storage/v1/s3')
+        return f"{base}/storage/v1/object/public/{self.bucket_name}/{name}"
+
 @deconstructible
-class S3MediaStorage(S3Boto3Storage):
+class S3MediaStorage(SupabasePublicURLMixin, S3Boto3Storage):
     def __init__(self, *args, **kwargs):
         kwargs['access_key'] = os.environ.get("SUPABASE_ACCESS_KEY_ID")
         kwargs['secret_key'] = os.environ.get("SUPABASE_SECRET_ACCESS_KEY")
@@ -22,7 +33,7 @@ class S3MediaStorage(S3Boto3Storage):
         super().__init__(*args, **kwargs)
 
 @deconstructible
-class S3AvatarStorage(S3Boto3Storage):
+class S3AvatarStorage(SupabasePublicURLMixin, S3Boto3Storage):
     def __init__(self, *args, **kwargs):
         kwargs['access_key'] = os.environ.get("SUPABASE_ACCESS_KEY_ID")
         kwargs['secret_key'] = os.environ.get("SUPABASE_SECRET_ACCESS_KEY")
