@@ -50,8 +50,8 @@ api.interceptors.response.use(
  * Extract a human-readable error message from a DRF error response.
  */
 export function extractDRFError(data: Record<string, any> | undefined): string {
-  if (!data) return "SUBMISSION FAILED. TRY AGAIN.";
-  
+  if (!data || typeof data !== "object") return "SUBMISSION FAILED. TRY AGAIN.";
+
   if (Array.isArray(data.non_field_errors) && data.non_field_errors.length > 0) {
     return String(data.non_field_errors[0]);
   }

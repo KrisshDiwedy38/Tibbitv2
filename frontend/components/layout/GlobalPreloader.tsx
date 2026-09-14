@@ -8,8 +8,8 @@ import { usePathname } from "next/navigation";
 
 export default function GlobalPreloader({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const [isLoaded, setIsLoaded] = useState(true);
-  const [showPreloader, setShowPreloader] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [showPreloader, setShowPreloader] = useState(true);
 
   useEffect(() => {
     const routeKey = pathname.startsWith("/marketplace")
