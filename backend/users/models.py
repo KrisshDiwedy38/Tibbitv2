@@ -3,6 +3,7 @@ from django.contrib.auth.models import AbstractUser
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.utils import timezone
 from datetime import timedelta
+from backend.storage_backends import AvatarStorage
 from .managers import CustomUserManager
 
 import secrets
@@ -13,6 +14,7 @@ class University(models.Model):
    """
 
    name = models.CharField(max_length=200)
+   slug = models.SlugField(max_length=200, unique=True, blank=True, null=True)
    email_domain = models.CharField(max_length=100, unique=True)
    location = models.CharField(max_length=200, blank=True, null=True)
    is_active = models.BooleanField(default=True)
@@ -27,16 +29,29 @@ class University(models.Model):
    def __str__(self):
       return self.name
    
+   def save(self, *args, **kwargs):
+      if not self.slug:
+         from django.utils.text import slugify
+         self.slug = slugify(self.name)
+      super().save(*args, **kwargs)
 
 class CustomUser(AbstractUser):
    """
    Custom User model that uses email as the primary identificator, includes OTP verification for student email validation
    """
+   ROLE_CHOICES = [
+      ('student', 'Student'),
+      ('alumni', 'Alumni'),
+      ('organization', 'Organization'),
+   ]
 
    # Making username optional/auto-generated
    username = models.CharField(max_length=100, unique=True, blank=True, null=True)
    # Email as primary identifier 
    email = models.EmailField(unique=True)
+   
+   role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='student')
+   
    # Setting relation from User to University
    university = models.ForeignKey(
       University,
@@ -55,10 +70,10 @@ class CustomUser(AbstractUser):
    #Profile Fields
    phone_number = models.CharField(max_length=15, blank=True, null=True)
    profile_picture = models.ImageField(
-      upload_to='backend/media/profile_pictures/',
+      upload_to='profile_pictures/',
+      storage=AvatarStorage(),
       blank=True,
-      null=True,
-      default='profile_pictures/default.jpg'
+      null=True
    )
         
    bio = models.TextField(max_length=500, blank=True, null=True)
@@ -87,6 +102,15 @@ class CustomUser(AbstractUser):
 
    def __str__(self):
       return self.email
+
+   @property
+   def reputation_score(self):
+      """Calculates average rating from reviews"""
+      reviews = self.reviews_received.all()
+      if reviews.exists():
+         from django.db.models import Avg
+         return round(reviews.aggregate(Avg('rating'))['rating__avg'], 2)
+      return None
 
    def save(self, *args, **kwargs):
       """
@@ -120,12 +144,18 @@ class CustomUser(AbstractUser):
       
       subject = 'Your Tibbit Verification OTP'
       message = f'Your OTP (One Time Password) is {otp}. It is valid for 10 minutes.'
-      email_from = getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@tibbit.com')
+      email_from = getattr(settings, 'DEFAULT_FROM_EMAIL', 'onboarding@resend.dev')
       
+      if getattr(settings, 'DEBUG', False):
+          print(f"\n=======================================================\n[DEV OTP] Email: {self.email} | OTP: {otp}\n=======================================================\n", flush=True)
+
       try:
           send_mail(subject, message, email_from, [self.email])
-      except Exception:
-          pass
+      except Exception as e:
+          import logging
+          logger = logging.getLogger(__name__)
+          logger.error(f"Failed to send OTP email to {self.email}: {str(e)}")
+          print(f"\n[FALLBACK OTP] Email: {self.email} | OTP: {otp} (Reason: {e})\n", flush=True)
 
       return otp
    

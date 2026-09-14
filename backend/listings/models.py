@@ -8,6 +8,7 @@ class Category(models.Model):
    """
 
    name = models.CharField(max_length=100, unique=True)
+   slug = models.SlugField(max_length=100, unique=True, blank=True, null=True)
    description = models.TextField(blank=True, null=True)
    icon = models.CharField(max_length=50, blank=True, null=True)
    is_active = models.BooleanField(default=True)
@@ -20,6 +21,12 @@ class Category(models.Model):
    
    def __str__(self):
       return self.name
+      
+   def save(self, *args, **kwargs):
+      if not self.slug:
+         from django.utils.text import slugify
+         self.slug = slugify(self.name)
+      super().save(*args, **kwargs)
    
 class Listings(models.Model):
    """
@@ -34,6 +41,11 @@ class Listings(models.Model):
       ('deleted', 'Deleted'),
    ]
    
+   LISTING_TYPE_CHOICES = [
+      ('product', 'Product'),
+      ('service', 'Service'),
+   ]
+
    # Condition choices
    CONDITION_CHOICES = [
       ('new', 'New'),
@@ -43,8 +55,9 @@ class Listings(models.Model):
       ('poor', 'Poor'),
    ]
 
-   # Basic Info 
+   # Basic Info
    title = models.CharField(max_length=200)
+   slug = models.SlugField(max_length=220, blank=True, null=True)  # readability only; id is the authoritative lookup key
    description = models.TextField()
    price = models.DecimalField(
       max_digits=10,
@@ -59,10 +72,17 @@ class Listings(models.Model):
         null=True,
         related_name='listings'
     )
+   listing_type = models.CharField(
+      max_length=20,
+      choices=LISTING_TYPE_CHOICES,
+      default='product'
+   )
    condition = models.CharField(
       max_length=20,
       choices=CONDITION_CHOICES,
-      default='good'
+      default='good',
+      blank=True,
+      null=True
    )
    
    # Seller info
@@ -103,7 +123,13 @@ class Listings(models.Model):
    
    def __str__(self):
       return f"{self.title} - ${self.price}"
-   
+
+   def save(self, *args, **kwargs):
+      if not self.slug:
+         from django.utils.text import slugify
+         self.slug = slugify(self.title)
+      super().save(*args, **kwargs)
+
    def increment_views(self):
       """Increment listing view count"""
       self.views_count += 1
@@ -118,6 +144,8 @@ class Listings(models.Model):
       """Checking if the listing is active"""
       return self.status == 'active'
 
+from backend.storage_backends import MediaStorage
+
 class ListingImage(models.Model):
    """
    Images for listings (multiple images per listing)
@@ -127,7 +155,7 @@ class ListingImage(models.Model):
       on_delete=models.CASCADE,
       related_name='images'
    )
-   image = models.ImageField(upload_to='backend/media/listing_images/')
+   image = models.ImageField(storage=MediaStorage(), upload_to='listing_images/')
    order = models.IntegerField(default=0)  # For ordering images (first image is thumbnail)
    uploaded_at = models.DateTimeField(auto_now_add=True)
    

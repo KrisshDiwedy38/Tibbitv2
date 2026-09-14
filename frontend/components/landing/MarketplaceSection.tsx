@@ -16,12 +16,20 @@ export default function MarketplaceSection() {
             <p className="text-lg text-white/80 leading-relaxed font-medium max-w-2xl mx-auto">
               Verified students only. No bots, no scams. Buy textbooks, sell furniture, or trade electronics safely within your university bubble.
             </p>
+            <div className="pt-2">
+              <a
+                href="/marketplace"
+                className="inline-block bg-primary-container text-on-primary-container px-8 py-3.5 border-4 border-black font-black uppercase tracking-tighter hover:translate-x-[2px] hover:translate-y-[2px] transition-all text-base shadow-lg"
+              >
+                Enter Campus Marketplace →
+              </a>
+            </div>
           </div>
 
           {/* Image mock */}
-          <div className="w-[90%] sm:w-[80%] md:w-1/2 max-w-2xl relative group rounded-lg border border-[#262626] hover:border-primary-container transition-colors duration-300 bg-black overflow-hidden flex items-center justify-center p-2 sm:p-4 mx-auto">
+          <a href="/marketplace" className="w-[90%] sm:w-[80%] md:w-1/2 max-w-2xl relative group rounded-lg border border-[#262626] hover:border-primary-container transition-colors duration-300 bg-black overflow-hidden flex items-center justify-center p-2 sm:p-4 mx-auto cursor-pointer block">
             <img src="/images/marketplace_ui.jpeg" alt="Marketplace UI Mockup" className="w-full h-auto object-contain rounded transition-transform duration-500 group-hover:scale-[1.02]" />
-          </div>
+          </a>
         </div>
       </div>
     </section>

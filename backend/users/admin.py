@@ -5,10 +5,13 @@ from .models import CustomUser, University
 
 @admin.register(University)
 class UniversityAdmin(admin.ModelAdmin):
-   list_display = ['name', 'email_domain', 'location', 'is_active', 'created_at']
-   list_filter = ['is_active', 'created_at']
+   list_display = ['name', 'email_domain', 'location', 'is_active', 'is_verified', 'created_at']
+   list_editable = ['is_active', 'is_verified']
+   list_filter = ['is_active', 'is_verified', 'created_at']
    search_fields = ['name', 'email_domain', 'location']
    ordering = ['name']
+   prepopulated_fields = {'slug': ('name',)}
+   fields = ['name', 'slug', 'email_domain', 'location', 'is_active', 'is_verified']
 
 
 @admin.register(CustomUser)
@@ -18,12 +21,14 @@ class CustomUserAdmin(UserAdmin):
         'email',
         'first_name',
         'last_name',
+        'role',
         'university',
         'is_email_verified',
         'is_active',
         'created_at'
     ]
     list_filter = [
+        'role',
         'is_email_verified',
         'is_active',
         'is_staff',
@@ -42,7 +47,8 @@ class CustomUserAdmin(UserAdmin):
                 'phone_number',
                 'bio',
                 'profile_picture',
-                'graduation_year'
+                'graduation_year',
+                'role'
             )
         }),
         ('University', {'fields': ('university',)}),

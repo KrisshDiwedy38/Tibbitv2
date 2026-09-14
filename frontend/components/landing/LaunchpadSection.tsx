@@ -1,12 +1,15 @@
 "use client";
 
+import Link from "next/link";
+import { useAuth } from "@/contexts/AuthContext";
+import { getAuthEntryHref } from "@/lib/utils";
 import AnimatedIdeasDemo from "./AnimatedIdeasDemo";
 
-interface LaunchpadSectionProps {
-  onCTAClick: () => void;
-}
+export default function LaunchpadSection() {
+  const { user } = useAuth();
+  const launchpadHref = user ? "/launchpad" : getAuthEntryHref("/launchpad");
+  const communityHref = user ? "/community" : getAuthEntryHref("/community");
 
-export default function LaunchpadSection({ onCTAClick }: LaunchpadSectionProps) {
   return (
     <section className="relative overflow-hidden px-4 sm:px-8 md:px-16 lg:px-20 py-16 sm:py-20 lg:py-24 flex flex-col items-center">
       {/* Ambient Glow */}
@@ -24,12 +27,12 @@ export default function LaunchpadSection({ onCTAClick }: LaunchpadSectionProps) 
           Two interconnected pillars of the Tibbit ecosystem. Validate your ideas on the Startup Launchpad, and find early adopters within our vibrant Student Community.
         </p>
         <div className="pt-6 flex flex-col sm:flex-row justify-center gap-4 sm:gap-6">
-          <button onClick={onCTAClick} className="bg-tertiary text-black px-10 py-4 border-4 border-black font-black uppercase tracking-tighter neo-shadow-primary hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all">
+          <Link href={launchpadHref} className="bg-tertiary text-black px-10 py-4 border-4 border-black font-black uppercase tracking-tighter neo-shadow-primary hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all inline-block">
             Launch an Idea
-          </button>
-          <button onClick={onCTAClick} className="bg-white text-black px-10 py-4 border-4 border-black font-black uppercase tracking-tighter neo-shadow-primary hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all">
+          </Link>
+          <Link href={communityHref} className="bg-white text-black px-10 py-4 border-4 border-black font-black uppercase tracking-tighter neo-shadow-primary hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all inline-block">
             Join Community
-          </button>
+          </Link>
         </div>
       </div>
 

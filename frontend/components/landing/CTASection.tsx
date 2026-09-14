@@ -1,10 +1,6 @@
-"use client";
+import Link from "next/link";
 
-interface CTASectionProps {
-  onCTAClick: () => void;
-}
-
-export default function CTASection({ onCTAClick }: CTASectionProps) {
+export default function CTASection() {
   return (
     <section className="py-16 sm:py-20 lg:py-24 px-4 sm:px-8 md:px-16 lg:px-20 text-center">
       <div className="bg-surface-container p-6 sm:p-12 md:p-20 lg:p-24 border-4 border-black neo-shadow-secondary max-w-6xl mx-auto">
@@ -12,14 +8,14 @@ export default function CTASection({ onCTAClick }: CTASectionProps) {
           STOP BROWSING. <br />START GROWING.
         </h2>
         <div className="flex flex-col sm:flex-row justify-center gap-4">
-          <button
-            onClick={onCTAClick}
-            className="bg-primary-container text-on-primary-container px-6 sm:px-8 py-3 sm:py-4 border-4 border-black font-black uppercase tracking-tighter hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
+          <Link
+            href="/register"
+            className="bg-primary-container text-on-primary-container px-6 sm:px-8 py-3 sm:py-4 border-4 border-black font-black uppercase tracking-tighter hover:translate-x-[2px] hover:translate-y-[2px] transition-all inline-block"
           >
-            Join The Waitlist
-          </button>
+            Get Started
+          </Link>
         </div>
-        <p className="mt-6 sm:mt-8 text-xs text-white/40 uppercase font-black tracking-[0.3em]">Launching Summer 2026</p>
+        <p className="mt-6 sm:mt-8 text-xs text-white/40 uppercase font-black tracking-[0.3em]">Student Ecosystem • Live Now</p>
       </div>
     </section>
   );

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import GlobalPreloader from '@/components/layout/GlobalPreloader';
+import { AuthProvider } from '@/contexts/AuthContext';
 
 export const metadata: Metadata = {
   title: 'TIBBIT | Student-led Marketplace',
@@ -18,9 +19,11 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
         <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
       </head>
-      <body className="text-on-surface antialiased overflow-x-hidden min-h-screen relative">
+      <body className="site-shell text-on-surface antialiased overflow-x-hidden min-h-screen relative">
         <GlobalPreloader>
-          {children}
+          <AuthProvider>
+            {children}
+          </AuthProvider>
         </GlobalPreloader>
       </body>
 

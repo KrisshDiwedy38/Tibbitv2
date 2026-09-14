@@ -26,13 +26,27 @@ class RegistrationSerializer(serializers.ModelSerializer):
       return attrs
    
    def validate_email(self, value):
-      domain = value.split('@')[-1]
-      if not University.objects.filter(email_domain = domain, is_active = True).exists():
-         raise serializers.ValidationError("Entered email is not of a registered university.")
+      email = value.strip().lower()
+      domain = email.split('@')[-1]
+      generic_domains = ['gmail.com', 'yahoo.com', 'outlook.com', 'hotmail.com', 'icloud.com', 'aol.com', 'mail.com']
+      if domain in generic_domains:
+         raise serializers.ValidationError("Please use your university or institutional email address.")
       
-      return value
+      return email
    
    def create(self, validated_data):
+      validated_data.pop('password2', None)
+      email = validated_data.get('email', '').strip().lower()
+      validated_data['email'] = email
+      domain = email.split('@')[-1]
+      
+      # Find or passively create the university
+      university, created = University.objects.get_or_create(
+          email_domain=domain,
+          defaults={'name': domain, 'is_verified': False, 'is_active': False}
+      )
+      
+      validated_data['university'] = university
       user = CustomUser.objects.create_user(**validated_data)
 
       user.generate_otp()
@@ -46,38 +60,50 @@ class OTPVerifySerializer(serializers.Serializer):
    otp = serializers.CharField(max_length = 6, min_length = 6)
 
    def validate(self, attrs):
-      try: 
-         user = CustomUser.objects.get(email = attrs['email'])
-      except CustomUser.DoesNotExist:
+      email = attrs['email'].strip().lower()
+      attrs['email'] = email
+      user = CustomUser.objects.filter(email__iexact=email).first()
+      if not user:
          raise serializers.ValidationError({"email": "User not found!"})
       
-      success, message = user.verify_otp(attrs['otp'])
+      success, message = user.verify_otp(attrs['otp'].strip())
 
       if not success:
          raise serializers.ValidationError({"otp": message})
       
       # When OTP passes
-      refresh = RefreshToken.for_user(user)
-      attrs['user']= user
-      attrs['tokens']= {
-         'refresh' : str(refresh),
-         'access':str(refresh.access_token),
-      }
+      attrs['user'] = user
+      
+      is_uni_approved = bool(user.university and user.university.is_active and user.university.is_verified)
+      
+      if is_uni_approved:
+         refresh = RefreshToken.for_user(user)
+         attrs['tokens'] = {
+            'refresh' : str(refresh),
+            'access': str(refresh.access_token),
+         }
+         attrs['university_pending'] = False
+      else:
+         attrs['tokens'] = None
+         attrs['university_pending'] = True
+         uni_name = user.university.name if user.university else "Your campus"
+         attrs['waitlist_message'] = f"Your email has been verified! However, {uni_name} is not yet approved on Tibbit. We will notify you via email as soon as your campus goes live."
+         
       return attrs
-   
+    
 
 class ResendOTPSerializer(serializers.Serializer):
    email = serializers.EmailField()
 
    def validate_email(self, value):
-      try:
-         user = CustomUser.objects.get(email= value)
-      except CustomUser.DoesNotExist:
+      email = value.strip().lower()
+      user = CustomUser.objects.filter(email__iexact=email).first()
+      if not user:
          raise serializers.ValidationError("User not found.")
       if user.is_email_verified:
          raise serializers.ValidationError("Email is already verified.")
       self.context['user'] = user
-      return value
+      return email
       
 
 # Login 
@@ -88,19 +114,24 @@ class LoginSerializer(serializers.Serializer):
    password = serializers.CharField(write_only = True)
 
    def validate(self, attrs):
-      try:
-         user = CustomUser.objects.get(email=attrs['email'])
-      except CustomUser.DoesNotExist:
-         raise serializers.ValidationError({'email' :"Invalid Credentials."})
+      email = attrs['email'].strip().lower()
+      attrs['email'] = email
+      user = CustomUser.objects.filter(email__iexact=email).first()
+      if not user:
+         raise serializers.ValidationError({'email': "No account found with this email address."})
       
       if not user.check_password(attrs['password']):
-         raise serializers.ValidationError({'password': "Invalid Credentials."})
+         raise serializers.ValidationError({'password': "Incorrect password. Please check your credentials."})
 
       if not user.is_email_verified:
          raise serializers.ValidationError({'email': 'Email not verified, Verify email before logging in again.'})
       
       if not user.is_active:
          raise serializers.ValidationError({'email': 'This account has been disabled.'})
+         
+      if user.university and (not user.university.is_active or not user.university.is_verified):
+         uni_name = user.university.name or "Your university"
+         raise serializers.ValidationError({'email': f"Your university ({uni_name}) is pending approval. You will receive an email once campus access is activated."})
       
       # Verification Passed 
 
@@ -111,6 +142,57 @@ class LoginSerializer(serializers.Serializer):
          'access':str(refresh.access_token),
       }
       return attrs
+
+class PasswordResetRequestSerializer(serializers.Serializer):
+   email = serializers.EmailField()
+
+   def validate_email(self, value):
+      email = value.strip().lower()
+      user = CustomUser.objects.filter(email__iexact=email).first()
+      if not user:
+         raise serializers.ValidationError("No account found with this email address.")
+      if not user.is_active:
+         raise serializers.ValidationError("Account is disabled.")
+      self.context['user'] = user
+      return email
+
+class PasswordResetConfirmSerializer(serializers.Serializer):
+   email = serializers.EmailField()
+   otp = serializers.CharField(max_length=6, min_length=6)
+   password = serializers.CharField(write_only=True, required=True, validators=[validate_password])
+   password2 = serializers.CharField(write_only=True, required=True, label='Confirm Password')
+
+   def validate(self, attrs):
+      if attrs['password'] != attrs['password2']:
+         raise serializers.ValidationError({"password": "Passwords do not match."})
+      
+      email = attrs['email'].strip().lower()
+      attrs['email'] = email
+      user = CustomUser.objects.filter(email__iexact=email).first()
+      if not user:
+         raise serializers.ValidationError({"email": "User not found."})
+      
+      success, message = user.verify_otp(attrs['otp'].strip())
+      if not success:
+         raise serializers.ValidationError({"otp": message})
+      
+      self.context['user'] = user
+      return attrs
+class UserProfileUpdateSerializer(serializers.ModelSerializer):
+   class Meta:
+      model = CustomUser
+      fields = ['first_name', 'last_name', 'phone_number', 'bio', 'profile_picture', 'graduation_year']
+
+   def to_representation(self, instance):
+      data = super().to_representation(instance)
+      if instance.profile_picture:
+         try:
+            data['profile_picture'] = instance.profile_picture.url
+         except Exception:
+            data['profile_picture'] = None
+      else:
+         data['profile_picture'] = None
+      return data
 
 
 class WaitlistEntrySerializer(serializers.ModelSerializer):
@@ -148,3 +230,48 @@ class WaitlistEntrySerializer(serializers.ModelSerializer):
 class ContactFormSerializer(serializers.Serializer):
    email = serializers.EmailField()
    message = serializers.CharField(max_length=2000)
+
+class PublicUserProfileSerializer(serializers.ModelSerializer):
+    name = serializers.SerializerMethodField()
+    avatar = serializers.SerializerMethodField()
+    university = serializers.CharField(source='university.name', read_only=True, default=None)
+    reviews = serializers.SerializerMethodField()
+    reviews_count = serializers.SerializerMethodField()
+    listings = serializers.SerializerMethodField()
+    member_since = serializers.DateTimeField(source='date_joined', read_only=True)
+
+    class Meta:
+        model = CustomUser
+        fields = [
+            'id', 'username', 'name', 'first_name', 'last_name', 'avatar', 'university',
+            'bio', 'graduation_year', 'reputation_score', 'reviews_count',
+            'reviews', 'listings', 'member_since'
+        ]
+
+    def get_name(self, obj):
+        full_name = obj.get_full_name().strip()
+        return full_name if full_name else obj.email.split('@')[0]
+
+    def get_avatar(self, obj):
+        if obj.profile_picture:
+            try:
+                return obj.profile_picture.url
+            except Exception:
+                return None
+        return None
+
+    def get_reviews_count(self, obj):
+        from transactions.models import Review
+        return Review.objects.filter(reviewee=obj).count()
+
+    def get_reviews(self, obj):
+        from transactions.serializers import PublicReviewSerializer
+        from transactions.models import Review
+        reviews = Review.objects.filter(reviewee=obj).select_related('transaction', 'reviewer', 'reviewee').order_by('-created_at')[:20]
+        return PublicReviewSerializer(reviews, many=True).data
+
+    def get_listings(self, obj):
+        from listings.serializers import ListingSerializer
+        from listings.models import Listings
+        listings = Listings.objects.filter(seller=obj, status='active').select_related('category', 'seller').prefetch_related('images').order_by('-created_at')
+        return ListingSerializer(listings, many=True, context=self.context).data

@@ -1,6 +1,7 @@
 from rest_framework import viewsets, status, permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from django.db.models import Q
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
 from .models import Category, Listings, SavedListing
@@ -11,22 +12,57 @@ from .serializers import (
     SavedListingSerializer
 )
 
+from backend.permissions import IsOwnerOrReadOnly
+
 class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Category.objects.filter(is_active=True)
     serializer_class = CategorySerializer
     permission_classes = [permissions.AllowAny]
 
+    def get_queryset(self):
+        if not Category.objects.exists():
+            defaults = [
+                {"name": "Electronics", "icon": "devices", "description": "Laptops, phones, audio gear & accessories"},
+                {"name": "Books & Notes", "icon": "menu_book", "description": "Textbooks, course packs & study guides"},
+                {"name": "Furniture", "icon": "chair", "description": "Dorm & apartment chairs, desks & lamps"},
+                {"name": "Apparel & Gear", "icon": "apparel", "description": "Campus hoodies, jackets & activewear"},
+                {"name": "Services & Tutoring", "icon": "design_services", "description": "Peer tutoring, design, coding & photography"},
+                {"name": "Housing & Sublets", "icon": "home", "description": "Sublets, lease transfers & roommate searches"},
+            ]
+            for cat in defaults:
+                Category.objects.get_or_create(name=cat["name"], defaults=cat)
+        return Category.objects.filter(is_active=True)
+
 class ListingViewSet(viewsets.ModelViewSet):
-    queryset = Listings.objects.filter(status='active').select_related('category', 'seller').prefetch_related('images')
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_fields = ['category', 'condition']
     search_fields = ['title', 'description', 'location']
     ordering_fields = ['price', 'created_at']
     ordering = ['-created_at']
 
+    def get_queryset(self):
+        if self.action == 'retrieve':
+            base = Listings.objects.all().select_related('category', 'seller').prefetch_related('images')
+            user = self.request.user
+            if user and user.is_authenticated:
+                return base.filter(Q(status__in=['active', 'sold']) | Q(seller=user))
+            return base.filter(status__in=['active', 'sold'])
+
+        if self.action in ['update', 'partial_update', 'destroy']:
+            return Listings.objects.all().select_related('category', 'seller').prefetch_related('images')
+
+        status_param = self.request.query_params.get('status')
+        if status_param:
+            if status_param == 'all':
+                return Listings.objects.all().select_related('category', 'seller').prefetch_related('images')
+            return Listings.objects.filter(status=status_param).select_related('category', 'seller').prefetch_related('images')
+        
+        return Listings.objects.filter(status__in=['active', 'sold']).select_related('category', 'seller').prefetch_related('images')
+
     def get_permissions(self):
         if self.action in ['list', 'retrieve']:
             return [permissions.AllowAny()]
+        if self.action in ['update', 'partial_update', 'destroy', 'mine']:
+            return [permissions.IsAuthenticated(), IsOwnerOrReadOnly()]
         return [permissions.IsAuthenticated()]
 
     def get_serializer_class(self):
@@ -41,6 +77,15 @@ class ListingViewSet(viewsets.ModelViewSet):
         instance = self.get_object()
         instance.increment_views()
         serializer = self.get_serializer(instance)
+        return Response(serializer.data)
+
+    @action(detail=False, methods=['get'], permission_classes=[permissions.IsAuthenticated])
+    def mine(self, request):
+        status_filter = request.query_params.get('status')
+        queryset = Listings.objects.filter(seller=request.user).select_related('category', 'seller').prefetch_related('images').order_by('-created_at')
+        if status_filter and status_filter != 'all':
+            queryset = queryset.filter(status=status_filter)
+        serializer = ListingSerializer(queryset, many=True, context={'request': request})
         return Response(serializer.data)
 
     @action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated])
