@@ -1,6 +1,7 @@
 from rest_framework import viewsets, status, permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from django.db.models import Q
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
 from .models import Category, Listings, SavedListing
@@ -39,9 +40,16 @@ class ListingViewSet(viewsets.ModelViewSet):
     ordering = ['-created_at']
 
     def get_queryset(self):
-        if self.action in ['update', 'partial_update', 'destroy', 'retrieve']:
+        if self.action == 'retrieve':
+            base = Listings.objects.all().select_related('category', 'seller').prefetch_related('images')
+            user = self.request.user
+            if user and user.is_authenticated:
+                return base.filter(Q(status__in=['active', 'sold']) | Q(seller=user))
+            return base.filter(status__in=['active', 'sold'])
+
+        if self.action in ['update', 'partial_update', 'destroy']:
             return Listings.objects.all().select_related('category', 'seller').prefetch_related('images')
-        
+
         status_param = self.request.query_params.get('status')
         if status_param:
             if status_param == 'all':

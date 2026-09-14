@@ -119,7 +119,10 @@ class TransactionCreateSerializer(serializers.ModelSerializer):
 
         if not buyer and request.user == listing.seller:
             raise serializers.ValidationError({"buyer": "Buyer ID is required when seller initiates transaction."})
-        
+
+        if buyer and request.user != listing.seller:
+            raise serializers.ValidationError({"listing": "Only the listing's seller can start a transaction with a specific buyer."})
+
         actual_buyer = buyer if buyer else request.user
         if actual_buyer == listing.seller:
             raise serializers.ValidationError("Buyer and seller cannot be the same person.")
@@ -156,3 +159,9 @@ class ReviewSerializer(serializers.ModelSerializer):
             except Exception:
                 return None
         return None
+
+
+class PublicReviewSerializer(ReviewSerializer):
+    """Review serializer for public-facing profiles — omits reviewer/reviewee email (PII)."""
+    class Meta(ReviewSerializer.Meta):
+        fields = [f for f in ReviewSerializer.Meta.fields if f not in ('reviewer_email', 'reviewee_email')]

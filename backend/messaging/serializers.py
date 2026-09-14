@@ -1,6 +1,8 @@
 from rest_framework import serializers
 from .models import Conversation, Message
 from listings.models import Listings
+from launchpad.models import StartupProject
+from community.models import ForumPost
 
 class MessageSerializer(serializers.ModelSerializer):
     sender_email = serializers.CharField(source='sender.email', read_only=True)
@@ -66,6 +68,7 @@ class ConversationSerializer(serializers.ModelSerializer):
 
         return {
             'id': other.id,
+            'username': other.username,
             'name': name_display,
             'email': other.email,
             'avatar': avatar_url,
@@ -87,6 +90,7 @@ class ConversationSerializer(serializers.ModelSerializer):
             image_url = first_image.image.url if first_image else None
             return {
                 'id': listing.id,
+                'slug': listing.slug,
                 'title': listing.title,
                 'price': str(listing.price),
                 'image': image_url,
@@ -94,11 +98,16 @@ class ConversationSerializer(serializers.ModelSerializer):
                 'type': 'listing'
             }
             
-        return {
-            'id': getattr(obj.content_object, 'id', None),
-            'title': str(obj.content_object),
-            'type': 'other'
-        }
+        if isinstance(obj.content_object, StartupProject):
+            project = obj.content_object
+            return {'id': project.id, 'title': project.name, 'type': 'startup_project'}
+
+        if isinstance(obj.content_object, ForumPost):
+            post = obj.content_object
+            return {'id': post.id, 'title': post.title, 'type': 'forum_post'}
+
+        # Any other content type is not in ALLOWED_CONTEXT_MODELS and shouldn't occur.
+        return None
 
     def get_unread_count(self, obj):
         request = self.context.get('request')

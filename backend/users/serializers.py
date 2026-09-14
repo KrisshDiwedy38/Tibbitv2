@@ -243,7 +243,7 @@ class PublicUserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = [
-            'id', 'name', 'first_name', 'last_name', 'avatar', 'university',
+            'id', 'username', 'name', 'first_name', 'last_name', 'avatar', 'university',
             'bio', 'graduation_year', 'reputation_score', 'reviews_count',
             'reviews', 'listings', 'member_since'
         ]
@@ -265,10 +265,10 @@ class PublicUserProfileSerializer(serializers.ModelSerializer):
         return Review.objects.filter(reviewee=obj).count()
 
     def get_reviews(self, obj):
-        from transactions.serializers import ReviewSerializer
+        from transactions.serializers import PublicReviewSerializer
         from transactions.models import Review
         reviews = Review.objects.filter(reviewee=obj).select_related('transaction', 'reviewer', 'reviewee').order_by('-created_at')[:20]
-        return ReviewSerializer(reviews, many=True).data
+        return PublicReviewSerializer(reviews, many=True).data
 
     def get_listings(self, obj):
         from listings.serializers import ListingSerializer

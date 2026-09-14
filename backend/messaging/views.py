@@ -7,8 +7,13 @@ from django.contrib.auth import get_user_model
 from .models import Conversation, Message
 from .serializers import ConversationSerializer, MessageSerializer
 from listings.models import Listings
+from launchpad.models import StartupProject
+from community.models import ForumPost
 
 User = get_user_model()
+
+# Models a conversation is allowed to reference as its polymorphic context.
+ALLOWED_CONTEXT_MODELS = (Listings, StartupProject, ForumPost)
 
 class ConversationViewSet(viewsets.ModelViewSet):
     serializer_class = ConversationSerializer
@@ -51,9 +56,16 @@ class ConversationViewSet(viewsets.ModelViewSet):
         elif request.data.get('content_type') and request.data.get('object_id'):
             try:
                 content_type = ContentType.objects.get(id=request.data.get('content_type'))
-                object_id = request.data.get('object_id')
-            except ContentType.DoesNotExist:
-                pass
+            except (ContentType.DoesNotExist, ValueError):
+                return Response({'content_type': 'Invalid content type.'}, status=status.HTTP_400_BAD_REQUEST)
+
+            model_class = content_type.model_class()
+            if model_class not in ALLOWED_CONTEXT_MODELS:
+                return Response({'content_type': 'Invalid context type.'}, status=status.HTTP_400_BAD_REQUEST)
+
+            object_id = request.data.get('object_id')
+            if not model_class.objects.filter(id=object_id).exists():
+                return Response({'object_id': 'Referenced object not found.'}, status=status.HTTP_404_NOT_FOUND)
 
         # Check if conversation already exists (either direction)
         existing_conversation = Conversation.objects.filter(
