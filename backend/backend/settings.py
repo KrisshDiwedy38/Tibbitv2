@@ -238,5 +238,26 @@ SIMPLE_JWT = {
    'AUTH_HEADER_TYPES' : ('Bearer',)
 }
 
+# Requests with a Host header not in ALLOWED_HOSTS raise DisallowedHost, which
+# Django's default logging config reports at ERROR level on every occurrence —
+# expected/routine (bots, scanners, a stale/misconfigured ALLOWED_HOSTS entry),
+# not an application error, so keep it out of the error log without silencing
+# real errors.
+LOGGING = {
+   'version': 1,
+   'disable_existing_loggers': False,
+   'handlers': {
+      'null': {
+         'class': 'logging.NullHandler',
+      },
+   },
+   'loggers': {
+      'django.security.DisallowedHost': {
+         'handlers': ['null'],
+         'propagate': False,
+      },
+   },
+}
+
 
 
