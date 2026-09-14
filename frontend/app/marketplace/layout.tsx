@@ -174,7 +174,11 @@ function MarketplaceLayoutContent({
                   {user.first_name || user.email.split('@')[0]}
                 </span>
                 <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center overflow-hidden border border-primary/30">
-                  <UserIcon className="w-4 h-4 text-primary" />
+                  {user.profile_picture ? (
+                    <img src={user.profile_picture} alt="" className="w-full h-full object-cover" />
+                  ) : (
+                    <UserIcon className="w-4 h-4 text-primary" />
+                  )}
                 </div>
               </button>
 
