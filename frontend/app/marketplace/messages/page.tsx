@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useState, useRef, Suspense } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { api, extractDRFError } from "@/lib/api";
-import { listingHref } from "@/lib/utils";
+import { listingHref, formatListingPrice } from "@/lib/utils";
 import Link from "next/link";
 import VerifyExchangeModal from "@/components/modals/VerifyExchangeModal";
 import ReviewModal from "@/components/modals/ReviewModal";
@@ -44,6 +44,7 @@ interface ContextDetails {
   slug?: string | null;
   title: string;
   price?: string;
+  pricing_unit?: string;
   image?: string | null;
   status?: string;
   type: string;
@@ -110,7 +111,6 @@ interface TransactionData {
 
 function MessagesContent() {
   const { user } = useAuth();
-  const router = useRouter();
   const searchParams = useSearchParams();
 
   const conversationParam = searchParams.get("conversation");
@@ -139,6 +139,7 @@ function MessagesContent() {
   const [copiedOtp, setCopiedOtp] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const didInitRef = useRef(false);
   const partnerName = selectedConversation?.other_user?.name || "Peer";
   const partnerFirstName = partnerName.split(" ")[0];
   const isCurrentUserSeller = Boolean(
@@ -215,8 +216,13 @@ function MessagesContent() {
     }
   };
 
-  // Initial load and URL param handling
+  // Initial load and URL param handling — runs once; conversation switches after
+  // this are handled purely via local state (see handleSelectConversation) so they
+  // never re-trigger this effect or refetch the conversation list.
   useEffect(() => {
+    if (didInitRef.current) return;
+    didInitRef.current = true;
+
     const init = async () => {
       if (sellerParam) {
         try {
@@ -258,7 +264,7 @@ function MessagesContent() {
           fetchTransactionContext(false);
         }
       }
-    }, 4000);
+    }, 8000);
 
     return () => clearInterval(interval);
   }, [selectedConversation?.id, isVerifyModalOpen, isReviewModalOpen]);
@@ -386,7 +392,16 @@ function MessagesContent() {
   );
 
   return (
-    <div className="bg-surface-container border-2 border-outline-variant/30 rounded-3xl overflow-hidden shadow-2xl flex flex-col h-[calc(100vh-140px)] min-h-[580px] animate-fade-in-up">
+    <div className="space-y-3 animate-fade-in-up">
+      <Link
+        href="/marketplace"
+        className="hidden md:inline-flex items-center gap-2 px-4 py-2 bg-surface-container border-2 border-outline-variant/30 rounded-xl text-sm font-bold text-on-surface-variant hover:text-primary hover:border-primary/50 hover:-translate-x-0.5 transition-all"
+      >
+        <ArrowLeft className="w-4 h-4" />
+        Back to Feed
+      </Link>
+
+      <div className="bg-surface-container border-2 border-outline-variant/30 rounded-3xl overflow-hidden shadow-2xl flex flex-col h-[calc(100vh-190px)] min-h-[520px]">
       <div className="flex flex-1 overflow-hidden relative">
         {/* Left: Conversation List */}
         <div className={`w-full md:w-80 lg:w-96 border-r border-outline-variant/20 flex flex-col bg-surface-container ${
@@ -440,7 +455,10 @@ function MessagesContent() {
                     onClick={() => {
                       setSelectedConversation(conv);
                       setShowMobileChat(true);
-                      router.replace(`/marketplace/messages?conversation=${conv.id}`, { scroll: false });
+                      // Sync the URL without going through Next's router — a router.replace()
+                      // here re-triggers the useSearchParams Suspense boundary and refetches
+                      // the whole conversation list, which looked like a full page reload.
+                      window.history.replaceState(null, "", `/marketplace/messages?conversation=${conv.id}`);
                     }}
                     className={`w-full p-4 text-left flex items-start gap-3 transition-colors hover:bg-surface-container-highest/60 cursor-pointer ${
                       isSelected ? "bg-surface-container-highest border-l-4 border-primary" : ""
@@ -481,7 +499,7 @@ function MessagesContent() {
                           <Package className="w-3 h-3 shrink-0" />
                           <span className="truncate">{conv.context_details.title}</span>
                           {conv.context_details.price && (
-                            <span className="text-on-surface ml-0.5 font-bold">₹{parseFloat(conv.context_details.price).toLocaleString('en-IN')}</span>
+                            <span className="text-on-surface ml-0.5 font-bold">{formatListingPrice(conv.context_details.price, conv.context_details.pricing_unit)}</span>
                           )}
                         </div>
                       )}
@@ -504,12 +522,6 @@ function MessagesContent() {
         }`}>
           {selectedConversation ? (
             <>
-              <div className="px-4 pt-4 md:pt-5">
-                <Link href="/marketplace" className="inline-flex items-center gap-2 text-sm font-bold text-on-surface-variant hover:text-primary transition-colors">
-                  <ArrowLeft className="w-4 h-4" />
-                  Back to Feed
-                </Link>
-              </div>
               {/* Chat Top Header */}
               <div className="p-4 border-b border-outline-variant/20 flex items-center justify-between bg-surface-container shrink-0">
                 <div className="flex items-center gap-3">
@@ -555,7 +567,7 @@ function MessagesContent() {
                       <img
                         src={selectedConversation.context_details.image}
                         alt=""
-                        className="w-8 h-8 rounded-lg object-cover"
+                        className="w-8 h-8 rounded-lg object-contain bg-surface-container-highest"
                       />
                     ) : (
                       <div className="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center text-on-surface-variant">
@@ -568,7 +580,7 @@ function MessagesContent() {
                       </p>
                       {selectedConversation.context_details.price && (
                         <p className="text-[10px] font-black text-primary font-['Space_Grotesk']">
-                          ₹{parseFloat(selectedConversation.context_details.price).toLocaleString('en-IN')}
+                          {formatListingPrice(selectedConversation.context_details.price, selectedConversation.context_details.pricing_unit)}
                         </p>
                       )}
                     </div>
@@ -820,6 +832,7 @@ function MessagesContent() {
             </div>
           )}
         </div>
+      </div>
       </div>
 
       {/* Layer 5 Modals */}

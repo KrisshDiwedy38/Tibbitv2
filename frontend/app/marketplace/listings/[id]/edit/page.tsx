@@ -4,18 +4,21 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { api, extractDRFError } from "@/lib/api";
+import { resizeImageFile } from "@/lib/image";
 import Link from "next/link";
-import { 
-  ArrowLeft, 
-  Upload, 
-  X, 
-  Loader2, 
-  IndianRupee, 
-  Tag, 
-  MapPin, 
-  AlignLeft, 
+import {
+  ArrowLeft,
+  Upload,
+  X,
+  Loader2,
+  IndianRupee,
+  Tag,
+  MapPin,
+  AlignLeft,
   Sparkles,
-  Check
+  Check,
+  Package,
+  Wrench
 } from "lucide-react";
 
 interface Category {
@@ -36,12 +39,14 @@ export default function EditListingPage() {
   const router = useRouter();
 
   const [categories, setCategories] = useState<Category[]>([]);
+  const [listingType, setListingType] = useState<"product" | "service">("product");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
   const [category, setCategory] = useState<string>("");
   const [condition, setCondition] = useState("good");
   const [location, setLocation] = useState("");
+  const isService = listingType === "service";
   const [existingImages, setExistingImages] = useState<ListingImage[]>([]);
   const [newImages, setNewImages] = useState<File[]>([]);
   const [newImagePreviews, setNewImagePreviews] = useState<string[]>([]);
@@ -73,6 +78,7 @@ export default function EditListingPage() {
         setDescription(listing.description || "");
         setPrice(String(Math.round(listing.price) || listing.price || ""));
         setCategory(listing.category ? String(listing.category) : "");
+        setListingType(listing.listing_type === "service" ? "service" : "product");
         setCondition(listing.condition || "good");
         setLocation(listing.location || "");
         setExistingImages(listing.images || []);
@@ -89,21 +95,21 @@ export default function EditListingPage() {
     }
   }, [id, user]);
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      const filesArray = Array.from(e.target.files);
-      const totalImages = existingImages.length + newImages.length + filesArray.length;
-      
-      if (totalImages > 5) {
-        setErrorMsg("Maximum 5 photos allowed per listing.");
-        return;
-      }
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files) return;
+    const filesArray = Array.from(e.target.files);
+    const totalImages = existingImages.length + newImages.length + filesArray.length;
 
-      setNewImages(prev => [...prev, ...filesArray]);
-      const newPreviews = filesArray.map(file => URL.createObjectURL(file));
-      setNewImagePreviews(prev => [...prev, ...newPreviews]);
-      setErrorMsg("");
+    if (totalImages > 5) {
+      setErrorMsg("Maximum 5 photos allowed per listing.");
+      return;
     }
+
+    const resized = await Promise.all(filesArray.map(f => resizeImageFile(f)));
+    setNewImages(prev => [...prev, ...resized]);
+    const newPreviews = resized.map(file => URL.createObjectURL(file));
+    setNewImagePreviews(prev => [...prev, ...newPreviews]);
+    setErrorMsg("");
   };
 
   const removeNewImage = (index: number) => {
@@ -122,8 +128,10 @@ export default function EditListingPage() {
       formData.append("title", title.trim());
       formData.append("description", description.trim());
       formData.append("price", price);
-      if (category) formData.append("category", category);
-      formData.append("condition", condition);
+      if (category && !isService) formData.append("category", category);
+      formData.append("listing_type", listingType);
+      formData.append("pricing_unit", isService ? "hourly" : "fixed");
+      if (!isService) formData.append("condition", condition);
       formData.append("location", location.trim());
 
       newImages.forEach(image => {
@@ -186,6 +194,37 @@ export default function EditListingPage() {
       )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Product / Service Toggle */}
+        <div className="space-y-3">
+          <label className="block text-xs font-bold text-on-surface uppercase tracking-wider">
+            Listing Type
+          </label>
+          <div className="grid grid-cols-2 gap-4">
+            <button
+              type="button"
+              onClick={() => setListingType("product")}
+              className={`flex items-center justify-center gap-2 py-3 px-4 rounded-xl border-2 font-black text-sm uppercase tracking-tight transition-all ${
+                !isService
+                  ? "bg-primary-container text-on-primary-container border-black shadow-sm"
+                  : "bg-surface border-outline-variant/30 text-on-surface-variant hover:border-primary/40"
+              }`}
+            >
+              <Package className="w-4 h-4" /> Product
+            </button>
+            <button
+              type="button"
+              onClick={() => setListingType("service")}
+              className={`flex items-center justify-center gap-2 py-3 px-4 rounded-xl border-2 font-black text-sm uppercase tracking-tight transition-all ${
+                isService
+                  ? "bg-primary-container text-on-primary-container border-black shadow-sm"
+                  : "bg-surface border-outline-variant/30 text-on-surface-variant hover:border-primary/40"
+              }`}
+            >
+              <Wrench className="w-4 h-4" /> Service
+            </button>
+          </div>
+        </div>
+
         {/* Title */}
         <div>
           <label className="block text-xs font-bold text-on-surface uppercase tracking-wider mb-2">
@@ -201,49 +240,51 @@ export default function EditListingPage() {
           />
         </div>
 
-        {/* Category & Condition */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-xs font-bold text-on-surface uppercase tracking-wider mb-2">
-              Category
-            </label>
-            <select
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              className="w-full px-4 py-3 bg-surface border-2 border-outline-variant/30 rounded-xl text-sm font-medium text-on-surface focus:outline-none focus:border-primary transition-colors cursor-pointer"
-            >
-              <option value="">Select Category</option>
-              {categories.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
-          </div>
+        {/* Category & Condition — products only */}
+        {!isService && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-bold text-on-surface uppercase tracking-wider mb-2">
+                Category
+              </label>
+              <select
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                className="w-full px-4 py-3 bg-surface border-2 border-outline-variant/30 rounded-xl text-sm font-medium text-on-surface focus:outline-none focus:border-primary transition-colors cursor-pointer"
+              >
+                <option value="">Select Category</option>
+                {categories.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-          <div>
-            <label className="block text-xs font-bold text-on-surface uppercase tracking-wider mb-2">
-              Condition
-            </label>
-            <select
-              value={condition}
-              onChange={(e) => setCondition(e.target.value)}
-              className="w-full px-4 py-3 bg-surface border-2 border-outline-variant/30 rounded-xl text-sm font-medium text-on-surface focus:outline-none focus:border-primary transition-colors cursor-pointer"
-            >
-              <option value="new">Brand New / Sealed</option>
-              <option value="like_new">Like New (Barely used)</option>
-              <option value="good">Good (Minor wear)</option>
-              <option value="fair">Fair (Visible use, works fully)</option>
-              <option value="poor">Poor (For parts / repair)</option>
-            </select>
+            <div>
+              <label className="block text-xs font-bold text-on-surface uppercase tracking-wider mb-2">
+                Condition
+              </label>
+              <select
+                value={condition}
+                onChange={(e) => setCondition(e.target.value)}
+                className="w-full px-4 py-3 bg-surface border-2 border-outline-variant/30 rounded-xl text-sm font-medium text-on-surface focus:outline-none focus:border-primary transition-colors cursor-pointer"
+              >
+                <option value="new">Brand New / Sealed</option>
+                <option value="like_new">Like New (Barely used)</option>
+                <option value="good">Good (Minor wear)</option>
+                <option value="fair">Fair (Visible use, works fully)</option>
+                <option value="poor">Poor (For parts / repair)</option>
+              </select>
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Price & Location */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="block text-xs font-bold text-on-surface uppercase tracking-wider mb-2">
-              Price (₹)
+              {isService ? "Hourly Rate (₹/hr)" : "Price (₹)"}
             </label>
             <div className="relative">
               <IndianRupee className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-on-surface-variant" />
@@ -302,8 +343,8 @@ export default function EditListingPage() {
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-3">
             {/* Existing Images */}
             {existingImages.map((img) => (
-              <div key={img.id} className="relative aspect-square rounded-xl overflow-hidden border border-outline-variant/30 group">
-                <img src={img.image} alt="" className="w-full h-full object-cover" />
+              <div key={img.id} className="relative aspect-square rounded-xl overflow-hidden border border-outline-variant/30 bg-surface-container-highest group">
+                <img src={img.image} alt="" className="w-full h-full object-contain" />
                 <span className="absolute bottom-1 left-1 px-1.5 py-0.5 bg-black/60 text-white rounded text-[9px] font-bold">
                   Current
                 </span>
@@ -312,8 +353,8 @@ export default function EditListingPage() {
 
             {/* New Previews */}
             {newImagePreviews.map((preview, i) => (
-              <div key={i} className="relative aspect-square rounded-xl overflow-hidden border-2 border-primary group">
-                <img src={preview} alt="" className="w-full h-full object-cover" />
+              <div key={i} className="relative aspect-square rounded-xl overflow-hidden border-2 border-primary bg-surface-container-highest group">
+                <img src={preview} alt="" className="w-full h-full object-contain" />
                 <button
                   type="button"
                   onClick={() => removeNewImage(i)}

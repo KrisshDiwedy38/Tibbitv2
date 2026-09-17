@@ -16,3 +16,12 @@ export function getAuthEntryHref(destination: "/launchpad" | "/community") {
 export function listingHref(id: number | string, slug?: string | null) {
   return `/marketplace/listings/${slug ? `${id}-${slug}` : id}`;
 }
+
+export function formatListingPrice(price: string | number, pricingUnit?: string | null) {
+  const amount = `₹${parseFloat(String(price)).toLocaleString('en-IN')}`;
+  return pricingUnit === 'hourly' ? `${amount}/hr` : amount;
+}
+
+export function soldOutLabel(listingType?: string | null) {
+  return listingType === 'service' ? 'BOOKED' : 'SOLD OUT';
+}

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { api } from "@/lib/api";
-import { listingHref } from "@/lib/utils";
+import { listingHref, formatListingPrice, soldOutLabel } from "@/lib/utils";
 import Link from "next/link";
 import { 
   ArrowLeft, 
@@ -35,7 +35,9 @@ interface ListingDetail {
   description: string;
   price: string;
   category_name: string | null;
-  condition: string;
+  listing_type: string;
+  pricing_unit: string;
+  condition: string | null;
   seller: number;
   seller_name: string;
   seller_username: string;
@@ -149,7 +151,7 @@ export default function ListingDetailPage() {
       <div className="flex items-center justify-between">
         <Link
           href="/marketplace"
-          className="inline-flex items-center gap-2 text-sm font-bold text-on-surface-variant hover:text-primary transition-colors"
+          className="hidden md:inline-flex items-center gap-2 px-4 py-2 bg-surface-container border-2 border-outline-variant/30 rounded-xl text-sm font-bold text-on-surface-variant hover:text-primary hover:border-primary/50 hover:-translate-x-0.5 transition-all"
         >
           <ArrowLeft className="w-4 h-4" /> Back to Feed
         </Link>
@@ -170,12 +172,12 @@ export default function ListingDetailPage() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* Left Column: Image Gallery */}
         <div className="lg:col-span-7 space-y-4">
-          <div className="aspect-square bg-surface-container border-2 border-outline-variant/30 rounded-2xl overflow-hidden relative group">
+          <div className="aspect-square bg-surface-container-highest border-2 border-outline-variant/30 rounded-2xl overflow-hidden relative group">
             {listing.images && listing.images.length > 0 ? (
               <img
                 src={listing.images[activeImageIndex]?.image}
                 alt={listing.title}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-contain"
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center text-on-surface-variant/40">
@@ -183,11 +185,13 @@ export default function ListingDetailPage() {
               </div>
             )}
 
-            <div className="absolute top-4 right-4">
-              <span className="px-3 py-1 bg-surface/90 backdrop-blur-md rounded-full text-xs font-bold text-primary border border-white/10 uppercase">
-                {formatCondition(listing.condition)}
-              </span>
-            </div>
+            {listing.condition && (
+              <div className="absolute top-4 right-4">
+                <span className="px-3 py-1 bg-surface/90 backdrop-blur-md rounded-full text-xs font-bold text-primary border border-white/10 uppercase">
+                  {formatCondition(listing.condition)}
+                </span>
+              </div>
+            )}
           </div>
 
           {/* Thumbnail Selector */}
@@ -197,13 +201,13 @@ export default function ListingDetailPage() {
                 <button
                   key={img.id}
                   onClick={() => setActiveImageIndex(idx)}
-                  className={`w-20 h-20 rounded-xl overflow-hidden border-2 transition-all ${
+                  className={`w-20 h-20 rounded-xl overflow-hidden border-2 bg-surface-container-highest transition-all ${
                     activeImageIndex === idx
                       ? "border-primary scale-105"
                       : "border-outline-variant/30 opacity-70 hover:opacity-100"
                   }`}
                 >
-                  <img src={img.image} alt="" className="w-full h-full object-cover" />
+                  <img src={img.image} alt="" className="w-full h-full object-contain" />
                 </button>
               ))}
             </div>
@@ -227,14 +231,14 @@ export default function ListingDetailPage() {
                 </h1>
                 {listing.status === 'sold' && (
                   <span className="px-3 py-1 bg-error text-white font-black text-xs uppercase tracking-widest rounded-lg border-2 border-black shrink-0">
-                    SOLD OUT
+                    {soldOutLabel(listing.listing_type)}
                   </span>
                 )}
               </div>
 
               <div className="mt-4 flex items-baseline gap-2">
                 <span className="text-3xl font-black text-primary font-['Space_Grotesk']">
-                  ₹{parseFloat(listing.price).toLocaleString('en-IN')}
+                  {formatListingPrice(listing.price, listing.pricing_unit)}
                 </span>
                 <span className="text-xs text-on-surface-variant uppercase font-bold">INR</span>
               </div>
@@ -243,7 +247,7 @@ export default function ListingDetailPage() {
             <div className="space-y-3 pt-4 border-t border-outline-variant/20 text-xs text-on-surface-variant font-medium">
               <div className="flex items-center gap-2">
                 <MapPin className="w-4 h-4 text-primary" />
-                <span>Pickup location: <strong className="text-on-surface">{listing.location}</strong></span>
+                <span>Location: <strong className="text-on-surface">{listing.location}</strong></span>
               </div>
               <div className="flex items-center gap-2">
                 <Clock className="w-4 h-4 text-primary" />
@@ -256,7 +260,9 @@ export default function ListingDetailPage() {
               {!isSeller ? (
                 listing.status === 'sold' ? (
                   <div className="p-4 rounded-xl bg-error/10 border-2 border-error/30 text-error text-center font-bold text-sm">
-                    This item has already been marked as sold.
+                    {listing.listing_type === 'service'
+                      ? "This service is already booked."
+                      : "This item has already been marked as sold."}
                   </div>
                 ) : (
                   <button

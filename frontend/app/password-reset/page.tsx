@@ -33,8 +33,8 @@ export default function PasswordResetPage() {
     <main className="relative min-h-screen flex items-center justify-center px-4 py-16 sm:px-8">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <Link href="/" className="inline-block text-3xl font-black italic uppercase tracking-tighter text-primary-container hover:scale-105 transition-transform duration-200">
-            TIBBIT
+          <Link href="/" className="inline-flex items-center justify-center hover:scale-105 transition-transform duration-200">
+            <img src="/images/tibbit-logo-big.png" alt="Tibbit" className="h-[100px] w-auto" />
           </Link>
           <h1 className="mt-6 text-3xl sm:text-4xl font-black uppercase tracking-tighter text-on-surface">
             Reset password

@@ -93,6 +93,8 @@ class ConversationSerializer(serializers.ModelSerializer):
                 'slug': listing.slug,
                 'title': listing.title,
                 'price': str(listing.price),
+                'pricing_unit': listing.pricing_unit,
+                'listing_type': listing.listing_type,
                 'image': image_url,
                 'status': listing.status,
                 'type': 'listing'

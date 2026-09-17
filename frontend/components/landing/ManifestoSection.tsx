@@ -2,24 +2,25 @@ export default function ManifestoSection() {
   return (
     <section className="px-4 sm:px-8 md:px-16 lg:px-20 py-16 sm:py-24 lg:py-32 flex flex-col items-center text-center" id="manifesto">
       <h2 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-black uppercase tracking-tighter leading-none mb-10 sm:mb-14">
-        OUR <span className="text-tertiary">MANIFESTO</span>
+        FOUNDER&apos;S <span className="text-tertiary">NOTE</span>
       </h2>
-      <div className="max-w-5xl space-y-8 sm:space-y-10">
-        <div className="relative bg-[#0e0e0e]/80 backdrop-blur-xl p-5 sm:p-8 border-4 border-black overflow-hidden group text-center">
+      <div className="max-w-3xl w-full">
+        <div className="relative bg-[#0e0e0e]/80 backdrop-blur-xl p-6 sm:p-10 border-4 border-black overflow-hidden group text-left">
           {/* Translucent Tint */}
           <div className="pointer-events-none absolute inset-0 z-0 opacity-[0.05] mix-blend-screen bg-tertiary transition-opacity duration-300 group-hover:opacity-[0.1]" />
-          <p className="relative z-10 text-base sm:text-lg lg:text-xl leading-relaxed text-white font-bold">
-            TIBBIT is more than a marketplace. It&apos;s the digital infrastructure for the ambitious. We believe your university years are the ultimate sandbox for experimentation, which is why we built a frictionless ecosystem with zero gatekeepers and no padded resumes. Whether you&apos;re buying and selling locally, monetizing your freelance skills, finding your next co-founder, or launching a startup to early adopters, TIBBIT is where the next generation of builders stops planning and starts shipping.
-          </p>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8 text-left">
-          <div>
-            <h4 className="text-primary-container font-black uppercase tracking-widest text-xs mb-2">Tenet 01</h4>
-            <p className="text-white/50 text-sm"><strong>Zero Friction.</strong> We build tools that get out of your way. Every feature is optimized to take you from idea to execution instantly.</p>
+
+          <div className="relative z-10 space-y-4 sm:space-y-5 text-sm sm:text-base lg:text-lg leading-relaxed text-white/90 font-medium">
+            <p>we spent four years in college relying on &quot;knowing a guy.&quot;</p>
+            <p>a lab kit, a textbook, five minutes of someone who&apos;d already solved the problem you&apos;re stuck on, it all exists somewhere on campus. you just have no way to find it.</p>
+            <p>we think that&apos;s not a trust problem, it&apos;s an access problem.</p>
+            <p>so we built tibbit to give every student the same shot, without needing to already know the right people.</p>
+            <p>marketplace is live. launchpad and community are next. more universities getting approved every week.</p>
+            <p className="text-white font-bold">it&apos;s early! join the waitlist and help us build it.</p>
           </div>
-          <div>
-            <h4 className="text-primary-container font-black uppercase tracking-widest text-xs mb-2">Tenet 02</h4>
-            <p className="text-white/50 text-sm"><strong>Absolute Trust.</strong> A walled garden for the ambitious. Ironclad academic authentication means no strangers, no bots, and no stress.</p>
+
+          <div className="relative z-10 mt-6 sm:mt-8 pt-5 sm:pt-6 border-t border-white/10">
+            <p className="text-primary-container font-black uppercase tracking-widest text-base sm:text-lg">krissh,</p>
+            <p className="text-white/50 font-bold uppercase tracking-widest text-[10px] sm:text-xs">founder</p>
           </div>
         </div>
       </div>

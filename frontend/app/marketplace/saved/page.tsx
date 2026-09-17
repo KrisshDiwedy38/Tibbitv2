@@ -2,15 +2,16 @@
 
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
-import { listingHref } from "@/lib/utils";
+import { listingHref, formatListingPrice } from "@/lib/utils";
 import Link from "next/link";
-import { 
-  ArrowLeft, 
-  Heart, 
-  Package, 
-  Loader2, 
-  MapPin, 
-  Trash2 
+import ListingGridSkeleton from "@/components/marketplace/ListingGridSkeleton";
+import {
+  ArrowLeft,
+  Heart,
+  Package,
+  Loader2,
+  MapPin,
+  Trash2
 } from "lucide-react";
 
 interface SavedListingItem {
@@ -23,7 +24,8 @@ interface SavedListingItem {
     description: string;
     price: string;
     category_name: string | null;
-    condition: string;
+    pricing_unit: string;
+    condition: string | null;
     seller_name: string;
     location: string;
     images: { id: number; image: string }[];
@@ -69,7 +71,7 @@ export default function SavedListingsPage() {
       <div className="flex items-center justify-between">
         <Link
           href="/marketplace"
-          className="inline-flex items-center gap-2 text-sm font-bold text-on-surface-variant hover:text-primary transition-colors"
+          className="hidden md:inline-flex items-center gap-2 px-4 py-2 bg-surface-container border-2 border-outline-variant/30 rounded-xl text-sm font-bold text-on-surface-variant hover:text-primary hover:border-primary/50 hover:-translate-x-0.5 transition-all"
         >
           <ArrowLeft className="w-4 h-4" /> Back to Feed
         </Link>
@@ -88,10 +90,7 @@ export default function SavedListingsPage() {
       </div>
 
       {isLoading ? (
-        <div className="flex flex-col items-center justify-center py-20">
-          <Loader2 className="w-10 h-10 animate-spin text-primary mb-4" />
-          <p className="text-sm font-semibold text-on-surface-variant">Loading saved items...</p>
-        </div>
+        <ListingGridSkeleton />
       ) : savedItems.length === 0 ? (
         <div className="bg-surface-container border-2 border-dashed border-outline-variant/30 rounded-2xl p-12 text-center max-w-md mx-auto my-8">
           <Heart className="w-12 h-12 text-on-surface-variant/40 mx-auto mb-4" />
@@ -120,7 +119,7 @@ export default function SavedListingsPage() {
                   <img
                     src={listing.images[0].image}
                     alt={listing.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-on-surface-variant/40">
@@ -129,7 +128,7 @@ export default function SavedListingsPage() {
                 )}
 
                 <div className="absolute bottom-3 left-3 bg-surface/90 backdrop-blur-md px-3 py-1 rounded-lg border border-white/10 font-black text-sm text-primary">
-                  ₹{parseFloat(listing.price).toLocaleString('en-IN')}
+                  {formatListingPrice(listing.price, listing.pricing_unit)}
                 </div>
 
                 <button

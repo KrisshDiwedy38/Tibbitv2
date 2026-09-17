@@ -46,6 +46,11 @@ class Listings(models.Model):
       ('service', 'Service'),
    ]
 
+   PRICING_UNIT_CHOICES = [
+      ('fixed', 'Fixed'),
+      ('hourly', 'Per Hour'),
+   ]
+
    # Condition choices
    CONDITION_CHOICES = [
       ('new', 'New'),
@@ -76,6 +81,11 @@ class Listings(models.Model):
       max_length=20,
       choices=LISTING_TYPE_CHOICES,
       default='product'
+   )
+   pricing_unit = models.CharField(
+      max_length=20,
+      choices=PRICING_UNIT_CHOICES,
+      default='fixed'
    )
    condition = models.CharField(
       max_length=20,

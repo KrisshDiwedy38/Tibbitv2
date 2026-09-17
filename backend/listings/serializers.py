@@ -23,7 +23,7 @@ class ListingSerializer(serializers.ModelSerializer):
         model = Listings
         fields = [
             'id', 'slug', 'title', 'description', 'price', 'category', 'category_name',
-            'listing_type', 'condition', 'seller', 'seller_name', 'seller_username', 'seller_avatar',
+            'listing_type', 'pricing_unit', 'condition', 'seller', 'seller_name', 'seller_username', 'seller_avatar',
             'location', 'status', 'views_count', 'is_saved', 'created_at',
             'updated_at', 'expires_at', 'images'
         ]
@@ -56,10 +56,18 @@ class ListingCreateUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Listings
         fields = [
-            'id', 'slug', 'title', 'description', 'price', 'category', 'condition',
+            'id', 'slug', 'title', 'description', 'price', 'category',
+            'listing_type', 'pricing_unit', 'condition',
             'location', 'status', 'uploaded_images'
         ]
         read_only_fields = ['slug']
+
+    def validate(self, attrs):
+        listing_type = attrs.get('listing_type', getattr(self.instance, 'listing_type', 'product'))
+        if listing_type == 'service':
+            attrs['condition'] = None
+            attrs['category'] = None
+        return attrs
 
     def create(self, validated_data):
         uploaded_images = validated_data.pop('uploaded_images', [])

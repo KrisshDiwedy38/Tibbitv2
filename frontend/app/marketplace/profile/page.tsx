@@ -113,29 +113,29 @@ export default function ProfilePage() {
   return (
     <div className="max-w-4xl mx-auto space-y-8 animate-fade-in-up pb-12">
       {/* Top Bar */}
-      <div className="flex items-center justify-between">
-        <Link
-          href="/marketplace"
-          className="inline-flex items-center gap-2 text-sm font-bold text-on-surface-variant hover:text-primary transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4" /> Back to Feed
-        </Link>
-
+      <div className="flex items-center justify-between flex-wrap gap-3">
         <div className="flex items-center gap-3">
+          <Link
+            href="/marketplace"
+            className="hidden md:inline-flex items-center gap-2 px-4 py-2 bg-surface-container border-2 border-outline-variant/30 rounded-xl text-sm font-bold text-on-surface-variant hover:text-primary hover:border-primary/50 hover:-translate-x-0.5 transition-all"
+          >
+            <ArrowLeft className="w-4 h-4" /> Back to Feed
+          </Link>
+
           <Link
             href="/marketplace/my-listings"
             className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-surface-container border-2 border-outline-variant/40 text-on-surface font-bold text-xs hover:border-primary hover:text-primary transition-all"
           >
             <Package className="w-4 h-4 text-primary" /> Manage My Listings
           </Link>
-
-          <button
-            onClick={logout}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-surface-container border border-error/30 text-error font-bold text-xs hover:bg-error hover:text-white transition-all cursor-pointer"
-          >
-            <LogOut className="w-4 h-4" /> Sign Out
-          </button>
         </div>
+
+        <button
+          onClick={logout}
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-surface-container border border-error/30 text-error font-bold text-xs hover:bg-error hover:text-white transition-all cursor-pointer"
+        >
+          <LogOut className="w-4 h-4" /> Sign Out
+        </button>
       </div>
 
       {/* User Hero Card */}
