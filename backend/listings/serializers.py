@@ -22,7 +22,7 @@ class ListingSerializer(serializers.ModelSerializer):
     class Meta:
         model = Listings
         fields = [
-            'id', 'slug', 'title', 'description', 'price', 'category', 'category_name',
+            'id', 'slug', 'title', 'description', 'price', 'quantity', 'category', 'category_name',
             'listing_type', 'pricing_unit', 'condition', 'seller', 'seller_name', 'seller_username', 'seller_avatar',
             'location', 'status', 'views_count', 'is_saved', 'created_at',
             'updated_at', 'expires_at', 'images'
@@ -56,7 +56,7 @@ class ListingCreateUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Listings
         fields = [
-            'id', 'slug', 'title', 'description', 'price', 'category',
+            'id', 'slug', 'title', 'description', 'price', 'quantity', 'category',
             'listing_type', 'pricing_unit', 'condition',
             'location', 'status', 'uploaded_images'
         ]
@@ -67,6 +67,7 @@ class ListingCreateUpdateSerializer(serializers.ModelSerializer):
         if listing_type == 'service':
             attrs['condition'] = None
             attrs['category'] = None
+            attrs['pricing_unit'] = 'hourly'
         return attrs
 
     def create(self, validated_data):

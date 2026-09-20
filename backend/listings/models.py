@@ -69,6 +69,7 @@ class Listings(models.Model):
       decimal_places=2,
       validators= [MinValueValidator(0)]
       )
+   quantity = models.PositiveIntegerField(default=1)
 
    # Categorization 
    category = models.ForeignKey(
@@ -138,17 +139,23 @@ class Listings(models.Model):
       if not self.slug:
          from django.utils.text import slugify
          self.slug = slugify(self.title)
+      # Services are always priced hourly — enforce it here rather than trusting
+      # every caller (frontend forms, admin, scripts) to set it consistently.
+      if self.listing_type == 'service':
+         self.pricing_unit = 'hourly'
       super().save(*args, **kwargs)
 
    def increment_views(self):
       """Increment listing view count"""
       self.views_count += 1
       self.save(update_fields=['views_count'])
-   
-   def mark_as_sold(self):
-      """ Mark listing as sold"""
-      self.status = 'sold'
-      self.save(update_fields=['status'])
+
+   def reduce_quantity(self, amount=1):
+      """Reduce remaining quantity after a completed trade; mark sold/booked out at zero."""
+      self.quantity = max(0, self.quantity - amount)
+      if self.quantity == 0:
+         self.status = 'sold'
+      self.save(update_fields=['quantity', 'status'])
 
    def is_active(self):
       """Checking if the listing is active"""

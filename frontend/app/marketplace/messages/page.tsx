@@ -347,15 +347,11 @@ function MessagesContent() {
       // no need for the extra for_context round trip that follows a fresh select.
       setActiveTransaction(res.data);
 
-      const priceStr = selectedConversation.context_details.price
-        ? `₹${parseFloat(selectedConversation.context_details.price).toLocaleString('en-IN')}`
-        : "";
-
       // Best-effort system message: the trade already succeeded above, so a
       // failure here is logged but not surfaced as a failed trade.
       try {
         const msgRes = await api.post(`/api/messaging/conversations/${selectedConversation.id}/messages/`, {
-          content: `🤝 Initiated safe on-campus trade${priceStr ? ` for ${priceStr}` : ""}. Verify 6-digit exchange codes when meeting in person to confirm!`
+          content: `🤝 Initiated safe on-campus trade. Verify 6-digit exchange codes when meeting in person to confirm!`
         });
         setMessages(prev => [...prev, msgRes.data]);
       } catch (msgErr) {

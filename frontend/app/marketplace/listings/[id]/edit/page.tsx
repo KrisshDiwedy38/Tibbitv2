@@ -43,6 +43,7 @@ export default function EditListingPage() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
+  const [quantity, setQuantity] = useState("1");
   const [category, setCategory] = useState<string>("");
   const [condition, setCondition] = useState("good");
   const [location, setLocation] = useState("");
@@ -77,6 +78,7 @@ export default function EditListingPage() {
         setTitle(listing.title || "");
         setDescription(listing.description || "");
         setPrice(String(Math.round(listing.price) || listing.price || ""));
+        setQuantity(String(listing.quantity ?? 1));
         setCategory(listing.category ? String(listing.category) : "");
         setListingType(listing.listing_type === "service" ? "service" : "product");
         setCondition(listing.condition || "good");
@@ -128,6 +130,7 @@ export default function EditListingPage() {
       formData.append("title", title.trim());
       formData.append("description", description.trim());
       formData.append("price", price);
+      formData.append("quantity", quantity);
       if (category && !isService) formData.append("category", category);
       formData.append("listing_type", listingType);
       formData.append("pricing_unit", isService ? "hourly" : "fixed");
@@ -280,8 +283,8 @@ export default function EditListingPage() {
           </div>
         )}
 
-        {/* Price & Location */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {/* Price, Quantity & Location */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
             <label className="block text-xs font-bold text-on-surface uppercase tracking-wider mb-2">
               {isService ? "Hourly Rate (₹/hr)" : "Price (₹)"}
@@ -299,6 +302,22 @@ export default function EditListingPage() {
                 className="w-full pl-10 pr-4 py-3 bg-surface border-2 border-outline-variant/30 rounded-xl text-sm font-medium text-on-surface focus:outline-none focus:border-primary transition-colors"
               />
             </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-on-surface uppercase tracking-wider mb-2">
+              {isService ? "Slots Available" : "Quantity"}
+            </label>
+            <input
+              type="number"
+              step="1"
+              min="1"
+              required
+              value={quantity}
+              onChange={(e) => setQuantity(e.target.value)}
+              placeholder="1"
+              className="w-full px-4 py-3 bg-surface border-2 border-outline-variant/30 rounded-xl text-sm font-medium text-on-surface focus:outline-none focus:border-primary transition-colors"
+            />
           </div>
 
           <div>

@@ -34,6 +34,7 @@ interface ListingDetail {
   title: string;
   description: string;
   price: string;
+  quantity: number;
   category_name: string | null;
   listing_type: string;
   pricing_unit: string;
@@ -170,10 +171,12 @@ export default function ListingDetailPage() {
         </button>
       </div>
 
-      {/* Main Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+      {/* Main Grid — two columns from tablet (md) up, not just desktop (lg), so a
+          tablet in portrait or landscape gets a laptop-like layout instead of the
+          single stacked mobile column. */}
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-6 lg:gap-8">
         {/* Left Column: Image Gallery */}
-        <div className="lg:col-span-7 space-y-4">
+        <div className="md:col-span-7 space-y-4">
           <div className="aspect-square bg-surface-container-highest border-2 border-outline-variant/30 rounded-2xl overflow-hidden relative group">
             {listing.images && listing.images.length > 0 ? (
               <img
@@ -217,8 +220,8 @@ export default function ListingDetailPage() {
         </div>
 
         {/* Right Column: Listing Details & Actions */}
-        <div className="lg:col-span-5 space-y-6">
-          <div className="bg-surface-container border-2 border-outline-variant/30 rounded-2xl p-6 space-y-6">
+        <div className="md:col-span-5 space-y-6">
+          <div className="bg-surface-container border-2 border-outline-variant/30 rounded-2xl p-5 lg:p-6 space-y-6">
             <div>
               <div className="flex items-center justify-between text-xs font-bold text-primary uppercase mb-2">
                 <span>{listing.category_name || "General"}</span>
@@ -226,9 +229,9 @@ export default function ListingDetailPage() {
                   <Eye className="w-3.5 h-3.5" /> {listing.views_count} views
                 </span>
               </div>
-              
+
               <div className="flex items-start justify-between gap-4">
-                <h1 className="text-2xl sm:text-3xl font-black text-on-surface tracking-tight">
+                <h1 className="text-2xl lg:text-3xl font-black text-on-surface tracking-tight">
                   {listing.title}
                 </h1>
                 {listing.status === 'sold' && (
@@ -239,11 +242,19 @@ export default function ListingDetailPage() {
               </div>
 
               <div className="mt-4 flex items-baseline gap-2">
-                <span className="text-3xl font-black text-primary font-['Space_Grotesk']">
+                <span className="text-2xl lg:text-3xl font-black text-primary font-['Space_Grotesk']">
                   {formatListingPrice(listing.price, listing.pricing_unit)}
                 </span>
                 <span className="text-xs text-on-surface-variant uppercase font-bold">INR</span>
               </div>
+
+              {listing.status !== 'sold' && (
+                <p className="mt-1.5 text-xs font-bold text-on-surface-variant">
+                  {listing.quantity} {listing.listing_type === 'service'
+                    ? (listing.quantity === 1 ? "slot" : "slots")
+                    : (listing.quantity === 1 ? "left" : "left in stock")}
+                </p>
+              )}
             </div>
 
             <div className="space-y-3 pt-4 border-t border-outline-variant/20 text-xs text-on-surface-variant font-medium">
