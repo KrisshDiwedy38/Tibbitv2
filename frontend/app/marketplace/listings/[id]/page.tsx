@@ -60,6 +60,7 @@ export default function ListingDetailPage() {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [isStartingChat, setIsStartingChat] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -98,7 +99,8 @@ export default function ListingDetailPage() {
   };
 
   const handleStartConversation = async () => {
-    if (!listing) return;
+    if (!listing || isStartingChat) return;
+    setIsStartingChat(true);
     try {
       // Initialize or retrieve conversation
       const res = await api.post("/api/messaging/conversations/", {
@@ -267,9 +269,15 @@ export default function ListingDetailPage() {
                 ) : (
                   <button
                     onClick={handleStartConversation}
-                    className="w-full flex items-center justify-center gap-2 py-4 px-6 bg-primary-container text-on-primary-container font-black uppercase tracking-tighter border-4 border-black rounded-xl hover:-translate-y-0.5 transition-all text-base shadow-sm cursor-pointer"
+                    disabled={isStartingChat}
+                    className="w-full flex items-center justify-center gap-2 py-4 px-6 bg-primary-container text-on-primary-container font-black uppercase tracking-tighter border-4 border-black rounded-xl hover:-translate-y-0.5 transition-all text-base shadow-sm cursor-pointer disabled:opacity-60 disabled:pointer-events-none"
                   >
-                    <MessageSquare className="w-5 h-5" /> Message Seller
+                    {isStartingChat ? (
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                    ) : (
+                      <MessageSquare className="w-5 h-5" />
+                    )}
+                    {isStartingChat ? "Opening Chat..." : "Message Seller"}
                   </button>
                 )
               ) : (

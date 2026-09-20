@@ -9,6 +9,7 @@ from .serializers import ConversationSerializer, MessageSerializer
 from listings.models import Listings
 from launchpad.models import StartupProject
 from community.models import ForumPost
+from transactions.models import Transaction
 
 User = get_user_model()
 
@@ -18,13 +19,41 @@ ALLOWED_CONTEXT_MODELS = (Listings, StartupProject, ForumPost)
 class ConversationViewSet(viewsets.ModelViewSet):
     serializer_class = ConversationSerializer
     permission_classes = [permissions.IsAuthenticated]
-    http_method_names = ['get', 'post', 'head', 'options']
+    http_method_names = ['get', 'post', 'delete', 'head', 'options']
 
     def get_queryset(self):
         user = self.request.user
         return Conversation.objects.filter(
             Q(buyer=user) | Q(seller=user)
         ).select_related('buyer', 'seller', 'content_type').prefetch_related('messages')
+
+    def destroy(self, request, *args, **kwargs):
+        conversation = self.get_object()
+
+        # object_id is only a Listings pk when the conversation's context is a
+        # listing — it may also point at a StartupProject/ForumPost row, whose
+        # id could coincidentally collide with an unrelated listing's pk. Scope
+        # the trade lookup to listing-context conversations to avoid a false
+        # match (or miss) against Transaction.listing_id.
+        listing_content_type = ContentType.objects.get_for_model(Listings)
+        has_active_trade = (
+            conversation.content_type_id == listing_content_type.id
+            and conversation.object_id is not None
+            and Transaction.objects.filter(
+                Q(buyer=conversation.buyer, seller=conversation.seller) |
+                Q(buyer=conversation.seller, seller=conversation.buyer),
+                listing_id=conversation.object_id,
+                status='pending',
+            ).exists()
+        )
+
+        if has_active_trade:
+            return Response(
+                {'error': "This chat has an active trade with an unverified exchange code. Cancel or complete the trade before deleting the conversation."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        return super().destroy(request, *args, **kwargs)
 
     def create(self, request, *args, **kwargs):
         buyer = request.user

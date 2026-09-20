@@ -27,7 +27,9 @@ import {
   CheckCircle2,
   Handshake,
   Copy,
-  XCircle
+  XCircle,
+  Trash2,
+  X
 } from "lucide-react";
 
 interface OtherUser {
@@ -138,8 +140,13 @@ function MessagesContent() {
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
   const [copiedOtp, setCopiedOtp] = useState(false);
 
+  // Delete conversation
+  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+  const [isDeletingConversation, setIsDeletingConversation] = useState(false);
+  const [deleteConversationError, setDeleteConversationError] = useState<string | null>(null);
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const didInitRef = useRef(false);
+  const lastInitKeyRef = useRef<string | null>(null);
   const partnerName = selectedConversation?.other_user?.name || "Peer";
   const partnerFirstName = partnerName.split(" ")[0];
   const isCurrentUserSeller = Boolean(
@@ -220,8 +227,13 @@ function MessagesContent() {
   // this are handled purely via local state (see handleSelectConversation) so they
   // never re-trigger this effect or refetch the conversation list.
   useEffect(() => {
-    if (didInitRef.current) return;
-    didInitRef.current = true;
+    // Keyed on the params rather than a one-shot flag: a fresh "Message Seller"
+    // click while this page is already mounted (Next.js reuses the component
+    // across param-only navigations to the same route) changes conversationParam
+    // and must re-run; only truly repeated renders with the same params skip.
+    const initKey = `${conversationParam ?? ""}|${sellerParam ?? ""}|${listingParam ?? ""}`;
+    if (lastInitKeyRef.current === initKey) return;
+    lastInitKeyRef.current = initKey;
 
     const init = async () => {
       if (sellerParam) {
@@ -252,6 +264,7 @@ function MessagesContent() {
     if (selectedConversation) {
       fetchMessages(selectedConversation.id, true);
       fetchTransactionContext(true);
+      setDeleteConversationError(null);
     }
   }, [selectedConversation?.id]);
 
@@ -361,6 +374,28 @@ function MessagesContent() {
       console.error("Failed to cancel trade", err);
     } finally {
       setIsCancellingTrade(false);
+    }
+  };
+
+  // Delete conversation (backend rejects this while an unverified trade OTP is active)
+  const handleDeleteConversation = async () => {
+    if (!selectedConversation || isDeletingConversation) return;
+    setIsDeletingConversation(true);
+    setDeleteConversationError(null);
+
+    try {
+      await api.delete(`/api/messaging/conversations/${selectedConversation.id}/`);
+      const deletedId = selectedConversation.id;
+      setConversations(prev => prev.filter(c => c.id !== deletedId));
+      setSelectedConversation(null);
+      setShowMobileChat(false);
+      setIsDeleteConfirmOpen(false);
+      window.history.replaceState(null, "", "/marketplace/messages");
+    } catch (err: any) {
+      setIsDeleteConfirmOpen(false);
+      setDeleteConversationError(extractDRFError(err?.response?.data));
+    } finally {
+      setIsDeletingConversation(false);
     }
   };
 
@@ -557,37 +592,57 @@ function MessagesContent() {
                   </Link>
                 </div>
 
-                {/* Linked context card quick view */}
-                {selectedConversation.context_details && (
-                  <Link
-                    href={listingHref(selectedConversation.context_details.id, selectedConversation.context_details.slug)}
-                    className="flex items-center gap-3 p-1.5 pr-3 bg-surface hover:bg-surface-container-highest border border-outline-variant/30 rounded-xl transition-all group"
-                  >
-                    {selectedConversation.context_details.image ? (
-                      <img
-                        src={selectedConversation.context_details.image}
-                        alt=""
-                        className="w-8 h-8 rounded-lg object-contain bg-surface-container-highest"
-                      />
-                    ) : (
-                      <div className="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center text-on-surface-variant">
-                        <Package className="w-4 h-4" />
-                      </div>
-                    )}
-                    <div className="hidden sm:block text-left">
-                      <p className="text-[11px] font-bold text-on-surface group-hover:text-primary transition-colors max-w-[120px] truncate">
-                        {selectedConversation.context_details.title}
-                      </p>
-                      {selectedConversation.context_details.price && (
-                        <p className="text-[10px] font-black text-primary font-['Space_Grotesk']">
-                          {formatListingPrice(selectedConversation.context_details.price, selectedConversation.context_details.pricing_unit)}
-                        </p>
+                <div className="flex items-center gap-2">
+                  {/* Linked context card quick view */}
+                  {selectedConversation.context_details && (
+                    <Link
+                      href={listingHref(selectedConversation.context_details.id, selectedConversation.context_details.slug)}
+                      className="flex items-center gap-3 p-1.5 pr-3 bg-surface hover:bg-surface-container-highest border border-outline-variant/30 rounded-xl transition-all group"
+                    >
+                      {selectedConversation.context_details.image ? (
+                        <img
+                          src={selectedConversation.context_details.image}
+                          alt=""
+                          className="w-8 h-8 rounded-lg object-contain bg-surface-container-highest"
+                        />
+                      ) : (
+                        <div className="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center text-on-surface-variant">
+                          <Package className="w-4 h-4" />
+                        </div>
                       )}
-                    </div>
-                    <ExternalLink className="w-3.5 h-3.5 text-on-surface-variant group-hover:text-primary shrink-0" />
-                  </Link>
-                )}
+                      <div className="hidden sm:block text-left">
+                        <p className="text-[11px] font-bold text-on-surface group-hover:text-primary transition-colors max-w-[120px] truncate">
+                          {selectedConversation.context_details.title}
+                        </p>
+                        {selectedConversation.context_details.price && (
+                          <p className="text-[10px] font-black text-primary font-['Space_Grotesk']">
+                            {formatListingPrice(selectedConversation.context_details.price, selectedConversation.context_details.pricing_unit)}
+                          </p>
+                        )}
+                      </div>
+                      <ExternalLink className="w-3.5 h-3.5 text-on-surface-variant group-hover:text-primary shrink-0" />
+                    </Link>
+                  )}
+
+                  <button
+                    onClick={() => setIsDeleteConfirmOpen(true)}
+                    title="Delete conversation"
+                    className="p-2 rounded-xl hover:bg-error/10 text-on-surface-variant hover:text-error transition-colors shrink-0 cursor-pointer"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
+
+              {/* Delete-blocked warning (active trade OTP not yet verified) */}
+              {deleteConversationError && (
+                <div className="mx-4 mt-3 flex items-start gap-2 p-3 bg-error/10 border-2 border-error/30 rounded-xl text-xs font-bold text-error shrink-0">
+                  <span className="flex-1">{deleteConversationError}</span>
+                  <button onClick={() => setDeleteConversationError(null)} className="shrink-0 cursor-pointer">
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              )}
 
               {/* Layer 5: Interactive On-Campus Exchange Banner */}
               {selectedConversation.context_details && (
@@ -834,6 +889,20 @@ function MessagesContent() {
         </div>
       </div>
       </div>
+
+      {selectedConversation && (
+        <ConfirmModal
+          isOpen={isDeleteConfirmOpen}
+          onClose={() => setIsDeleteConfirmOpen(false)}
+          onConfirm={handleDeleteConversation}
+          title="Delete Conversation"
+          message={`Delete your conversation with ${partnerName}? This can't be undone. Blocked if there's an active trade with an unverified exchange code.`}
+          confirmLabel="Delete"
+          cancelLabel="Keep Chat"
+          variant="danger"
+          isLoading={isDeletingConversation}
+        />
+      )}
 
       {/* Layer 5 Modals */}
       {selectedConversation && activeTransaction && (

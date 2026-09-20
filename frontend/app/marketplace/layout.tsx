@@ -90,17 +90,13 @@ function MarketplaceLayoutContent({
     return () => clearInterval(interval);
   }, [user, pathname]);
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-surface">
-        <Loader2 className="w-10 h-10 animate-spin text-primary" />
-      </div>
-    );
-  }
-
-  if (!user) {
+  if (!isLoading && !user) {
     return null; // Will redirect in useEffect
   }
+
+  // Don't gate the whole page behind the auth check — that made every page load
+  // show the auth spinner, then a second spinner for the page's own data fetch.
+  // Render the shell immediately; only the user-specific chrome below waits.
 
   const tabs = [
     { href: "/marketplace", label: "Feed", icon: Home, active: pathname === "/marketplace" },
@@ -177,78 +173,82 @@ function MarketplaceLayoutContent({
               </Link>
 
               {/* Profile Dropdown */}
-              <div className="relative" ref={userMenuRef}>
-                <button
-                  onClick={() => setUserMenuOpen(!userMenuOpen)}
-                  className="flex items-center gap-2 p-1 pl-3 pr-1 rounded-full border-2 border-outline-variant/50 hover:border-primary/50 transition-colors bg-surface-container cursor-pointer"
-                >
-                  <span className="text-sm font-bold text-on-surface hidden sm:block">
-                    {user.first_name || user.email.split('@')[0]}
-                  </span>
-                  <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center overflow-hidden border border-primary/30">
-                    {user.profile_picture ? (
-                      <img src={user.profile_picture} alt="" className="w-full h-full object-cover" />
-                    ) : (
-                      <UserIcon className="w-4 h-4 text-primary" />
-                    )}
-                  </div>
-                </button>
-
-                {/* Dropdown Menu */}
-                <div className={`absolute right-0 top-full mt-2 w-52 bg-surface-container-high rounded-xl shadow-2xl border-2 border-outline-variant/30 py-2 transition-all transform origin-top-right z-50 ${
-                  userMenuOpen ? "opacity-100 visible scale-100" : "opacity-0 invisible scale-95 pointer-events-none"
-                }`}>
-                  <div className="px-4 py-2 border-b border-outline-variant/20 mb-1">
-                    <p className="text-xs font-bold text-on-surface truncate">{user.first_name} {user.last_name}</p>
-                    <p className="text-[11px] text-on-surface-variant truncate">{user.email}</p>
-                  </div>
-                  <Link
-                    href="/marketplace/create"
-                    onClick={() => setUserMenuOpen(false)}
-                    className="flex sm:hidden items-center gap-3 px-4 py-2 text-sm font-semibold text-on-surface hover:bg-surface-container-highest hover:text-primary transition-colors"
-                  >
-                    <PlusCircle className="w-4 h-4 text-primary" /> Create Listing
-                  </Link>
-                  <Link
-                    href="/marketplace/my-listings"
-                    onClick={() => setUserMenuOpen(false)}
-                    className="flex items-center gap-3 px-4 py-2 text-sm font-semibold text-on-surface hover:bg-surface-container-highest hover:text-primary transition-colors"
-                  >
-                    <Package className="w-4 h-4 text-primary" /> My Listings
-                  </Link>
-                  <Link
-                    href="/marketplace/profile"
-                    onClick={() => setUserMenuOpen(false)}
-                    className="flex items-center gap-3 px-4 py-2 text-sm font-semibold text-on-surface hover:bg-surface-container-highest hover:text-primary transition-colors"
-                  >
-                    <UserIcon className="w-4 h-4 text-primary" /> Profile & Settings
-                  </Link>
-                  <Link
-                    href="/marketplace/saved"
-                    onClick={() => setUserMenuOpen(false)}
-                    className="flex items-center gap-3 px-4 py-2 text-sm font-semibold text-on-surface hover:bg-surface-container-highest hover:text-primary transition-colors"
-                  >
-                    <Heart className="w-4 h-4 text-primary" /> Wishlist
-                  </Link>
-                  <Link
-                    href="/"
-                    onClick={() => setUserMenuOpen(false)}
-                    className="flex items-center gap-3 px-4 py-2 text-sm font-semibold text-on-surface hover:bg-surface-container-highest hover:text-primary transition-colors"
-                  >
-                    <ExternalLink className="w-4 h-4 text-primary" /> Home Page
-                  </Link>
-                  <div className="h-px bg-outline-variant/30 my-1"></div>
+              {user ? (
+                <div className="relative" ref={userMenuRef}>
                   <button
-                    onClick={() => {
-                      setUserMenuOpen(false);
-                      logout();
-                    }}
-                    className="w-full flex items-center gap-3 px-4 py-2 text-sm font-bold text-error hover:bg-error/10 transition-colors cursor-pointer"
+                    onClick={() => setUserMenuOpen(!userMenuOpen)}
+                    className="flex items-center gap-2 p-1 pl-3 pr-1 rounded-full border-2 border-outline-variant/50 hover:border-primary/50 transition-colors bg-surface-container cursor-pointer"
                   >
-                    <LogOut className="w-4 h-4" /> Sign Out
+                    <span className="text-sm font-bold text-on-surface hidden sm:block">
+                      {user.first_name || user.email.split('@')[0]}
+                    </span>
+                    <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center overflow-hidden border border-primary/30">
+                      {user.profile_picture ? (
+                        <img src={user.profile_picture} alt="" className="w-full h-full object-cover" />
+                      ) : (
+                        <UserIcon className="w-4 h-4 text-primary" />
+                      )}
+                    </div>
                   </button>
+
+                  {/* Dropdown Menu */}
+                  <div className={`absolute right-0 top-full mt-2 w-52 bg-surface-container-high rounded-xl shadow-2xl border-2 border-outline-variant/30 py-2 transition-all transform origin-top-right z-50 ${
+                    userMenuOpen ? "opacity-100 visible scale-100" : "opacity-0 invisible scale-95 pointer-events-none"
+                  }`}>
+                    <div className="px-4 py-2 border-b border-outline-variant/20 mb-1">
+                      <p className="text-xs font-bold text-on-surface truncate">{user.first_name} {user.last_name}</p>
+                      <p className="text-[11px] text-on-surface-variant truncate">{user.email}</p>
+                    </div>
+                    <Link
+                      href="/marketplace/create"
+                      onClick={() => setUserMenuOpen(false)}
+                      className="flex sm:hidden items-center gap-3 px-4 py-2 text-sm font-semibold text-on-surface hover:bg-surface-container-highest hover:text-primary transition-colors"
+                    >
+                      <PlusCircle className="w-4 h-4 text-primary" /> Create Listing
+                    </Link>
+                    <Link
+                      href="/marketplace/my-listings"
+                      onClick={() => setUserMenuOpen(false)}
+                      className="flex items-center gap-3 px-4 py-2 text-sm font-semibold text-on-surface hover:bg-surface-container-highest hover:text-primary transition-colors"
+                    >
+                      <Package className="w-4 h-4 text-primary" /> My Listings
+                    </Link>
+                    <Link
+                      href="/marketplace/profile"
+                      onClick={() => setUserMenuOpen(false)}
+                      className="flex items-center gap-3 px-4 py-2 text-sm font-semibold text-on-surface hover:bg-surface-container-highest hover:text-primary transition-colors"
+                    >
+                      <UserIcon className="w-4 h-4 text-primary" /> Profile & Settings
+                    </Link>
+                    <Link
+                      href="/marketplace/saved"
+                      onClick={() => setUserMenuOpen(false)}
+                      className="flex items-center gap-3 px-4 py-2 text-sm font-semibold text-on-surface hover:bg-surface-container-highest hover:text-primary transition-colors"
+                    >
+                      <Heart className="w-4 h-4 text-primary" /> Wishlist
+                    </Link>
+                    <Link
+                      href="/"
+                      onClick={() => setUserMenuOpen(false)}
+                      className="flex items-center gap-3 px-4 py-2 text-sm font-semibold text-on-surface hover:bg-surface-container-highest hover:text-primary transition-colors"
+                    >
+                      <ExternalLink className="w-4 h-4 text-primary" /> Home Page
+                    </Link>
+                    <div className="h-px bg-outline-variant/30 my-1"></div>
+                    <button
+                      onClick={() => {
+                        setUserMenuOpen(false);
+                        logout();
+                      }}
+                      className="w-full flex items-center gap-3 px-4 py-2 text-sm font-bold text-error hover:bg-error/10 transition-colors cursor-pointer"
+                    >
+                      <LogOut className="w-4 h-4" /> Sign Out
+                    </button>
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <div className="w-8 h-8 rounded-full bg-surface-container-highest animate-pulse" />
+              )}
             </div>
           </div>
 
