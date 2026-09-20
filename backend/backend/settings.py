@@ -122,6 +122,11 @@ DATABASES = {
         'OPTIONS': {
             'sslmode': 'require',
         },
+        # Reuse the connection (incl. its TLS handshake to the remote Supabase
+        # pooler) across requests handled by the same warm serverless instance,
+        # instead of reconnecting from scratch on every single request.
+        'CONN_MAX_AGE': 60,
+        'CONN_HEALTH_CHECKS': True,
     }
 }
 

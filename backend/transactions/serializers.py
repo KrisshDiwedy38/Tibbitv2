@@ -117,6 +117,9 @@ class TransactionCreateSerializer(serializers.ModelSerializer):
         listing = attrs.get('listing')
         buyer = attrs.get('buyer')
 
+        if listing.status != 'active':
+            raise serializers.ValidationError({"listing": "This listing is no longer available for a new trade."})
+
         if not buyer and request.user == listing.seller:
             raise serializers.ValidationError({"buyer": "Buyer ID is required when seller initiates transaction."})
 
@@ -126,6 +129,11 @@ class TransactionCreateSerializer(serializers.ModelSerializer):
         actual_buyer = buyer if buyer else request.user
         if actual_buyer == listing.seller:
             raise serializers.ValidationError("Buyer and seller cannot be the same person.")
+
+        if Transaction.objects.filter(
+            listing=listing, buyer=actual_buyer, seller=listing.seller, status='pending'
+        ).exists():
+            raise serializers.ValidationError("There's already an active trade for this listing between you two.")
 
         return attrs
 
