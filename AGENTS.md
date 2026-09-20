@@ -420,6 +420,8 @@ FOUNDER_EMAIL         Destination email for contact/bug reports
 
 ```
 
+**No separate local database**: local `.env` points `manage.py` at the same Supabase-hosted Postgres project the deployed app uses — there is no local Postgres to develop against. `manage.py shell` and `manage.py runserver` both read and write real production data. Never run ad-hoc write operations (`Model.objects.create(...)`, `get_or_create(...)`, etc.) from a shell one-liner against this connection — use `manage.py test` for anything that needs to create/mutate data, since Django's test runner provisions and tears down an isolated `test_<name>` database automatically.
+
 ---
 
 ## Key decisions & patterns
