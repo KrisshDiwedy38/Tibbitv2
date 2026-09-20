@@ -123,3 +123,13 @@ class InitiateTradeAPITestCase(APITestCase):
             'listing': self.product.id, 'agreed_price': '100.00'
         }, format='json')
         self.assertEqual(resp.status_code, 400)
+
+    def test_create_without_trailing_slash_does_not_redirect(self):
+        # Vercel's edge strips a request's final trailing slash before it
+        # reaches Django. Without the optional-slash prefix in backend/urls.py,
+        # this 404s, Django's APPEND_SLASH redirects back to the slash version,
+        # Vercel strips it again, and the browser sees net::ERR_TOO_MANY_REDIRECTS.
+        resp = self._client_for(self.buyer).post('/api/transactions', {
+            'listing': self.product.id, 'agreed_price': str(self.product.price)
+        }, format='json')
+        self.assertEqual(resp.status_code, 201, resp.data)
