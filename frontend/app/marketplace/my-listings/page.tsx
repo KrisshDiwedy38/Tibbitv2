@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { api, extractDRFError } from "@/lib/api";
-import { listingHref } from "@/lib/utils";
+import { listingHref, formatListingPrice, soldOutLabel } from "@/lib/utils";
 import Link from "next/link";
 import ConfirmModal from "@/components/modals/ConfirmModal";
 import {
@@ -36,7 +36,9 @@ interface Listing {
   price: string;
   category: number | null;
   category_name: string | null;
-  condition: string;
+  listing_type: string;
+  pricing_unit: string;
+  condition: string | null;
   status: 'active' | 'sold' | 'expired' | 'deleted';
   views_count: number;
   created_at: string;
@@ -116,12 +118,12 @@ export default function MyListingsPage() {
         <div>
           <Link
             href="/marketplace"
-            className="inline-flex items-center gap-2 text-xs font-bold text-on-surface-variant hover:text-primary transition-colors mb-2"
+            className="hidden md:inline-flex items-center gap-2 px-4 py-2 bg-surface-container border-2 border-outline-variant/30 rounded-xl text-sm font-bold text-on-surface-variant hover:text-primary hover:border-primary/50 hover:-translate-x-0.5 transition-all mb-3"
           >
-            <ArrowLeft className="w-3.5 h-3.5" /> Back to Feed
+            <ArrowLeft className="w-4 h-4" /> Back to Feed
           </Link>
           <h1 className="text-3xl sm:text-4xl font-black text-on-surface tracking-tight uppercase">
-            My Listings Dashboard
+            Listings Dashboard
           </h1>
           <p className="text-sm text-on-surface-variant font-medium">
             Manage your on-campus items, track views, and update availability.
@@ -197,8 +199,17 @@ export default function MyListingsPage() {
 
       {/* Listings List */}
       {isLoading ? (
-        <div className="min-h-[40vh] flex items-center justify-center">
-          <Loader2 className="w-10 h-10 animate-spin text-primary" />
+        <div className="space-y-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="bg-surface-container border-2 border-outline-variant/30 rounded-2xl p-4 sm:p-5 flex items-center gap-4 animate-pulse">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl bg-surface-container-highest shrink-0" />
+              <div className="flex-1 space-y-2">
+                <div className="h-3 w-20 bg-surface-container-highest rounded-full" />
+                <div className="h-4 w-2/3 bg-surface-container-highest rounded" />
+                <div className="h-3 w-1/3 bg-surface-container-highest rounded" />
+              </div>
+            </div>
+          ))}
         </div>
       ) : listings.length === 0 ? (
         <div className="bg-surface-container border-2 border-dashed border-outline-variant/30 rounded-3xl p-12 text-center space-y-4 max-w-lg mx-auto">
@@ -231,15 +242,15 @@ export default function MyListingsPage() {
               >
                 {/* Left info */}
                 <div className="flex items-center gap-4 min-w-0 flex-1">
-                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl bg-surface border border-outline-variant/30 shrink-0 overflow-hidden flex items-center justify-center relative">
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl bg-surface-container-highest border border-outline-variant/30 shrink-0 overflow-hidden flex items-center justify-center relative">
                     {item.images && item.images.length > 0 ? (
-                      <img src={item.images[0].image} alt="" className="w-full h-full object-cover" />
+                      <img src={item.images[0].image} alt="" className="w-full h-full object-contain" />
                     ) : (
                       <Package className="w-8 h-8 text-on-surface-variant/40" />
                     )}
                     {isSold && (
                       <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px] flex items-center justify-center">
-                        <span className="text-[10px] font-black uppercase text-white bg-error/90 px-1.5 py-0.5 rounded">SOLD</span>
+                        <span className="text-[10px] font-black uppercase text-white bg-error/90 px-1.5 py-0.5 rounded">{soldOutLabel(item.listing_type)}</span>
                       </div>
                     )}
                   </div>
@@ -269,7 +280,7 @@ export default function MyListingsPage() {
 
                     <div className="flex items-center gap-3 text-xs text-on-surface-variant font-medium">
                       <span className="text-sm font-black text-primary font-['Space_Grotesk']">
-                        ₹{parseFloat(item.price).toLocaleString('en-IN')}
+                        {formatListingPrice(item.price, item.pricing_unit)}
                       </span>
                       <span>•</span>
                       <span className="flex items-center gap-1">
@@ -318,7 +329,7 @@ export default function MyListingsPage() {
                       </>
                     ) : (
                       <>
-                        <CheckCircle2 className="w-3.5 h-3.5" /> Mark as Sold
+                        <CheckCircle2 className="w-3.5 h-3.5" /> Mark as {item.listing_type === 'service' ? 'Booked' : 'Sold'}
                       </>
                     )}
                   </button>

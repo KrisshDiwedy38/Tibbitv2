@@ -1,6 +1,12 @@
+"use client";
+
 import Link from "next/link";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function CTASection() {
+  const { user } = useAuth();
+  const ctaHref = user ? "/marketplace/profile" : "/register";
+
   return (
     <section className="py-16 sm:py-20 lg:py-24 px-4 sm:px-8 md:px-16 lg:px-20 text-center">
       <div className="bg-surface-container p-6 sm:p-12 md:p-20 lg:p-24 border-4 border-black neo-shadow-secondary max-w-6xl mx-auto">
@@ -9,7 +15,7 @@ export default function CTASection() {
         </h2>
         <div className="flex flex-col sm:flex-row justify-center gap-4">
           <Link
-            href="/register"
+            href={ctaHref}
             className="bg-primary-container text-on-primary-container px-6 sm:px-8 py-3 sm:py-4 border-4 border-black font-black uppercase tracking-tighter hover:translate-x-[2px] hover:translate-y-[2px] transition-all inline-block"
           >
             Get Started

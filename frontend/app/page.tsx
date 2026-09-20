@@ -4,7 +4,6 @@ import { useState } from "react";
 
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-import DynamicHUD from "@/components/layout/DynamicHUD";
 import HeroSection from "@/components/landing/HeroSection";
 import MarketplaceSection from "@/components/landing/MarketplaceSection";
 import ServicesSection from "@/components/landing/ServicesSection";
@@ -32,7 +31,6 @@ export default function Home() {
         <LaunchpadSection />
         <ManifestoSection />
         <CTASection />
-        <DynamicHUD />
       </main>
 
       <Footer

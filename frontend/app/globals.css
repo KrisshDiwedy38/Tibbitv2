@@ -3,10 +3,45 @@
 @tailwind utilities;
 
 @layer base {
+  /* `clip`, not `hidden`: overflow-x: hidden forces overflow-y to compute to `auto`, which turns
+     html/body into a scroll container and silently breaks `position: sticky` on descendants
+     (the sticky header). `clip` suppresses horizontal overflow the same way without creating
+     a scroll container, so sticky keeps working. */
   html, body {
-    overflow-x: hidden;
+    overflow-x: clip;
   }
-  
+
+  /* 20% zoom-out on desktop only — mobile keeps full scale for touch targets. */
+  @media (min-width: 1024px) {
+    html {
+      font-size: 80%;
+    }
+  }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #abfc01 #0e0e0e;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #0e0e0e;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: #abfc01;
+    border-radius: 9999px;
+    border: 2px solid #0e0e0e;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: #ff51fa;
+  }
+
   /* Project UI rule: every route inherits the Tibbit grid through the root shell. */
   .site-shell {
     background-color: #0e0e0e;
@@ -53,6 +88,14 @@
 
   .kinetic-border {
     border-bottom: 4px solid #262626;
+  }
+
+  .scrollbar-none {
+    scrollbar-width: none;
+  }
+
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
   }
 
   @keyframes shake {

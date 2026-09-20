@@ -61,9 +61,9 @@ export default function AnimatedIdeasDemo({
 
         {/* Tibbit (Center Hub) */}
         <div className="flex flex-col justify-center">
-          <Circle ref={divTibbitRef} className="size-20 sm:size-24 border-[#abfc01]">
-            <span className="font-['Space_Grotesk'] font-black italic tracking-tighter text-[#abfc01] text-lg sm:text-2xl uppercase">TIBBIT</span>
-          </Circle>
+          <div ref={divTibbitRef} className="z-10 flex size-24 sm:size-32 items-center justify-center">
+            <img src="/images/tibbit-logo-small.png" alt="Tibbit" className="w-full h-full object-contain" />
+          </div>
         </div>
 
         {/* Students (Outputs) */}

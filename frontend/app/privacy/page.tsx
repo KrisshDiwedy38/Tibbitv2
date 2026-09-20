@@ -16,8 +16,8 @@ export default function PrivacyPage() {
     <div className="min-h-screen bg-background text-on-background font-['Space_Grotesk'] selection:bg-tertiary selection:text-black">
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-50 px-4 sm:px-8 py-4 sm:py-6 border-b-4 border-black bg-background flex justify-between items-center neo-shadow-primary">
-        <Link href="/" className="text-2xl sm:text-3xl font-black tracking-tighter uppercase flex items-center hover:-translate-y-1 transition-transform">
-          TIBBIT
+        <Link href="/" className="flex items-center hover:-translate-y-1 transition-transform">
+          <img src="/images/tibbit-logo-small.png" alt="Tibbit" className="h-8 sm:h-10 w-auto" />
         </Link>
         <Link
           href="/"

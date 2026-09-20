@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { api } from "@/lib/api";
-import { listingHref } from "@/lib/utils";
+import { listingHref, formatListingPrice } from "@/lib/utils";
 import Link from "next/link";
 import { 
   User as UserIcon, 
@@ -45,7 +45,8 @@ interface ListingItem {
   description: string;
   price: string;
   category_name: string | null;
-  condition: string;
+  pricing_unit: string;
+  condition: string | null;
   location: string;
   views_count: number;
   images: ListingImage[];
@@ -273,7 +274,7 @@ export default function PublicUserProfilePage() {
                 >
                   <div className="aspect-video bg-surface-container-highest relative overflow-hidden">
                     {item.images && item.images.length > 0 ? (
-                      <img src={item.images[0].image} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                      <img src={item.images[0].image} alt="" className="w-full h-full object-contain group-hover:scale-105 transition-transform" />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-on-surface-variant/40">
                         <Package className="w-10 h-10" />
@@ -281,7 +282,7 @@ export default function PublicUserProfilePage() {
                     )}
                     <div className="absolute bottom-2 left-2 bg-surface/90 backdrop-blur-md px-2.5 py-0.5 rounded-lg border border-white/10">
                       <span className="text-sm font-black text-primary font-['Space_Grotesk']">
-                        ₹{parseFloat(item.price).toLocaleString('en-IN')}
+                        {formatListingPrice(item.price, item.pricing_unit)}
                       </span>
                     </div>
                   </div>

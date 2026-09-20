@@ -15,7 +15,7 @@ export default function HeroSection() {
 
       <div className="max-w-4xl space-y-6 sm:space-y-8 flex flex-col items-center z-10 relative pointer-events-none">
         <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-9xl font-black uppercase leading-[0.85] tracking-tighter">
-          TIBBIT: <br />
+          TIBBIT <br />
           <span className="text-primary-container">TRADE. BUILD. HUSTLE.</span> <br />
         </h1>
         <div className="flex flex-col sm:flex-row gap-3 sm:gap-6 pt-3 sm:pt-8 justify-center items-center w-full">
