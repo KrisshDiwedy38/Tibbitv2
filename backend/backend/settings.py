@@ -203,7 +203,7 @@ ANYMAIL = {
 }
 
 EMAIL_BACKEND = "anymail.backends.resend.EmailBackend"
-DEFAULT_FROM_EMAIL = "onboarding@resend.dev"
+DEFAULT_FROM_EMAIL = "Tibbit <noreply@tibbit.kdiwedy.com>"
 
 CHANNEL_LAYERS = {
     'default': {

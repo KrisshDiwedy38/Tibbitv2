@@ -14,7 +14,7 @@ def send_contact_email(user_email: str, message: str):
     safe_message = escape(message)
 
     resend.Emails.send({
-        "from": "Tibbit <onboarding@resend.dev>",
+        "from": "Tibbit <noreply@tibbit.kdiwedy.com>",
         "to": [settings.FOUNDER_EMAIL],
         "reply_to": user_email,
         "subject": f"[Tibbit] Message from {safe_email}",
@@ -40,7 +40,7 @@ def send_bug_report(user_email: str, description: str):
     safe_description = escape(description)
 
     resend.Emails.send({
-        "from": "Tibbit <onboarding@resend.dev>",
+        "from": "Tibbit <noreply@tibbit.kdiwedy.com>",
         "to": [settings.FOUNDER_EMAIL],
         "reply_to": user_email,
         "subject": f"[Tibbit] Bug report from {safe_email}",
