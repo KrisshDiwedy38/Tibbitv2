@@ -128,6 +128,7 @@ function MessagesContent() {
   const [isLoadingConversations, setIsLoadingConversations] = useState(true);
   const [isLoadingMessages, setIsLoadingMessages] = useState(false);
   const [isSending, setIsSending] = useState(false);
+  const [sendMessageError, setSendMessageError] = useState<string | null>(null);
   const [showMobileChat, setShowMobileChat] = useState(false);
 
   // Layer 5: Exchange & Review States
@@ -135,6 +136,7 @@ function MessagesContent() {
   const [isLoadingTransaction, setIsLoadingTransaction] = useState(false);
   const [isInitiatingTrade, setIsInitiatingTrade] = useState(false);
   const [isCancellingTrade, setIsCancellingTrade] = useState(false);
+  const [tradeActionError, setTradeActionError] = useState<string | null>(null);
   const [isCancelConfirmOpen, setIsCancelConfirmOpen] = useState(false);
   const [isVerifyModalOpen, setIsVerifyModalOpen] = useState(false);
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
@@ -265,6 +267,8 @@ function MessagesContent() {
       fetchMessages(selectedConversation.id, true);
       fetchTransactionContext(true);
       setDeleteConversationError(null);
+      setTradeActionError(null);
+      setSendMessageError(null);
     }
   }, [selectedConversation?.id]);
 
@@ -290,6 +294,7 @@ function MessagesContent() {
     const content = inputMessage.trim();
     setInputMessage("");
     setIsSending(true);
+    setSendMessageError(null);
 
     try {
       const res = await api.post(`/api/messaging/conversations/${selectedConversation.id}/messages/`, {
@@ -315,9 +320,10 @@ function MessagesContent() {
         }
         return c;
       }));
-    } catch (err) {
+    } catch (err: any) {
       console.error("Failed to send message", err);
       setInputMessage(content); // restore on error
+      setSendMessageError(extractDRFError(err?.response?.data));
     } finally {
       setIsSending(false);
     }
@@ -327,6 +333,7 @@ function MessagesContent() {
   const handleInitiateTrade = async () => {
     if (!selectedConversation?.context_details?.id || isInitiatingTrade) return;
     setIsInitiatingTrade(true);
+    setTradeActionError(null);
 
     try {
       const isSeller = selectedConversation.seller === user?.id || (user?.email && selectedConversation.seller_email === user.email);
@@ -336,19 +343,26 @@ function MessagesContent() {
         agreed_price: selectedConversation.context_details.price || "0"
       });
 
+      // The create response already carries the full transaction shape —
+      // no need for the extra for_context round trip that follows a fresh select.
       setActiveTransaction(res.data);
-      await fetchTransactionContext();
-      
-      const priceStr = selectedConversation.context_details.price 
-        ? `₹${parseFloat(selectedConversation.context_details.price).toLocaleString('en-IN')}` 
+
+      const priceStr = selectedConversation.context_details.price
+        ? `₹${parseFloat(selectedConversation.context_details.price).toLocaleString('en-IN')}`
         : "";
 
-      await api.post(`/api/messaging/conversations/${selectedConversation.id}/messages/`, {
-        content: `🤝 Initiated safe on-campus trade${priceStr ? ` for ${priceStr}` : ""}. Verify 6-digit exchange codes when meeting in person to confirm!`
-      });
-      fetchMessages(selectedConversation.id, false);
-    } catch (err) {
-      console.error("Failed to initiate trade", err);
+      // Best-effort system message: the trade already succeeded above, so a
+      // failure here is logged but not surfaced as a failed trade.
+      try {
+        const msgRes = await api.post(`/api/messaging/conversations/${selectedConversation.id}/messages/`, {
+          content: `🤝 Initiated safe on-campus trade${priceStr ? ` for ${priceStr}` : ""}. Verify 6-digit exchange codes when meeting in person to confirm!`
+        });
+        setMessages(prev => [...prev, msgRes.data]);
+      } catch (msgErr) {
+        console.error("Trade started, but failed to post the system message", msgErr);
+      }
+    } catch (err: any) {
+      setTradeActionError(extractDRFError(err?.response?.data));
     } finally {
       setIsInitiatingTrade(false);
     }
@@ -358,20 +372,26 @@ function MessagesContent() {
   const handleCancelTrade = async () => {
     if (!activeTransaction || isCancellingTrade) return;
     setIsCancellingTrade(true);
+    setTradeActionError(null);
 
     try {
       const res = await api.post(`/api/transactions/${activeTransaction.id}/cancel/`);
       setActiveTransaction(res.data.transaction);
+      setIsCancelConfirmOpen(false);
 
       if (selectedConversation) {
-        await api.post(`/api/messaging/conversations/${selectedConversation.id}/messages/`, {
-          content: `❌ Trade cancelled before exchange codes were verified.`
-        });
-        fetchMessages(selectedConversation.id, false);
+        try {
+          const msgRes = await api.post(`/api/messaging/conversations/${selectedConversation.id}/messages/`, {
+            content: `❌ Trade cancelled before exchange codes were verified.`
+          });
+          setMessages(prev => [...prev, msgRes.data]);
+        } catch (msgErr) {
+          console.error("Trade cancelled, but failed to post the system message", msgErr);
+        }
       }
+    } catch (err: any) {
       setIsCancelConfirmOpen(false);
-    } catch (err) {
-      console.error("Failed to cancel trade", err);
+      setTradeActionError(extractDRFError(err?.response?.data));
     } finally {
       setIsCancellingTrade(false);
     }
@@ -644,6 +664,16 @@ function MessagesContent() {
                 </div>
               )}
 
+              {/* Trade action failure (initiate/cancel) */}
+              {tradeActionError && (
+                <div className="mx-4 mt-3 flex items-start gap-2 p-3 bg-error/10 border-2 border-error/30 rounded-xl text-xs font-bold text-error shrink-0">
+                  <span className="flex-1">{tradeActionError}</span>
+                  <button onClick={() => setTradeActionError(null)} className="shrink-0 cursor-pointer">
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              )}
+
               {/* Layer 5: Interactive On-Campus Exchange Banner */}
               {selectedConversation.context_details && (
                 <div className="bg-surface-container border-b-2 border-outline-variant/30 p-3 sm:p-4 shrink-0 transition-all">
@@ -846,6 +876,16 @@ function MessagesContent() {
                 )}
                 <div ref={messagesEndRef} />
               </div>
+
+              {/* Message send failure */}
+              {sendMessageError && (
+                <div className="mx-4 mt-3 flex items-start gap-2 p-3 bg-error/10 border-2 border-error/30 rounded-xl text-xs font-bold text-error shrink-0">
+                  <span className="flex-1">{sendMessageError}</span>
+                  <button onClick={() => setSendMessageError(null)} className="shrink-0 cursor-pointer">
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              )}
 
               {/* Message Composer Input */}
               <form onSubmit={handleSendMessage} className="p-4 border-t border-outline-variant/20 bg-surface-container shrink-0">
