@@ -362,6 +362,7 @@ function MessagesContent() {
         console.error("Trade started, but failed to post the system message", msgErr);
       }
     } catch (err: any) {
+      console.error("Failed to initiate trade", err?.response?.status, err?.response?.data, err);
       setTradeActionError(extractDRFError(err?.response?.data));
     } finally {
       setIsInitiatingTrade(false);
@@ -390,6 +391,7 @@ function MessagesContent() {
         }
       }
     } catch (err: any) {
+      console.error("Failed to cancel trade", err?.response?.status, err?.response?.data, err);
       setIsCancelConfirmOpen(false);
       setTradeActionError(extractDRFError(err?.response?.data));
     } finally {
