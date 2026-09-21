@@ -160,8 +160,9 @@ function MarketplacePageContent() {
 
   return (
     <div className="space-y-8 animate-fade-in-up">
-      {/* Category Pills */}
-      <section className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+      {/* Category Pills — wraps instead of scrolling so every pill (incl. the
+          Services & Tutoring filter) stays reachable without a hidden scrollbar. */}
+      <section className="flex flex-wrap items-center gap-2 pb-2">
         <button
           onClick={() => setSelectedCategory(null)}
           className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all whitespace-nowrap border-2 ${
