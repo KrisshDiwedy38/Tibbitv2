@@ -1,4 +1,9 @@
+import type { Metadata } from "next";
 import ComingSoonPage from "@/components/layout/ComingSoonPage";
+
+export const metadata: Metadata = {
+  title: "Launchpad",
+};
 
 export default function LaunchpadPage() {
   return (

@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function MarketplaceSection() {
   return (
     <section className="relative overflow-hidden px-4 sm:px-8 md:px-16 lg:px-20 py-16 sm:py-20 lg:py-24 flex flex-col items-center" id="ecosystem">
@@ -17,19 +19,19 @@ export default function MarketplaceSection() {
               Verified students only. No bots, no scams. Buy textbooks, sell furniture, or trade electronics safely within your university bubble.
             </p>
             <div className="pt-2">
-              <a
+              <Link
                 href="/marketplace"
                 className="inline-block bg-primary-container text-on-primary-container px-8 py-3.5 border-4 border-black font-black uppercase tracking-tighter hover:translate-x-[2px] hover:translate-y-[2px] transition-all text-base shadow-lg"
               >
                 Enter Campus Marketplace →
-              </a>
+              </Link>
             </div>
           </div>
 
           {/* Image mock */}
-          <a href="/marketplace" className="w-full max-w-4xl relative group rounded-lg border border-[#262626] hover:border-primary-container transition-colors duration-300 bg-black overflow-hidden flex items-center justify-center p-2 sm:p-4 mx-auto cursor-pointer block">
+          <Link href="/marketplace" className="w-full max-w-4xl relative group rounded-lg border border-[#262626] hover:border-primary-container transition-colors duration-300 bg-black overflow-hidden flex items-center justify-center p-2 sm:p-4 mx-auto cursor-pointer block">
             <img src="/images/marketplace_ui.png" alt="Marketplace UI Mockup" className="w-full h-auto object-contain rounded transition-transform duration-500 group-hover:scale-[1.02]" />
-          </a>
+          </Link>
         </div>
       </div>
     </section>
