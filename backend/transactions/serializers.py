@@ -37,24 +37,14 @@ class TransactionSerializer(serializers.ModelSerializer):
         return name.strip() if name and name.strip() else obj.seller.email.split('@')[0]
 
     def get_seller_avatar(self, obj):
-        if obj.seller.profile_picture:
-            try:
-                return obj.seller.profile_picture.url
-            except Exception:
-                return None
-        return None
+        return obj.seller.avatar_url
 
     def get_buyer_name(self, obj):
         name = obj.buyer.get_full_name()
         return name.strip() if name and name.strip() else obj.buyer.email.split('@')[0]
 
     def get_buyer_avatar(self, obj):
-        if obj.buyer.profile_picture:
-            try:
-                return obj.buyer.profile_picture.url
-            except Exception:
-                return None
-        return None
+        return obj.buyer.avatar_url
 
     def get_listing_image(self, obj):
         if obj.listing and obj.listing.images.exists():
@@ -161,12 +151,7 @@ class ReviewSerializer(serializers.ModelSerializer):
         return name.strip() if name and name.strip() else obj.reviewer.email.split('@')[0]
 
     def get_reviewer_avatar(self, obj):
-        if obj.reviewer.profile_picture:
-            try:
-                return obj.reviewer.profile_picture.url
-            except Exception:
-                return None
-        return None
+        return obj.reviewer.avatar_url
 
 
 class PublicReviewSerializer(ReviewSerializer):

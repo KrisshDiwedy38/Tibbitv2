@@ -49,12 +49,14 @@ class Transaction(models.Model):
    # OTP verification for seller
    seller_otp = models.CharField(max_length=6, blank=True, null=True)
    seller_otp_created_at = models.DateTimeField(blank=True, null=True)
+   seller_otp_attempts = models.PositiveSmallIntegerField(default=0)
    seller_verified = models.BooleanField(default=False)
    seller_verified_at = models.DateTimeField(blank=True, null=True)
-   
+
    # OTP verification for buyer
    buyer_otp = models.CharField(max_length=6, blank=True, null=True)
    buyer_otp_created_at = models.DateTimeField(blank=True, null=True)
+   buyer_otp_attempts = models.PositiveSmallIntegerField(default=0)
    buyer_verified = models.BooleanField(default=False)
    buyer_verified_at = models.DateTimeField(blank=True, null=True)
    
@@ -127,25 +129,30 @@ class Transaction(models.Model):
       if not self.seller_otp:
          return False, "No OTP found for seller."
 
+      if self.seller_verified:
+         return True, "Seller is already verified."
+
+      if self.seller_otp_attempts >= 5:
+         return False, "Too many failed attempts. Cancel and start a new trade to get fresh codes."
+
       if not self.is_seller_otp_valid():
          return False, "Seller OTP has expired."
 
-      if self.seller_otp != entered_otp:
-         return False, "Invalid seller OTP."
-
-      if self.seller_verified:
-         return True, "Seller is already verified."
+      if not secrets.compare_digest(self.seller_otp, entered_otp):
+         self.seller_otp_attempts += 1
+         self.save(update_fields=['seller_otp_attempts'])
+         return False, f"Invalid seller OTP. {5 - self.seller_otp_attempts} attempts remaining."
 
       # Mark seller as verified
       self.seller_verified = True
       self.seller_verified_at = timezone.now()
       self.save()
-      
+
       # Check if both parties verified
       self._check_completion()
-      
+
       return True, "Seller verified successfully!"
-   
+
    def verify_buyer_otp(self, entered_otp):
       """
       Verify buyer's OTP (entered by seller)
@@ -154,23 +161,28 @@ class Transaction(models.Model):
       if not self.buyer_otp:
          return False, "No OTP found for buyer."
 
+      if self.buyer_verified:
+         return True, "Buyer is already verified."
+
+      if self.buyer_otp_attempts >= 5:
+         return False, "Too many failed attempts. Cancel and start a new trade to get fresh codes."
+
       if not self.is_buyer_otp_valid():
          return False, "Buyer OTP has expired."
 
-      if self.buyer_otp != entered_otp:
-         return False, "Invalid buyer OTP."
-
-      if self.buyer_verified:
-         return True, "Buyer is already verified."
+      if not secrets.compare_digest(self.buyer_otp, entered_otp):
+         self.buyer_otp_attempts += 1
+         self.save(update_fields=['buyer_otp_attempts'])
+         return False, f"Invalid buyer OTP. {5 - self.buyer_otp_attempts} attempts remaining."
 
       # Mark buyer as verified
       self.buyer_verified = True
       self.buyer_verified_at = timezone.now()
       self.save()
-      
+
       # Check if both parties verified
       self._check_completion()
-      
+
       return True, "Buyer verified successfully!"
    
    def _check_completion(self):

@@ -19,21 +19,11 @@ class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [permissions.AllowAny]
 
     def get_queryset(self):
-        if not Category.objects.exists():
-            defaults = [
-                {"name": "Electronics", "icon": "devices", "description": "Laptops, phones, audio gear & accessories"},
-                {"name": "Books & Notes", "icon": "menu_book", "description": "Textbooks, course packs & study guides"},
-                {"name": "Furniture", "icon": "chair", "description": "Dorm & apartment chairs, desks & lamps"},
-                {"name": "Apparel & Gear", "icon": "apparel", "description": "Campus hoodies, jackets & activewear"},
-                {"name": "Housing & Sublets", "icon": "home", "description": "Sublets, lease transfers & roommate searches"},
-            ]
-            for cat in defaults:
-                Category.objects.get_or_create(name=cat["name"], defaults=cat)
         return Category.objects.filter(is_active=True)
 
 class ListingViewSet(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
-    filterset_fields = ['category', 'condition']
+    filterset_fields = ['category', 'condition', 'listing_type']
     search_fields = ['title', 'description', 'location']
     ordering_fields = ['price', 'created_at']
     ordering = ['-created_at']

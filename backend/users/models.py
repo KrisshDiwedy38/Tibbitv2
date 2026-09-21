@@ -122,9 +122,19 @@ class CustomUser(AbstractUser):
       super().save(*args, **kwargs)
 
    def get_full_name(self):
-      
+
       full_name = f'{self.first_name} {self.last_name}'
       return full_name.strip()
+
+   @property
+   def avatar_url(self):
+      """Profile picture URL, or None if unset/unreadable — the one place this try/except lives."""
+      if not self.profile_picture:
+         return None
+      try:
+         return self.profile_picture.url
+      except Exception:
+         return None
 
    def generate_otp(self):
       """
@@ -185,7 +195,7 @@ class CustomUser(AbstractUser):
       if not self.is_otp_valid():
          return False, "OTP has expired, Please request a new OTP"
       
-      if self.email_otp != entered_otp:
+      if not secrets.compare_digest(self.email_otp, entered_otp):
          self.otp_attempts += 1
          self.save()
          return False, f"Invalid OTP , {5 - self.otp_attempts} attempts remaining."
