@@ -103,6 +103,40 @@ class ListingImageUploadLimitsTestCase(TestCase):
         resp = self._client().post('/api/listings/items/', payload, format='multipart')
         self.assertEqual(resp.status_code, 201, resp.data)
 
+    def test_editing_appends_photos_instead_of_replacing_them(self):
+        # update() used to delete every existing photo whenever any new one
+        # was uploaded — the edit form only ever sends newly-added files (it
+        # has no way to remove or re-submit existing ones), so adding a
+        # single photo silently wiped the rest.
+        payload = self._base_payload()
+        payload['uploaded_images'] = [_tiny_image('first.png')]
+        create_resp = self._client().post('/api/listings/items/', payload, format='multipart')
+        self.assertEqual(create_resp.status_code, 201, create_resp.data)
+        listing_id = create_resp.data['id']
+
+        update_resp = self._client().patch(
+            f'/api/listings/items/{listing_id}/',
+            {'uploaded_images': [_tiny_image('second.png')]},
+            format='multipart',
+        )
+        self.assertEqual(update_resp.status_code, 200, update_resp.data)
+        self.assertEqual(Listings.objects.get(id=listing_id).images.count(), 2)
+
+    def test_editing_still_caps_total_photos_at_five(self):
+        payload = self._base_payload()
+        payload['uploaded_images'] = [_tiny_image(f'{i}.png') for i in range(4)]
+        create_resp = self._client().post('/api/listings/items/', payload, format='multipart')
+        self.assertEqual(create_resp.status_code, 201, create_resp.data)
+        listing_id = create_resp.data['id']
+
+        # 4 existing + 2 new = 6, over the 5-photo cap.
+        update_resp = self._client().patch(
+            f'/api/listings/items/{listing_id}/',
+            {'uploaded_images': [_tiny_image('a.png'), _tiny_image('b.png')]},
+            format='multipart',
+        )
+        self.assertEqual(update_resp.status_code, 400, update_resp.data)
+
 
 class CategoryListTestCase(TestCase):
     def test_services_and_tutoring_is_not_offered(self):

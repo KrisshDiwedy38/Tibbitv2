@@ -62,8 +62,11 @@ class ListingCreateUpdateSerializer(serializers.ModelSerializer):
         read_only_fields = ['slug']
 
     def validate_uploaded_images(self, value):
-        if len(value) > MAX_LISTING_IMAGES:
-            raise serializers.ValidationError(f"A listing can have at most {MAX_LISTING_IMAGES} photos.")
+        existing_count = self.instance.images.count() if self.instance else 0
+        if existing_count + len(value) > MAX_LISTING_IMAGES:
+            raise serializers.ValidationError(
+                f"A listing can have at most {MAX_LISTING_IMAGES} photos ({existing_count} already uploaded)."
+            )
         for image in value:
             if image.size > MAX_IMAGE_SIZE_BYTES:
                 raise serializers.ValidationError(f"'{image.name}' is over the 5MB limit per photo.")
@@ -91,9 +94,14 @@ class ListingCreateUpdateSerializer(serializers.ModelSerializer):
         instance.save()
         
         if uploaded_images:
-            instance.images.all().delete()
-            for index, image in enumerate(uploaded_images):
-                ListingImage.objects.create(listing=instance, image=image, order=index)
+            # Append after the existing photos rather than replacing them —
+            # the edit form only ever sends newly-added files here, with no
+            # way to re-submit or remove the existing ones, so treating this
+            # as a full replacement silently deleted every prior photo the
+            # moment a user added just one more.
+            next_order = instance.images.count()
+            for offset, image in enumerate(uploaded_images):
+                ListingImage.objects.create(listing=instance, image=image, order=next_order + offset)
         
         return instance
 
