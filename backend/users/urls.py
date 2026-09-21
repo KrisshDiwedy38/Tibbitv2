@@ -28,8 +28,12 @@ urlpatterns = [
     re_path(r'^token/refresh/?$', CookieTokenRefreshView.as_view(), name='token_refresh'),
     re_path(r'^profile/?$', UserProfileView.as_view(), name='profile'),
     re_path(r'^(?P<username>[\w.@+-]+)/profile/?$', PublicUserProfileView.as_view(), name='public-user-profile'),
-    re_path(r'^(?P<username>[\w.@+-]+)/?$', PublicUserProfileView.as_view(), name='public-user-detail'),
     re_path(r'^waitlist/?$', WaitlistCreateView.as_view(), name='waitlist'),
     re_path(r'^contact/?$', ContactFounderView.as_view(), name='contact'),
     re_path(r'^report-bug/?$', ReportBugView.as_view(), name='report-bug'),
+    # Catch-all bare username lookup must come last: [\w.@+-]+ matches any of
+    # the named routes above too (e.g. "waitlist" is a valid username shape),
+    # so it was shadowing them — POSTs to those three 404/405'd in production
+    # before this reorder because they resolved here (GET-only) instead.
+    re_path(r'^(?P<username>[\w.@+-]+)/?$', PublicUserProfileView.as_view(), name='public-user-detail'),
 ]

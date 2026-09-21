@@ -34,18 +34,17 @@ class ListingSerializer(serializers.ModelSerializer):
         return name if name.strip() else obj.seller.email.split('@')[0]
 
     def get_seller_avatar(self, obj):
-        if obj.seller.profile_picture:
-            try:
-                return obj.seller.profile_picture.url
-            except Exception:
-                return None
-        return None
+        return obj.seller.avatar_url
 
     def get_is_saved(self, obj):
         request = self.context.get('request')
         if request and request.user.is_authenticated:
             return SavedListing.objects.filter(user=request.user, listing=obj).exists()
         return False
+
+MAX_LISTING_IMAGES = 5
+MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024  # 5MB, matching the create/edit form's own copy
+
 
 class ListingCreateUpdateSerializer(serializers.ModelSerializer):
     uploaded_images = serializers.ListField(
@@ -61,6 +60,14 @@ class ListingCreateUpdateSerializer(serializers.ModelSerializer):
             'location', 'status', 'uploaded_images'
         ]
         read_only_fields = ['slug']
+
+    def validate_uploaded_images(self, value):
+        if len(value) > MAX_LISTING_IMAGES:
+            raise serializers.ValidationError(f"A listing can have at most {MAX_LISTING_IMAGES} photos.")
+        for image in value:
+            if image.size > MAX_IMAGE_SIZE_BYTES:
+                raise serializers.ValidationError(f"'{image.name}' is over the 5MB limit per photo.")
+        return value
 
     def validate(self, attrs):
         listing_type = attrs.get('listing_type', getattr(self.instance, 'listing_type', 'product'))

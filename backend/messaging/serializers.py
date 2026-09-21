@@ -22,12 +22,7 @@ class MessageSerializer(serializers.ModelSerializer):
         return name.strip() if name and name.strip() else obj.sender.email.split('@')[0]
 
     def get_sender_avatar(self, obj):
-        if obj.sender.profile_picture:
-            try:
-                return obj.sender.profile_picture.url
-            except Exception:
-                return None
-        return None
+        return obj.sender.avatar_url
 
 class ConversationSerializer(serializers.ModelSerializer):
     buyer_email = serializers.CharField(source='buyer.email', read_only=True)
@@ -59,19 +54,12 @@ class ConversationSerializer(serializers.ModelSerializer):
         name = other.get_full_name()
         name_display = name.strip() if name and name.strip() else other.email.split('@')[0]
         
-        avatar_url = None
-        if other.profile_picture:
-            try:
-                avatar_url = other.profile_picture.url
-            except Exception:
-                avatar_url = None
-
         return {
             'id': other.id,
             'username': other.username,
             'name': name_display,
             'email': other.email,
-            'avatar': avatar_url,
+            'avatar': other.avatar_url,
             'university': other.university.name if other.university else None
         }
 

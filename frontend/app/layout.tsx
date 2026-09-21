@@ -10,7 +10,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: 'TIBBIT | Student-led Marketplace',
+  title: 'Tibbit',
   description: 'The playground for Gen Z hustlers. Trade goods, launch services, and scale your campus startup on a platform built for builders, by builders.',
   icons: {
     icon: [

@@ -45,6 +45,23 @@ class TransactionOTPTestCase(TestCase):
         self.listing.refresh_from_db()
         self.assertEqual(self.listing.status, 'sold')
 
+    def test_otp_locks_out_after_five_failed_attempts(self):
+        # verify_*_otp previously had no attempt cap, unlike the analogous
+        # email-OTP flow — an unlimited number of guesses against a 6-digit
+        # code let one party confirm the exchange without the other party
+        # ever reading their code aloud.
+        seller_otp, _ = self.transaction.generate_otps()
+        wrong = '000000' if seller_otp != '000000' else '111111'
+
+        for _ in range(5):
+            success, _ = self.transaction.verify_seller_otp(wrong)
+            self.assertFalse(success)
+
+        # Even the correct code is now rejected until the trade is restarted.
+        success, message = self.transaction.verify_seller_otp(seller_otp)
+        self.assertFalse(success)
+        self.assertIn('Too many failed attempts', message)
+
 class UserReputationTestCase(TestCase):
     def setUp(self):
         self.uni = University.objects.create(name='Test Uni', email_domain='test.edu')

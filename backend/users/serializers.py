@@ -185,13 +185,7 @@ class UserProfileUpdateSerializer(serializers.ModelSerializer):
 
    def to_representation(self, instance):
       data = super().to_representation(instance)
-      if instance.profile_picture:
-         try:
-            data['profile_picture'] = instance.profile_picture.url
-         except Exception:
-            data['profile_picture'] = None
-      else:
-         data['profile_picture'] = None
+      data['profile_picture'] = instance.avatar_url
       return data
 
 
@@ -253,12 +247,7 @@ class PublicUserProfileSerializer(serializers.ModelSerializer):
         return full_name if full_name else obj.email.split('@')[0]
 
     def get_avatar(self, obj):
-        if obj.profile_picture:
-            try:
-                return obj.profile_picture.url
-            except Exception:
-                return None
-        return None
+        return obj.avatar_url
 
     def get_reviews_count(self, obj):
         from transactions.models import Review
