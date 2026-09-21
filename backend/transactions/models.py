@@ -179,9 +179,9 @@ class Transaction(models.Model):
          self.status = 'completed'
          self.completed_at = timezone.now()
          
-         # Mark listing as sold
+         # Reduce remaining stock/slots; only marks sold/booked out at zero
          if self.listing:
-               self.listing.mark_as_sold()
+               self.listing.reduce_quantity()
          
          self.save()
    

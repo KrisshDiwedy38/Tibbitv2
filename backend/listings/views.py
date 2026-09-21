@@ -25,7 +25,6 @@ class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
                 {"name": "Books & Notes", "icon": "menu_book", "description": "Textbooks, course packs & study guides"},
                 {"name": "Furniture", "icon": "chair", "description": "Dorm & apartment chairs, desks & lamps"},
                 {"name": "Apparel & Gear", "icon": "apparel", "description": "Campus hoodies, jackets & activewear"},
-                {"name": "Services & Tutoring", "icon": "design_services", "description": "Peer tutoring, design, coding & photography"},
                 {"name": "Housing & Sublets", "icon": "home", "description": "Sublets, lease transfers & roommate searches"},
             ]
             for cat in defaults:

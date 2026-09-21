@@ -30,6 +30,7 @@ export default function CreateListingPage() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
+  const [quantity, setQuantity] = useState("1");
   const [categoryId, setCategoryId] = useState("");
   const [condition, setCondition] = useState("good");
   const [location, setLocation] = useState("");
@@ -83,6 +84,7 @@ export default function CreateListingPage() {
       formData.append("title", title);
       formData.append("description", description);
       formData.append("price", price);
+      formData.append("quantity", quantity);
       if (categoryId && !isService) formData.append("category", categoryId);
       formData.append("listing_type", listingType);
       formData.append("pricing_unit", isService ? "hourly" : "fixed");
@@ -220,8 +222,8 @@ export default function CreateListingPage() {
             />
           </div>
 
-          {/* Category (products only) & Price */}
-          <div className={`grid grid-cols-1 ${isService ? "" : "sm:grid-cols-2"} gap-6`}>
+          {/* Category (products only), Price & Quantity */}
+          <div className={`grid grid-cols-1 ${isService ? "sm:grid-cols-2" : "sm:grid-cols-3"} gap-6`}>
             {!isService && (
               <div>
                 <label className="block text-sm font-bold text-on-surface uppercase tracking-wider mb-2">
@@ -258,6 +260,22 @@ export default function CreateListingPage() {
                   className="w-full pl-10 pr-4 py-3 bg-surface border-2 border-outline-variant/30 rounded-xl text-sm font-medium text-on-surface focus:outline-none focus:border-primary transition-colors"
                 />
               </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-bold text-on-surface uppercase tracking-wider mb-2">
+                {isService ? "Slots Available" : "Quantity"}
+              </label>
+              <input
+                type="number"
+                step="1"
+                min="1"
+                required
+                value={quantity}
+                onChange={(e) => setQuantity(e.target.value)}
+                placeholder="1"
+                className="w-full px-4 py-3 bg-surface border-2 border-outline-variant/30 rounded-xl text-sm font-medium text-on-surface focus:outline-none focus:border-primary transition-colors"
+              />
             </div>
           </div>
 
