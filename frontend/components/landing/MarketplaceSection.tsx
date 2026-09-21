@@ -28,7 +28,7 @@ export default function MarketplaceSection() {
 
           {/* Image mock */}
           <a href="/marketplace" className="w-[90%] sm:w-[80%] md:w-1/2 max-w-2xl relative group rounded-lg border border-[#262626] hover:border-primary-container transition-colors duration-300 bg-black overflow-hidden flex items-center justify-center p-2 sm:p-4 mx-auto cursor-pointer block">
-            <img src="/images/marketplace_ui.jpeg" alt="Marketplace UI Mockup" className="w-full h-auto object-contain rounded transition-transform duration-500 group-hover:scale-[1.02]" />
+            <img src="/images/marketplace_ui.png" alt="Marketplace UI Mockup" className="w-full h-auto object-contain rounded transition-transform duration-500 group-hover:scale-[1.02]" />
           </a>
         </div>
       </div>
