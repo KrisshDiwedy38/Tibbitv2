@@ -55,7 +55,9 @@ function MarketplacePageContent() {
   const searchQuery = searchParams.get('q') || "";
   const [categories, setCategories] = useState<Category[]>([]);
   const [listings, setListings] = useState<Listing[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
+  // Services never carry a category (nulled server-side), so "Services & Tutoring"
+  // isn't a category pill — it's a distinct filter on listing_type instead.
+  const [selectedCategory, setSelectedCategory] = useState<number | "service" | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [page, setPage] = useState(1);
@@ -75,7 +77,8 @@ function MarketplacePageContent() {
     append ? setIsLoadingMore(true) : setIsLoading(true);
     try {
       const params: Record<string, any> = { page: pageNum };
-      if (selectedCategory) params.category = selectedCategory;
+      if (selectedCategory === "service") params.listing_type = "service";
+      else if (selectedCategory) params.category = selectedCategory;
       if (searchQuery) params.search = searchQuery;
 
       const res = await api.get("/api/listings/items/", { params });
@@ -183,6 +186,17 @@ function MarketplacePageContent() {
             {cat.name}
           </button>
         ))}
+
+        <button
+          onClick={() => setSelectedCategory("service")}
+          className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all whitespace-nowrap border-2 ${
+            selectedCategory === "service"
+              ? "bg-primary-container text-on-primary-container border-black shadow-sm"
+              : "bg-surface-container text-on-surface-variant border-outline-variant/30 hover:text-on-surface hover:border-primary/40"
+          }`}
+        >
+          Services & Tutoring
+        </button>
       </section>
 
       {/* Feed Grid */}

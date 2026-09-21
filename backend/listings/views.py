@@ -33,7 +33,7 @@ class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
 
 class ListingViewSet(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
-    filterset_fields = ['category', 'condition']
+    filterset_fields = ['category', 'condition', 'listing_type']
     search_fields = ['title', 'description', 'location']
     ordering_fields = ['price', 'created_at']
     ordering = ['-created_at']
